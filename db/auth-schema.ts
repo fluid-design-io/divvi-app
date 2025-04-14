@@ -1,8 +1,5 @@
-import { pgTable, text, timestamp, boolean, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-//****************************/
-//**** BETTER AUTH SCHEMA ****/
-//****************************/
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
@@ -52,11 +49,3 @@ export const verification = pgTable('verification', {
   createdAt: timestamp('created_at'),
   updatedAt: timestamp('updated_at'),
 });
-
-export const Trip = pgTable('trip', () => ({
-  id: uuid().notNull().primaryKey(),
-  name: text(),
-  description: text(),
-  createdAt: timestamp().notNull(),
-  updatedAt: timestamp().notNull(),
-}));

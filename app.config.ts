@@ -29,6 +29,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#ffffffff',
     },
   },
+  web: {
+    output: 'server',
+  },
   // extra: {
   //   eas: {
   //     projectId: "your-eas-project-id",
