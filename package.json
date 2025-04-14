@@ -13,6 +13,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.2.7",
     "@expo/react-native-action-sheet": "^4.1.1",
     "@expo/ui": "~0.1.1-alpha.1",
     "@expo/vector-icons": "^14.0.0",
@@ -24,6 +25,10 @@
     "@react-navigation/drawer": "^7.0.0",
     "@react-navigation/native": "^7.0.3",
     "@roninoss/icons": "^0.0.4",
+    "@trpc/client": "^11.1.0",
+    "@trpc/server": "^11.1.0",
+    "@trpc/tanstack-react-query": "^11.1.0",
+    "better-auth": "^1.2.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "dotenv": "^16.5.0",
@@ -36,6 +41,7 @@
     "expo-linking": "~7.1.1",
     "expo-navigation-bar": "~4.1.2",
     "expo-router": "~5.0.2-preview.3",
+    "expo-secure-store": "~14.2.0",
     "expo-splash-screen": "~0.30.2",
     "expo-status-bar": "~2.2.0",
     "expo-system-ui": "~5.0.2",
@@ -52,6 +58,7 @@
     "react-native-screens": "~4.10.0",
     "react-native-uitextview": "^1.1.4",
     "react-native-web": "^0.20.0",
+    "superjson": "^2.2.2",
     "tailwind-merge": "^2.2.1",
     "zod": "^3.24.2"
   },
