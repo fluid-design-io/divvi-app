@@ -38,7 +38,12 @@ export const authConfig = {
       }
     : {}),
   secret: env.AUTH_SECRET,
-  providers: [Discord],
+  providers: [
+    Discord({
+      clientId: env.AUTH_DISCORD_ID,
+      clientSecret: env.AUTH_DISCORD_SECRET,
+    }),
+  ],
   callbacks: {
     session: (opts) => {
       if (!("user" in opts))
@@ -53,6 +58,7 @@ export const authConfig = {
       };
     },
   },
+  debug: true,
 } satisfies NextAuthConfig;
 
 export const validateToken = async (
