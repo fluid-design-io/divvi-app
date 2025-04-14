@@ -1,0 +1,168 @@
+model User {
+    fields {
+        identity Identity @unique
+        name Text
+        email Text
+        avatar Text
+    }
+
+    actions {
+        get me() {
+            @where(user.identity == ctx.identity)
+        }
+        get getUser(id)
+        list listUsers(updatedAt?)
+        update updateUser(id) with (name?, email?, avatar?)
+        delete deleteUser(id)
+        create createUser() with (name, email, avatar) {
+            @set(user.identity = ctx.identity)
+        }
+    }
+
+    @permission(
+        expression: user.identity == ctx.identity,
+        actions: [create, update, delete, get]
+    )
+
+    @permission(
+        expression: ctx.isAuthenticated,
+        actions: [list]
+    )
+}
+
+model Group {
+    fields {
+        name Text
+        description Text?
+        members GroupMembership[]
+        expenses Expense[]
+        inviteCode Text @unique
+    }
+
+    actions {
+        create createGroup() with (name, description?, inviteCode) {
+            @permission(expression: ctx.isAuthenticated)
+        }
+        get getGroup(id)
+        list listGroups()
+        update updateGroup(id) with (name?, description?)
+        delete deleteGroup(id)
+    }
+
+    @permission(
+        expression: ctx.isAuthenticated,
+        actions: [create]
+    )
+
+    @permission(
+        expression: ctx.identity in group.members.user.identity,
+        actions: [get, list, update, delete]
+    )
+}
+
+model GroupMembership {
+    fields {
+        user User
+        group Group
+        isAdmin Boolean @default(false)
+    }
+
+    actions {
+        create joinGroup() with (group.id) {
+            @set(groupMembership.user.id = ctx.identity.id)
+            @permission(expression: ctx.isAuthenticated)
+        }
+        create inviteUserToGroup() with (group.id, user.id) {
+            @permission(expression: ctx.isAuthenticated)
+        }
+        update updateMembership(id) with (isAdmin?)
+        delete removeMember(id)
+    }
+
+    @permission(
+        expression: groupMembership.user.identity == ctx.identity,
+        actions: [get, delete, update]
+    )
+}
+
+model Category {
+    fields {
+        name Text
+        group Group
+        color Text?
+        // default to emoji
+        icon Text?
+    }
+
+    actions {
+        create createCategory() with (name, group.id, color?, icon?)
+        get getCategory(id)
+        list listCategories(group.id?)
+        update updateCategory(id) with (name?, color?, icon?)
+        delete deleteCategory(id)
+    }
+
+    @permission(
+        expression: ctx.identity in category.group.members.user.identity,
+        actions: [get, list, create, update, delete]
+    )
+}
+
+model Expense {
+    fields {
+        description Text
+        amount Number
+        paidBy User
+        group Group
+        category Category?
+        splits ExpenseSplit[]
+    }
+
+    actions {
+        create createExpense() with (description, amount, group.id, category.id?) {
+            @set(expense.paidBy.id = ctx.identity.id)
+            @permission(expression: ctx.isAuthenticated)
+        }
+        get getExpense(id)
+        list listExpenses(group.id?)
+        update updateExpense(id) with (description?, amount?, paidBy.id?, category.id?)
+        delete deleteExpense(id)
+    }
+
+    @permission(
+        expression: ctx.identity in expense.group.members.user.identity,
+        actions: [get, list, update, delete]
+    )
+}
+
+enum SplitType {
+    // The amount is split equally among the users -> 100 / 2 = 50
+    Equal
+    // Exact amount paied by the user -> 25
+    Exact
+    // Percentage of the total amount -> 50 percent of 100 = 50
+    Percentage
+}
+
+model ExpenseSplit {
+    fields {
+        expense Expense
+        user User
+        amount Number
+        splitType SplitType @default(SplitType.Equal)
+        isPaid Boolean @default(false)
+    }
+
+    actions {
+        create createSplit() with (expense.id, user.id, amount, splitType?)
+        get getSplit(id)
+        list listSplits(expense.id?, user.id?)
+        update updateSplit(id) with (amount?, isPaid?, splitType?)
+        delete deleteSplit(id)
+    }
+
+    @permission(
+        expression: ctx.identity in expenseSplit.expense.group.members.user.identity,
+        actions: [get, list, update, create, delete]
+    )
+}

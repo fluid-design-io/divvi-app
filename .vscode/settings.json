@@ -1,0 +1,26 @@
+{
+  "workbench.editor.customLabels.patterns": {
+    "**/page.tsx": "${dirname} - page.tsx",
+    "**/index.ts": "${dirname} - index.ts",
+    "**/route.ts": "${dirname} - route.ts",
+    "**/index.tsx": "${dirname} - index.tsx",
+    "**/layout.tsx": "${dirname} - layout.tsx",
+    "**/_layout.tsx": "${dirname} - _layout.tsx"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.removeUnused": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "prettier.ignorePath": ".gitignore",
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ],
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[keel]": {
+    "editor.defaultFormatter": "teamkeel.vscode-keel"
+  }
+}
