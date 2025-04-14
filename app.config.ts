@@ -15,7 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.cardware.divvi',
+    bundleIdentifier: 'dev.uing.divvi',
     icon: {
       dark: './assets/expo/ios-dark.png',
       light: './assets/expo/ios-light.png',
@@ -23,7 +23,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: 'com.cardware.divvi',
+    package: 'dev.uing.divvi',
     adaptiveIcon: {
       foregroundImage: './assets/expo/adaptive-icon.png',
       backgroundColor: '#ffffffff',

@@ -22,5 +22,8 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "[keel]": {
     "editor.defaultFormatter": "teamkeel.vscode-keel"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
   }
 }

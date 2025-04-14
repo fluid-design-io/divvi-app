@@ -12,11 +12,9 @@ import {
   Platform,
   useWindowDimensions,
   View,
-  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Container } from '~/components/Container';
 import { Picker, PickerItem } from '~/components/nativewindui/Picker';
 import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
 import { Slider } from '~/components/nativewindui/Slider';
@@ -34,22 +32,22 @@ export default function Home() {
   return (
     <>
       <Stack.Screen options={{ title: 'Home' }} />
-      <Container>
-        <LegendList
-          contentInsetAdjustmentBehavior="automatic"
-          keyboardShouldPersistTaps="handled"
-          data={data}
-          estimatedItemSize={200}
-          contentContainerClassName="py-4 android:pb-12"
-          extraData={searchValue}
-          removeClippedSubviews={false} // used for selecting text on android
-          keyExtractor={keyExtractor}
-          ItemSeparatorComponent={renderItemSeparator}
-          renderItem={renderItem}
-          ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
-          recycleItems
-        />
-      </Container>
+
+      <LegendList
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        data={data}
+        estimatedItemSize={200}
+        contentContainerClassName="py-4 android:pb-12"
+        extraData={searchValue}
+        removeClippedSubviews={false} // used for selecting text on android
+        keyExtractor={keyExtractor}
+        ItemSeparatorComponent={renderItemSeparator}
+        renderItem={renderItem}
+        ListEmptyComponent={COMPONENTS.length === 0 ? ListEmptyComponent : undefined}
+        recycleItems
+      />
+
     </>
   );
 }

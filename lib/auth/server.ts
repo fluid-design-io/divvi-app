@@ -5,7 +5,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '~/db/client';
 
 export const auth = betterAuth({
-  trustedOrigins: ['exp+divvi-app://', 'divvi-app://'],
+  trustedOrigins: ['divvi-app://'],
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
