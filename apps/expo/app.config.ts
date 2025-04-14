@@ -2,31 +2,31 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "expo",
-  slug: "expo",
-  scheme: "expo",
-  version: "0.1.0",
+  name: "Divvi",
+  slug: "divvi-app",
+  scheme: "divvi-app",
+  version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/icon-light.png",
+  icon: "./assets/expo/icon.png",
   userInterfaceStyle: "automatic",
   updates: {
     fallbackToCacheTimeout: 0,
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "your.bundle.identifier",
     supportsTablet: true,
+    bundleIdentifier: "com.cardware.divvi",
     icon: {
-      light: "./assets/icon-light.png",
-      dark: "./assets/icon-dark.png",
-      // tinted: "",
+      dark: "./assets/expo/ios-dark.png",
+      light: "./assets/expo/ios-light.png",
+      tinted: "./assets/expo/ios-tinted.png",
     },
   },
   android: {
-    package: "your.bundle.identifier",
+    package: "com.cardware.divvi",
     adaptiveIcon: {
-      foregroundImage: "./assets/icon-light.png",
-      backgroundColor: "#1F104A",
+      foregroundImage: "./assets/expo/adaptive-icon.png",
+      backgroundColor: "#ffffffff",
     },
   },
   // extra: {
@@ -42,15 +42,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-secure-store",
     "expo-web-browser",
+
     [
       "expo-splash-screen",
       {
-        backgroundColor: "#E4E4E7",
-        image: "./assets/icon-light.png",
+        backgroundColor: "#5EB326",
+        image: "./assets/expo/splash-icon-light.png",
         dark: {
-          backgroundColor: "#18181B",
-          image: "./assets/icon-dark.png",
+          image: "./assets/expo/splash-icon-dark.png",
+          backgroundColor: "#4F842C",
         },
+        imageWidth: 48,
       },
     ],
   ],
