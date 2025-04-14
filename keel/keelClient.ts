@@ -725,10 +725,35 @@ interface KeelAPI {
         me: (i?: MeInput) => Promise<APIResult<User | null>>;
         getUser: (i: GetUserInput) => Promise<APIResult<User | null>>;
         listUsers: (i?: ListUsersInput) => Promise<APIResult<{ results: User[], pageInfo: PageInfo }>>;
+        getGroup: (i: GetGroupInput) => Promise<APIResult<Group | null>>;
+        listGroups: (i?: ListGroupsInput) => Promise<APIResult<{ results: Group[], pageInfo: PageInfo }>>;
+        getCategory: (i: GetCategoryInput) => Promise<APIResult<Category | null>>;
+        listCategories: (i?: ListCategoriesInput) => Promise<APIResult<{ results: Category[], pageInfo: PageInfo }>>;
+        getExpense: (i: GetExpenseInput) => Promise<APIResult<Expense | null>>;
+        listExpenses: (i?: ListExpensesInput) => Promise<APIResult<{ results: Expense[], pageInfo: PageInfo }>>;
+        getSplit: (i: GetSplitInput) => Promise<APIResult<ExpenseSplit | null>>;
+        listSplits: (i?: ListSplitsInput) => Promise<APIResult<{ results: ExpenseSplit[], pageInfo: PageInfo }>>;
     },
     mutations: {
         updateUser: (i: UpdateUserInput) => Promise<APIResult<User>>;
         deleteUser: (i: DeleteUserInput) => Promise<APIResult<string>>;
+        createUser: (i: CreateUserInput) => Promise<APIResult<User>>;
+        createGroup: (i: CreateGroupInput) => Promise<APIResult<Group>>;
+        updateGroup: (i: UpdateGroupInput) => Promise<APIResult<Group>>;
+        deleteGroup: (i: DeleteGroupInput) => Promise<APIResult<string>>;
+        joinGroup: (i: JoinGroupInput) => Promise<APIResult<GroupMembership>>;
+        inviteUserToGroup: (i: InviteUserToGroupInput) => Promise<APIResult<GroupMembership>>;
+        updateMembership: (i: UpdateMembershipInput) => Promise<APIResult<GroupMembership>>;
+        removeMember: (i: RemoveMemberInput) => Promise<APIResult<string>>;
+        createCategory: (i: CreateCategoryInput) => Promise<APIResult<Category>>;
+        updateCategory: (i: UpdateCategoryInput) => Promise<APIResult<Category>>;
+        deleteCategory: (i: DeleteCategoryInput) => Promise<APIResult<string>>;
+        createExpense: (i: CreateExpenseInput) => Promise<APIResult<Expense>>;
+        updateExpense: (i: UpdateExpenseInput) => Promise<APIResult<Expense>>;
+        deleteExpense: (i: DeleteExpenseInput) => Promise<APIResult<string>>;
+        createSplit: (i: CreateSplitInput) => Promise<APIResult<ExpenseSplit>>;
+        updateSplit: (i: UpdateSplitInput) => Promise<APIResult<ExpenseSplit>>;
+        deleteSplit: (i: DeleteSplitInput) => Promise<APIResult<string>>;
         requestPasswordReset: (i: RequestPasswordResetInput) => Promise<APIResult<RequestPasswordResetResponse>>;
         resetPassword: (i: ResetPasswordInput) => Promise<APIResult<ResetPasswordResponse>>;
     }
@@ -802,11 +827,290 @@ export interface UpdateUserInput {
 export interface DeleteUserInput {
     id: string;
 }
+export interface CreateUserInput {
+    name: string;
+    email: string;
+    avatar: string;
+}
+export interface CreateGroupInput {
+    name: string;
+    description?: string | null;
+    inviteCode: string;
+}
+export interface GetGroupInput {
+    id: string;
+}
+export interface ListGroupsWhere {
+}
+export interface ListGroupsInput {
+    where?: ListGroupsWhere;
+    first?: number;
+    after?: string;
+    last?: number;
+    before?: string;
+    limit?: number;
+    offset?: number;
+}
+export interface UpdateGroupWhere {
+    id: string;
+}
+export interface UpdateGroupValues {
+    name?: string;
+    description?: string | null;
+}
+export interface UpdateGroupInput {
+    where: UpdateGroupWhere;
+    values?: UpdateGroupValues;
+}
+export interface DeleteGroupInput {
+    id: string;
+}
+export interface JoinGroupInput {
+    group: JoinGroupGroupInput;
+}
+export interface JoinGroupGroupInput {
+    id: string;
+}
+export interface InviteUserToGroupInput {
+    group: InviteUserToGroupGroupInput;
+    user: InviteUserToGroupUserInput;
+}
+export interface InviteUserToGroupGroupInput {
+    id: string;
+}
+export interface InviteUserToGroupUserInput {
+    id: string;
+}
+export interface UpdateMembershipWhere {
+    id: string;
+}
+export interface UpdateMembershipValues {
+    isAdmin?: boolean;
+}
+export interface UpdateMembershipInput {
+    where: UpdateMembershipWhere;
+    values?: UpdateMembershipValues;
+}
+export interface RemoveMemberInput {
+    id: string;
+}
+export interface CreateCategoryInput {
+    name: string;
+    group: CreateCategoryGroupInput;
+    color?: string | null;
+    icon?: string | null;
+}
+export interface CreateCategoryGroupInput {
+    id: string;
+}
+export interface GetCategoryInput {
+    id: string;
+}
+export interface ListCategoriesGroupInput {
+    id?: IdQueryInput;
+}
+export interface IdQueryInput {
+    equals?: string | null;
+    oneOf?: string[];
+    notEquals?: string | null;
+}
+export interface ListCategoriesWhere {
+    group?: ListCategoriesGroupInput;
+}
+export interface ListCategoriesInput {
+    where?: ListCategoriesWhere;
+    first?: number;
+    after?: string;
+    last?: number;
+    before?: string;
+    limit?: number;
+    offset?: number;
+}
+export interface UpdateCategoryWhere {
+    id: string;
+}
+export interface UpdateCategoryValues {
+    name?: string;
+    color?: string | null;
+    icon?: string | null;
+}
+export interface UpdateCategoryInput {
+    where: UpdateCategoryWhere;
+    values?: UpdateCategoryValues;
+}
+export interface DeleteCategoryInput {
+    id: string;
+}
+export interface CreateExpenseInput {
+    description: string;
+    amount: number;
+    group: CreateExpenseGroupInput;
+    category?: CreateExpenseCategoryInput | null;
+}
+export interface CreateExpenseGroupInput {
+    id: string;
+}
+export interface CreateExpenseCategoryInput {
+    id?: string;
+}
+export interface GetExpenseInput {
+    id: string;
+}
+export interface ListExpensesGroupInput {
+    id?: IdQueryInput;
+}
+export interface ListExpensesWhere {
+    group?: ListExpensesGroupInput;
+}
+export interface ListExpensesInput {
+    where?: ListExpensesWhere;
+    first?: number;
+    after?: string;
+    last?: number;
+    before?: string;
+    limit?: number;
+    offset?: number;
+}
+export interface UpdateExpenseWhere {
+    id: string;
+}
+export interface UpdateExpenseValues {
+    description?: string;
+    amount?: number;
+    paidBy?: UpdateExpensePaidByInput;
+    category?: UpdateExpenseCategoryInput | null;
+}
+export interface UpdateExpensePaidByInput {
+    id?: string;
+}
+export interface UpdateExpenseCategoryInput {
+    id?: string;
+}
+export interface UpdateExpenseInput {
+    where: UpdateExpenseWhere;
+    values?: UpdateExpenseValues;
+}
+export interface DeleteExpenseInput {
+    id: string;
+}
+export interface CreateSplitInput {
+    expense: CreateSplitExpenseInput;
+    user: CreateSplitUserInput;
+    amount: number;
+    splitType?: SplitType;
+}
+export interface CreateSplitExpenseInput {
+    id: string;
+}
+export interface CreateSplitUserInput {
+    id: string;
+}
+export interface GetSplitInput {
+    id: string;
+}
+export interface ListSplitsExpenseInput {
+    id?: IdQueryInput;
+}
+export interface ListSplitsUserInput {
+    id?: IdQueryInput;
+}
+export interface ListSplitsWhere {
+    expense?: ListSplitsExpenseInput;
+    user?: ListSplitsUserInput;
+}
+export interface ListSplitsInput {
+    where?: ListSplitsWhere;
+    first?: number;
+    after?: string;
+    last?: number;
+    before?: string;
+    limit?: number;
+    offset?: number;
+}
+export interface UpdateSplitWhere {
+    id: string;
+}
+export interface UpdateSplitValues {
+    amount?: number;
+    isPaid?: boolean;
+    splitType?: SplitType;
+}
+export interface UpdateSplitInput {
+    where: UpdateSplitWhere;
+    values?: UpdateSplitValues;
+}
+export interface DeleteSplitInput {
+    id: string;
+}
+export enum SplitType {
+    Equal = "Equal",
+    Exact = "Exact",
+    Percentage = "Percentage",
+}
+export interface SplitTypeWhereCondition {
+    equals?: SplitType | null;
+    oneOf?: SplitType[] | null;
+}
+export interface SplitTypeArrayWhereCondition {
+    equals?: SplitType[] | null;
+    notEquals?: SplitType[] | null;
+    any?: SplitTypeArrayQueryWhereCondition | null;
+    all?: SplitTypeArrayQueryWhereCondition | null;
+}
+export interface SplitTypeArrayQueryWhereCondition {
+    equals?: SplitType | null;
+    notEquals?: SplitType | null;
+}
 export interface User {
     identityId: string
     name: string
     email: string
     avatar: string
+    id: string
+    createdAt: Date
+    updatedAt: Date
+}
+export interface Group {
+    name: string
+    description: string | null
+    inviteCode: string
+    id: string
+    createdAt: Date
+    updatedAt: Date
+}
+export interface GroupMembership {
+    userId: string
+    groupId: string
+    isAdmin: boolean
+    id: string
+    createdAt: Date
+    updatedAt: Date
+}
+export interface Category {
+    name: string
+    groupId: string
+    color: string | null
+    icon: string | null
+    id: string
+    createdAt: Date
+    updatedAt: Date
+}
+export interface Expense {
+    description: string
+    amount: number
+    paidById: string
+    groupId: string
+    categoryId: string | null
+    id: string
+    createdAt: Date
+    updatedAt: Date
+}
+export interface ExpenseSplit {
+    expenseId: string
+    userId: string
+    amount: number
+    splitType: SplitType
+    isPaid: boolean
     id: string
     createdAt: Date
     updatedAt: Date
