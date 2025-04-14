@@ -8,7 +8,6 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { ThemeToggle } from '~/components/ThemeToggle';
 import { TRPCReactProvider } from '~/lib/trpc/react';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
@@ -36,7 +35,7 @@ export default function RootLayout() {
               <NavThemeProvider value={NAV_THEME[colorScheme]}>
                 <Stack screenOptions={SCREEN_OPTIONS}>
                   <Stack.Screen name="(drawer)" options={DRAWER_OPTIONS} />
-                  <Stack.Screen name="modal" options={MODAL_OPTIONS} />
+                  <Stack.Screen name="(auth)" options={AUTH_OPTIONS} />
                 </Stack>
               </NavThemeProvider>
             </ActionSheetProvider>
@@ -55,9 +54,8 @@ const DRAWER_OPTIONS = {
   headerShown: false,
 } as const;
 
-const MODAL_OPTIONS = {
-  presentation: 'modal',
-  animation: 'fade_from_bottom', // for android
-  title: 'Settings',
-  headerRight: () => <ThemeToggle />,
+const AUTH_OPTIONS = {
+  // presentation: 'modal',
+  // animation: 'fade_from_bottom', // for android
+  title: 'Auth',
 } as const;

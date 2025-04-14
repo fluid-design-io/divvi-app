@@ -24,6 +24,7 @@
     "@react-navigation/bottom-tabs": "^7.0.5",
     "@react-navigation/drawer": "^7.0.0",
     "@react-navigation/native": "^7.0.3",
+    "@rn-primitives/slot": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
     "@trpc/client": "^11.1.0",
     "@trpc/server": "^11.1.0",
