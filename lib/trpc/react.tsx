@@ -8,6 +8,7 @@ import { useState } from 'react';
 import SuperJSON from 'superjson';
 
 import { createQueryClient } from './query-client';
+import { authClient } from '../auth/client';
 
 import { AppRouter } from '~/server/api/root';
 
@@ -39,9 +40,13 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           transformer: SuperJSON,
           url: getBaseUrl() + '/api/trpc',
           headers() {
-            const headers = new Headers();
-            headers.set('x-trpc-source', 'nextjs-react');
-            return headers;
+            const headers = new Map<string, string>();
+            const cookies = authClient.getCookie();
+            if (cookies) {
+              headers.set('Cookie', cookies);
+              headers.set('x-trpc-source', 'expo-client');
+            }
+            return Object.fromEntries(headers);
           },
         }),
       ],

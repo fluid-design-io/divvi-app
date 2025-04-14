@@ -6,23 +6,22 @@
  * tl;dr - this is where all the tRPC server stuff is created and plugged in.
  * The pieces you will need to use are documented accordingly near the end
  */
-import type { Session } from '@acme/auth';
-import { auth, validateToken } from '@acme/auth';
 import { initTRPC, TRPCError } from '@trpc/server';
+import { InferAPI } from 'better-auth/types';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 
 import { db } from '~/db/client';
+import { auth } from '~/lib/auth/server';
 
 /**
  * Isomorphic Session getter for API requests
  * - Expo requests will have a session token in the Authorization header
- * - Next.js requests will have a session token in cookies
+ * - Server requests will have a session token in cookies
  */
 const isomorphicGetSession = async (headers: Headers) => {
-  const authToken = headers.get('Authorization') ?? null;
-  if (authToken) return validateToken(authToken);
-  return auth();
+  const session = auth.api.getSession({ headers });
+  return session;
 };
 
 /**
@@ -37,7 +36,10 @@ const isomorphicGetSession = async (headers: Headers) => {
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers; session: Session | null }) => {
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  session: InferAPI<typeof auth>['$Infer']['Session'] | null;
+}) => {
   const authToken = opts.headers.get('Authorization') ?? null;
   const session = await isomorphicGetSession(opts.headers);
 

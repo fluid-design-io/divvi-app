@@ -1,12 +1,7 @@
-import { relations, sql } from 'drizzle-orm';
-import { pgTable, primaryKey } from 'drizzle-orm/pg-core';
-import { createInsertSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { pgTable } from 'drizzle-orm/pg-core';
 
-export const User = pgTable('user', (t) => ({
+export const Trip = pgTable('trip', (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
-  name: t.varchar({ length: 255 }),
-  email: t.varchar({ length: 255 }).notNull(),
-  emailVerified: t.timestamp({ mode: 'date', withTimezone: true }),
-  image: t.varchar({ length: 255 }),
+  name: t.varchar(),
+  description: t.varchar({ length: 255 }),
 }));
