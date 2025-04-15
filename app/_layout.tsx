@@ -26,6 +26,7 @@ export default function RootLayout() {
       <StatusBar
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
+        animated
       />
 
       <TRPCReactProvider>
@@ -36,6 +37,9 @@ export default function RootLayout() {
                 <Stack screenOptions={SCREEN_OPTIONS}>
                   <Stack.Screen name="(drawer)" options={DRAWER_OPTIONS} />
                   <Stack.Screen name="(auth)" options={AUTH_OPTIONS} />
+                  <Stack.Screen name="add-expense"
+                    options={ADD_EXPENSE_OPTIONS}
+                  />
                 </Stack>
               </NavThemeProvider>
             </ActionSheetProvider>
@@ -54,8 +58,15 @@ const DRAWER_OPTIONS = {
   headerShown: false,
 } as const;
 
+
 const AUTH_OPTIONS = {
   // presentation: 'modal',
   // animation: 'fade_from_bottom', // for android
   title: 'Auth',
+} as const;
+
+const ADD_EXPENSE_OPTIONS = {
+  presentation: "formSheet",
+  headerShown: false,
+  sheetAllowedDetents: 'fitToContents',
 } as const;

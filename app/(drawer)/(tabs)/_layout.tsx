@@ -1,11 +1,12 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Icon, IconProps } from '@roninoss/icons';
-import { Stack, Tabs } from 'expo-router';
+import { router, Stack, Tabs } from 'expo-router';
 import * as React from 'react';
 import { Platform, Pressable, PressableProps, View } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BlurTabBarBackground from '~/components/core/tab-bar-background/tab-bar-background.ios';
+import { TouchableBounce } from '~/components/core/touchable-bounce';
 
 import { Badge } from '~/components/nativewindui/Badge';
 import { Text } from '~/components/nativewindui/Text';
@@ -38,19 +39,12 @@ export default function TabLayout() {
           name="index"
           options={{
             title: 'News',
-            // tabBarBadge: 3,
-            tabBarIcon(props) {
-              return <Icon name="newspaper" {...props} size={27} />;
-            },
           }}
         />
         <Tabs.Screen
           name="two"
           options={{
             title: 'For You',
-            tabBarIcon(props) {
-              return <Icon name="star" {...props} size={27} />;
-            },
           }}
         />
       </Tabs>
@@ -65,6 +59,13 @@ const TAB_BAR = Platform.select({
 
 const TAB_ICON = {
   index: 'newspaper',
+  add: 'plus',
+  two: 'star',
+} as const;
+
+const TAB_ICON_SF = {
+  index: 'newspaper',
+  add: 'plus',
   two: 'star',
 } as const;
 
@@ -183,42 +184,73 @@ function MaterialTabItem({
   );
 }
 
-function IosTabBar({ state, descriptors }: BottomTabBarProps) {
+function IosTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   useColorScheme();
   const insets = useSafeAreaInsets();
   return (
-    <View className="justify-center items-center"
+    <View className="justify-center items-center absolute bottom-0 left-0 right-0"
       style={{
         marginBottom: insets.bottom + 12,
       }}
     >
-      <View className="flex-row items-center gap-8 rounded-full p-4 relative">
-        <BlurTabBarBackground />
+      <View className="flex-row items-center rounded-full relative overflow-hidden">
+        <BlurTabBarBackground tint="systemThickMaterial" />
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
-          const isFocused = state.index === index;
           const label =
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
                 ? options.title
                 : route.name;
-          return <IosTabItem key={route.name} isFocused={isFocused} name={TAB_ICON[route.name as keyof typeof TAB_ICON]} label={label} />;
-          // return <IosTabItem key={route.name} isFocused={state.index === index} name={TAB_ICON[route.name as keyof typeof TAB_ICON]} label={label} />;
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params);
+            }
+          };
+
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            });
+          };
+          return <><IosTabItem key={route.name}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            onPress={onPress}
+            onLongPress={onLongPress}
+            isFocused={isFocused} name={TAB_ICON_SF[route.name as keyof typeof TAB_ICON_SF]} label={label as string} badge={options.tabBarBadge} />
+            {index === 0 && <IosTabItem key="add"
+              accessibilityRole="button"
+              accessibilityLabel="Add"
+              onPress={() => router.push('/add-expense')}
+              name="plus" label="Add" isFocused={false} />}
+          </>
         })}
       </View>
     </View>
   );
 }
 
-function IosTabItem({ isFocused, name, label }: { isFocused: boolean; name: IconProps<'material'>['name']; label: string | React.ReactNode }) {
+function IosTabItem({ isFocused, name, label, badge, ...pressableProps }: { isFocused: boolean; name: IconProps<'sfSymbol'>['name']; label: string | React.ReactNode; badge?: number | string } & Omit<PressableProps, 'children'>) {
   const { colors } = useColorScheme();
   return (
-    <View className="items-center">
-      <Icon name={name} size={24} color={isFocused ? colors.primary : colors.grey2} />
-      <Text variant="caption2" className={cn('pt-1', !isFocused && 'text-muted-foreground')}>
-        {label}
-      </Text>
-    </View>
+    <TouchableBounce className="items-center" {...pressableProps}>
+      <View className='relative items-center justify-center gap-1 p-4'>
+        <Icon name={name} size={27} color={isFocused ? colors.primary : colors.grey2} />
+        {!!badge && <Badge>{badge}</Badge>}
+      </View>
+    </TouchableBounce>
   );
 }
