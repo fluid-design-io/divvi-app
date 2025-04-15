@@ -5,6 +5,7 @@ import * as React from 'react';
 import { Platform, Pressable, PressableProps, View } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BlurTabBarBackground from '~/components/core/tab-bar-background/tab-bar-background.ios';
 
 import { Badge } from '~/components/nativewindui/Badge';
 import { Text } from '~/components/nativewindui/Text';
@@ -13,6 +14,7 @@ import { useColorScheme } from '~/lib/useColorScheme';
 
 export default function TabLayout() {
   const { colors } = useColorScheme();
+  const insets = useSafeAreaInsets();
   return (
     <>
       <Stack.Screen options={{ title: 'Tabs' }} />
@@ -21,6 +23,16 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: colors.primary,
+          tabBarStyle: {
+            backgroundColor: colors.grey5,
+            marginBottom: insets.bottom + 12,
+            paddingTop: 12,
+            paddingBottom: 0,
+            height: 60,
+            marginHorizontal: 24,
+            borderRadius: 100,
+          },
+          tabBarShowLabel: false,
         }}>
         <Tabs.Screen
           name="index"
@@ -47,7 +59,7 @@ export default function TabLayout() {
 }
 
 const TAB_BAR = Platform.select({
-  ios: undefined,
+  ios: (props: BottomTabBarProps) => <IosTabBar {...props} />,
   android: (props: BottomTabBarProps) => <MaterialTabBar {...props} />,
 });
 
@@ -168,5 +180,45 @@ function MaterialTabItem({
         {label}
       </Text>
     </Pressable>
+  );
+}
+
+function IosTabBar({ state, descriptors }: BottomTabBarProps) {
+  useColorScheme();
+  const insets = useSafeAreaInsets();
+  return (
+    <View className="justify-center items-center"
+      style={{
+        marginBottom: insets.bottom + 12,
+      }}
+    >
+      <View className="flex-row items-center gap-8 rounded-full p-4 relative">
+        <BlurTabBarBackground />
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+                ? options.title
+                : route.name;
+          return <IosTabItem key={route.name} isFocused={isFocused} name={TAB_ICON[route.name as keyof typeof TAB_ICON]} label={label} />;
+          // return <IosTabItem key={route.name} isFocused={state.index === index} name={TAB_ICON[route.name as keyof typeof TAB_ICON]} label={label} />;
+        })}
+      </View>
+    </View>
+  );
+}
+
+function IosTabItem({ isFocused, name, label }: { isFocused: boolean; name: IconProps<'material'>['name']; label: string | React.ReactNode }) {
+  const { colors } = useColorScheme();
+  return (
+    <View className="items-center">
+      <Icon name={name} size={24} color={isFocused ? colors.primary : colors.grey2} />
+      <Text variant="caption2" className={cn('pt-1', !isFocused && 'text-muted-foreground')}>
+        {label}
+      </Text>
+    </View>
   );
 }

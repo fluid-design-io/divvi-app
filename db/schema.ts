@@ -8,7 +8,6 @@ import {
   doublePrecision,
   index,
 } from 'drizzle-orm/pg-core';
-import { createSelectSchema } from 'drizzle-zod';
 
 //****************************/
 //**** BETTER AUTH SCHEMA ****/
@@ -102,7 +101,6 @@ export const group = pgTable(
   },
   (t) => [index('group_created_by_id_idx').on(t.createdById)]
 );
-export const groupSchema = createSelectSchema(group);
 
 // Group members table
 export const groupMember = pgTable('group_member', {
@@ -116,7 +114,6 @@ export const groupMember = pgTable('group_member', {
   role: memberRoleEnum('role').notNull().default('member'),
   joinedAt: timestamp('joined_at').notNull().defaultNow(),
 });
-export const groupMemberSchema = createSelectSchema(groupMember);
 
 // Expenses table
 export const expense = pgTable(
@@ -140,7 +137,6 @@ export const expense = pgTable(
   },
   (t) => [index('expense_group_id_idx').on(t.groupId)]
 );
-export const expenseSchema = createSelectSchema(expense);
 // Expense splits (how much each person owes)
 export const expenseSplit = pgTable(
   'expense_split',
@@ -163,7 +159,6 @@ export const expenseSplit = pgTable(
     index('expense_split_user_id_idx').on(t.userId),
   ]
 );
-export const expenseSplitSchema = createSelectSchema(expenseSplit);
 // Settlements between users
 export const settlement = pgTable(
   'settlement',
@@ -190,7 +185,6 @@ export const settlement = pgTable(
     index('settlement_to_user_id_idx').on(t.toUserId),
   ]
 );
-export const settlementSchema = createSelectSchema(settlement);
 // For activity feed and notifications
 export const activity = pgTable(
   'activity',
@@ -209,4 +203,3 @@ export const activity = pgTable(
   },
   (t) => [index('activity_group_id_idx').on(t.groupId), index('activity_user_id_idx').on(t.userId)]
 );
-export const activitySchema = createSelectSchema(activity);
