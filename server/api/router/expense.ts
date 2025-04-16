@@ -120,7 +120,7 @@ export const expenseRouter = {
 
     // Check if "default" group exists
     let defaultGroup = await ctx.db.query.group.findFirst({
-      where: eq(group.name, 'default'),
+      where: eq(group.name, 'Default'),
     });
 
     if (!defaultGroup) {

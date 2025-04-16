@@ -28,7 +28,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   useInitialAndroidBarSync();
   const [loaded, error] = useFonts({
-    'SF-Pro-Rounded-Regular': require('./assets/fonts/SF-Pro-Rounded-Regular.otf'),
+    'SF-Pro-Rounded-Regular': require('../assets/fonts/SF-Pro-Rounded-Regular.otf'),
   });
   const { colorScheme, isDarkColorScheme } = useColorScheme();
 

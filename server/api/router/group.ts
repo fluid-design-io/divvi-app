@@ -1,5 +1,5 @@
 import type { TRPCRouterRecord } from '@trpc/server';
-import { and, asc, desc, eq, lt, or } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, lt, or } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
@@ -32,12 +32,18 @@ export const groupRouter = {
         cursor: z // Define cursor structure: { createdAt: Date, id: string }
           .object({ createdAt: z.date(), id: z.string() })
           .nullish(),
+        searchTerm: z.string().nullish(),
       })
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const limit = input.limit ?? GROUPS_PER_PAGE;
-      const { cursor } = input;
+      const { cursor, searchTerm } = input;
+
+      // Build search filter condition
+      const searchFilter = searchTerm
+        ? or(ilike(group.name, `%${searchTerm}%`), ilike(group.description, `%${searchTerm}%`))
+        : undefined;
 
       // Fetch groups where the user is a member
       const groups = (await ctx.db.query.group.findMany({
@@ -50,6 +56,7 @@ export const groupRouter = {
                 .from(groupMember)
                 .where(and(eq(groupMember.groupId, groupSchema.id), eq(groupMember.userId, userId)))
             ),
+            searchFilter,
             // Apply cursor logic: fetch items older than the cursor
             cursor
               ? or(
