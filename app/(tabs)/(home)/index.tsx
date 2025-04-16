@@ -11,18 +11,19 @@ import { ListEmpty, ListSearchContent, renderItem } from '~/components/screen/gr
 import AccountButton from '~/components/user/account-button';
 import { trpc } from '~/utils/api';
 import { categorizeGroupsByDate } from '~/utils/categorizeGroups';
+import { useDebounce } from '@uidotdev/usehooks';
 
 // Main component name placeholder
 export default function GroupList() {
   const searchBarRef = useRef<LargeTitleSearchBarRef | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage, refetch } =
     useInfiniteQuery(
       trpc.group.all.infiniteQueryOptions(
         {
           limit: 5,
-          searchTerm: searchTerm || undefined,
         },
         {
           getNextPageParam: (lastPage) => {
@@ -45,7 +46,7 @@ export default function GroupList() {
         searchBar={{
           ref: searchBarRef as RefObject<LargeTitleSearchBarRef>,
           onChangeText: setSearchTerm,
-          content: <ListSearchContent searchTerm={searchTerm} />,
+          content: <ListSearchContent searchTerm={debouncedSearchTerm} />,
         }}
       />
 
