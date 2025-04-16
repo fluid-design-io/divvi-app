@@ -1,5 +1,5 @@
 import type { TRPCRouterRecord } from '@trpc/server';
-import { and, asc, count, desc, eq } from 'drizzle-orm';
+import { and, asc, count, desc, eq, lt, or } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
@@ -12,22 +12,63 @@ import { protectedProcedure } from '../trpc';
 
 import { expense, group, groupMember } from '~/db/schema';
 
+const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
+
 export const groupRouter = {
   // Get all groups the current user is a member of
-  all: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
+  all: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).nullish(),
+        cursor: z // Define cursor structure: { createdAt: Date, id: string }
+          .object({ createdAt: z.date(), id: z.string() })
+          .nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const limit = input.limit ?? GROUPS_PER_PAGE;
+      const { cursor } = input;
 
-    return ctx.db.query.group.findMany({
-      where: (group, { exists }) =>
-        exists(
-          ctx.db
-            .select()
-            .from(groupMember)
-            .where(and(eq(groupMember.groupId, group.id), eq(groupMember.userId, userId)))
-        ),
-      orderBy: [desc(group.createdAt)],
-    });
-  }),
+      // Fetch groups where the user is a member
+      const items = await ctx.db.query.group.findMany({
+        where: (groupSchema, { exists, and: andWhere }) =>
+          andWhere(
+            // Filter by user membership
+            exists(
+              ctx.db
+                .select({ gId: groupMember.groupId }) // Select only needed field
+                .from(groupMember)
+                .where(and(eq(groupMember.groupId, groupSchema.id), eq(groupMember.userId, userId)))
+            ),
+            // Apply cursor logic: fetch items older than the cursor
+            cursor
+              ? or(
+                  lt(groupSchema.createdAt, cursor.createdAt),
+                  // If createdAt is the same, use id as tie-breaker
+                  and(eq(groupSchema.createdAt, cursor.createdAt), lt(groupSchema.id, cursor.id))
+                )
+              : undefined // No cursor for the first page
+          ),
+        orderBy: [desc(group.createdAt), desc(group.id)], // Order matching cursor logic
+        limit: limit + 1, // Fetch one extra item to determine if there's a next page
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        // Remove the extra item
+        const nextItem = items.pop();
+        // Set the next cursor based on the last item *not* returned
+        if (nextItem) {
+          nextCursor = { createdAt: nextItem.createdAt, id: nextItem.id };
+        }
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   getGroupExpensesCount: protectedProcedure
     .input(groupIdInputSchema)
     .query(async ({ ctx, input }) => {

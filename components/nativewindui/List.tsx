@@ -19,7 +19,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '~/components/nativewindui/Button';
-import { Text, TextClassContext } from '~/components/nativewindui/Text';
+import { Text, TextClassContext, TextVariant } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 
 cssInterop(FlashList, {
@@ -363,6 +363,7 @@ const ListItem = React.forwardRef(ListItemComponent) as <T extends ListDataItem>
 type ListSectionHeaderProps<T extends ListDataItem> = ViewProps &
   ListRenderItemProps<T> & {
     textClassName?: string;
+    textVariant?: TextVariant;
   };
 type ListSectionHeaderRef = React.Ref<View>;
 
@@ -375,6 +376,7 @@ function ListSectionHeaderComponent<T extends ListDataItem>(
     variant,
     className,
     textClassName,
+    textVariant,
     sectionHeaderAsGap,
     ...props
   }: ListSectionHeaderProps<T>,
@@ -414,8 +416,8 @@ function ListSectionHeaderComponent<T extends ListDataItem>(
       {...props}
       ref={ref}>
       <Text
-        variant={Platform.select({ ios: 'footnote', default: 'body' })}
-        className={cn('ios:uppercase ios:text-muted-foreground', textClassName)}>
+        variant={textVariant ?? Platform.select({ ios: 'footnote', default: 'body' })}
+        className={cn(textClassName ?? 'ios:uppercase ios:text-muted-foreground')}>
         {item}
       </Text>
     </View>

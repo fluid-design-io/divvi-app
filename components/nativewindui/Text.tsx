@@ -35,6 +35,7 @@ const textVariants = cva('text-foreground', {
   },
 });
 
+type TextVariant = VariantProps<typeof textVariants>['variant'];
 const TextClassContext = React.createContext<string | undefined>(undefined);
 
 function Text({
@@ -52,4 +53,4 @@ function Text({
   );
 }
 
-export { Text, TextClassContext, textVariants };
+export { Text, TextClassContext, textVariants, type TextVariant };

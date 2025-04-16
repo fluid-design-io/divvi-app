@@ -1,9 +1,9 @@
 import { Icon } from '@roninoss/icons';
-import { useQuery } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Info } from 'lucide-react-native';
 import { useRef } from 'react';
-import { Platform, View } from 'react-native';
+import type { RefObject } from 'react';
+import { View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated, { FadeIn, ZoomOut } from 'react-native-reanimated';
 
@@ -11,7 +11,7 @@ import { ErrorView } from '~/components/core/error-view'; //! remove or rename i
 import Loading from '~/components/core/loading';
 import { Button } from '~/components/nativewindui/Button';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
-import { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
+import type { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
 import {
   List,
   ListItem,
@@ -20,46 +20,42 @@ import {
   ExtendedListDataItem,
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import AccountButton from '~/components/user/account-button';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { trpc } from '~/utils/api';
+import { categorizeGroupsByDate } from '~/utils/categorizeGroups';
+
 // Main component name placeholder
 export default function GroupList() {
-  //! Example: Extract route params if needed
   const { colors } = useColorScheme();
   const searchBarRef = useRef<LargeTitleSearchBarRef | null>(null);
 
-  //! Replace with dynamic useQuery or other data fetching logic
-  const { data, isPending, isRefetching, error, isError, refetch } = useQuery(
-    trpc.group.all.queryOptions()
-  );
+  const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery(
+      trpc.group.all.infiniteQueryOptions(
+        {
+          limit: 5,
+        },
+        {
+          getNextPageParam: (lastPage) => {
+            return lastPage.nextCursor;
+          },
+        }
+      )
+    );
 
-  //! optional: handle error state
   if (isError) return <ErrorView message={error?.message} onRetry={refetch} />;
 
-  // Map the data to the shape needed for the List
-  const DATA: ExtendedListDataItem[] =
-    data?.map((item) => ({
-      id: item.id,
-      title: item.name || 'Title',
-      subTitle: item.description || '',
-      value: item.updatedAt.toLocaleDateString() || '',
-      onPress: () => {
-        // Example navigation using expo-router
-        router.push(`/group/${item.id}`);
-      },
-    })) || [];
+  // Use the categorization function
+  const DATA = categorizeGroupsByDate(data);
 
   return (
     <>
       <LargeTitleHeader
         title="Divvi"
-        rightView={() => (
-          <Button variant="plain" size="icon">
-            <Icon size={24} name="account-circle-outline" color={colors.foreground} />
-          </Button>
-        )}
+        rightView={() => <AccountButton />}
         searchBar={{
-          ref: searchBarRef,
+          ref: searchBarRef as RefObject<LargeTitleSearchBarRef>,
           onChangeText: (text) => {
             console.log(text);
           },
@@ -89,11 +85,16 @@ export default function GroupList() {
         variant="insets"
         data={DATA}
         renderItem={renderItem}
-        sectionHeaderAsGap={Platform.OS === 'ios'}
+        sectionHeaderAsGap={false}
         ListEmptyComponent={isPending ? <Loading /> : <ListEmpty />}
         refreshing={isRefetching}
         onRefresh={refetch}
         contentInsetAdjustmentBehavior="automatic"
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage();
+          }
+        }}
       />
     </>
   );
@@ -117,9 +118,18 @@ function renderItem(info: ListRenderItemInfo<ExtendedListDataItem>) {
 // The actual ListItem (row) component.
 function Item({ info }: { info: ListRenderItemInfo<ExtendedListDataItem> }) {
   const { colors } = useColorScheme();
+
+  console.log(info);
   // If it's a string, treat it as a section header
   if (typeof info.item === 'string') {
-    return <ListSectionHeader {...info} />;
+    return (
+      <ListSectionHeader
+        {...info}
+        className="ios:pb-2 pl-0"
+        textVariant="title3"
+        textClassName="text-foreground font-semibold"
+      />
+    );
   }
 
   return (
