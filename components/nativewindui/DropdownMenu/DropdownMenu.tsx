@@ -123,7 +123,7 @@ const DropdownMenu = React.forwardRef<DropdownMenuRef, DropdownMenuProps>(
                     entering={FadeIn}
                     exiting={materialIsSubMenu ? undefined : FadeOut}
                     style={{ minWidth: materialMinWidth, width: materialWidth }}
-                    className="border-border/20 z-50 rounded-md border bg-card py-2 shadow-xl">
+                    className="border-border/20 bg-card z-50 rounded-md border py-2 shadow-xl">
                     {!!title && <DropdownMenuLabel>{title}</DropdownMenuLabel>}
                     <DropdownMenuInnerContent items={items} />
                   </Animated.View>
@@ -193,7 +193,7 @@ function DropdownMenuInnerContent({ items }: { items: (DropdownItem | DropdownSu
 
 function DropdownMenuLabel(props: { children: React.ReactNode }) {
   return (
-    <DropdownMenuPrimitive.Label className="text-muted-foreground/80 border-border/25 dark:border-border/80 border-b px-3 pb-2 text-sm dark:text-muted-foreground">
+    <DropdownMenuPrimitive.Label className="text-muted-foreground/80 border-border/25 dark:border-border/80 dark:text-muted-foreground border-b px-3 pb-2 text-sm">
       {props.children}
     </DropdownMenuPrimitive.Label>
   );
@@ -227,7 +227,6 @@ function DropdownMenuItem(props: Omit<DropdownItem, 'loading'>) {
           )}
           androidRootClassName="rounded-none"
           accessibilityHint={props.subTitle}
-          disabled={props.disabled}
           onPress={onPress}>
           {!props.state && !props.title ? null : (
             <View className="flex-row items-center gap-3 py-0.5">
@@ -241,7 +240,7 @@ function DropdownMenuItem(props: Omit<DropdownItem, 'loading'>) {
                   numberOfLines={1}
                   className={cn(
                     'font-normal',
-                    props.destructive && 'font-medium text-destructive',
+                    props.destructive && 'text-destructive font-medium',
                     props.disabled && 'opacity-60'
                   )}>
                   {props.title}

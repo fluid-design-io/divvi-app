@@ -157,7 +157,7 @@ function toConfigItem(item: DropdownItem): MenuElementConfig {
             iconType: 'SYSTEM',
             iconValue:
               item.icon?.namingScheme === 'sfSymbol'
-                ? (item.icon.name ?? 'questionmark')
+                ? item.icon.name ?? 'questionmark'
                 : item.icon.name && item.icon.name in ICON_MAPPING
                   ? ICON_MAPPING[item.icon.name as MaterialIconName].sfSymbol
                   : 'questionmark',
