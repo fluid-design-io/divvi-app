@@ -1,15 +1,16 @@
 import type { TRPCRouterRecord } from '@trpc/server';
-import { z } from 'zod';
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { z } from 'zod';
 
-import { expense, expenseSplit, groupMember } from '~/db/schema';
-import { protectedProcedure } from '../trpc';
 import {
   createExpenseWithSplitsSchema,
   updateExpenseSchema,
   groupIdInputSchema,
   groupIdWithTimeframeSchema,
 } from '../schema';
+import { protectedProcedure } from '../trpc';
+
+import { expense, expenseSplit, group, groupMember } from '~/db/schema';
 
 export const expenseRouter = {
   // Get all expenses for a group
@@ -79,6 +80,49 @@ export const expenseRouter = {
         },
       });
     }),
+
+  // initalize an expense into "default" group (create if not exists)
+  initialize: protectedProcedure.input(z.void()).mutation(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // Check if "default" group exists
+    let defaultGroup = await ctx.db.query.group.findFirst({
+      where: eq(group.name, 'default'),
+    });
+
+    if (!defaultGroup) {
+      // Create "default" group
+      const [newGroup] = await ctx.db
+        .insert(group)
+        .values({
+          name: 'default',
+          createdById: userId,
+          description: 'Default group for expenses',
+        })
+        .returning();
+
+      // Create group member for the user
+      await ctx.db.insert(groupMember).values({
+        userId,
+        role: 'owner',
+        groupId: newGroup.id,
+      });
+
+      defaultGroup = newGroup;
+    }
+    // create a new expense in the default group
+    const [newExpense] = await ctx.db
+      .insert(expense)
+      .values({
+        title: 'New Expense',
+        amount: 0,
+        groupId: defaultGroup.id,
+        paidById: userId,
+      })
+      .returning();
+
+    return newExpense;
+  }),
 
   // Create a new expense with splits
   create: protectedProcedure

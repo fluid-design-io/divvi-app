@@ -1,8 +1,8 @@
-import { authRouter } from './router/auth';
-import { groupRouter } from './router/group';
-import { expenseRouter } from './router/expense';
-import { settlementRouter } from './router/settlement';
 import { activityRouter } from './router/activity';
+import { authRouter } from './router/auth';
+import { expenseRouter } from './router/expense';
+import { groupRouter } from './router/group';
+import { settlementRouter } from './router/settlement';
 import { createTRPCRouter } from './trpc';
 
 export const appRouter = createTRPCRouter({

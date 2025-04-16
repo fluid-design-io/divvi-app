@@ -1,19 +1,20 @@
 import type { TRPCRouterRecord } from '@trpc/server';
+import { and, asc, count, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { and, asc, desc, eq } from 'drizzle-orm';
 
-import { group, groupMember } from '~/db/schema';
-import { protectedProcedure } from '../trpc';
 import {
   createGroupSchema,
   updateGroupSchema,
   addMemberSchema,
   groupIdInputSchema,
 } from '../schema';
+import { protectedProcedure } from '../trpc';
+
+import { expense, group, groupMember } from '~/db/schema';
 
 export const groupRouter = {
   // Get all groups the current user is a member of
-  getMyGroups: protectedProcedure.query(async ({ ctx }) => {
+  all: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
     return ctx.db.query.group.findMany({
@@ -25,16 +26,18 @@ export const groupRouter = {
             .where(and(eq(groupMember.groupId, group.id), eq(groupMember.userId, userId)))
         ),
       orderBy: [desc(group.createdAt)],
-      with: {
-        members: {
-          with: {
-            user: true,
-          },
-        },
-      },
     });
   }),
-
+  getGroupExpensesCount: protectedProcedure
+    .input(groupIdInputSchema)
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select({
+          count: count(),
+        })
+        .from(expense)
+        .where(eq(expense.groupId, input.groupId));
+    }),
   // Get a specific group by ID
   getById: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
@@ -77,7 +80,7 @@ export const groupRouter = {
     // Add the creator as a member with owner role
     await ctx.db.insert(groupMember).values({
       groupId: newGroup.id,
-      userId: userId,
+      userId,
       role: 'owner',
     });
 

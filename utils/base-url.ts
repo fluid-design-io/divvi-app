@@ -17,7 +17,7 @@ export const getBaseUrl = () => {
   const localhost = debuggerHost?.split(':')[0];
 
   if (!localhost) {
-    throw new Error('Failed to get localhost. Please point to your production server.');
+    return 'http://192.168.31.125:8081';
   }
   return `http://${localhost}:8081`;
 };
