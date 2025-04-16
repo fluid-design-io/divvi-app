@@ -2,13 +2,14 @@ import type { InfiniteData } from '@tanstack/react-query';
 import {
   differenceInDays,
   format,
+  formatDistanceToNow,
   getMonth,
   getYear,
   isToday,
   isYesterday,
   startOfDay,
 } from 'date-fns';
-import { router, Href } from 'expo-router';
+import { router } from 'expo-router';
 
 import type { ExtendedListDataItem } from '~/components/nativewindui/List';
 import type { RouterOutputs } from '~/utils/api';
@@ -27,9 +28,13 @@ const CATEGORIES = [
 
 type Category = (typeof CATEGORIES)[number] | string; // Month or Year strings
 
+export type GroupListItem =
+  | string
+  | (ExtendedListDataItem & { memberCount: number; totalBalance: number });
+
 export function categorizeGroupsByDate(
   data: GroupInfiniteData | undefined | null
-): ExtendedListDataItem[] {
+): GroupListItem[] {
   const groups: Group[] = data?.pages.flatMap((page) => page.items) ?? [];
 
   if (groups.length === 0) {
@@ -40,18 +45,19 @@ export function categorizeGroupsByDate(
   const startOfToday = startOfDay(now);
   const currentYear = getYear(now);
 
-  const categorized: Record<Category, ExtendedListDataItem[]> = {};
+  const categorized: Record<Category, GroupListItem[]> = {};
 
-  const createListItem = (item: Group): ExtendedListDataItem => ({
+  const createListItem = (item: Group): GroupListItem => ({
     id: item.id,
     title: item.name || 'Untitled Group',
     subTitle: item.description || '',
-    value: item.updatedAt.toLocaleDateString() || '',
+    tertiaryText: `Last updated ${formatDistanceToNow(item.updatedAt, {
+      addSuffix: true,
+    })}`,
+    memberCount: item.members.length,
+    totalBalance: item.balance,
     onPress: () => {
-      router.push({
-        pathname: '/group/[id]',
-        params: { id: item.id },
-      } as unknown as Href);
+      router.push(`/group/${item.id}`);
     },
   });
 
@@ -82,7 +88,7 @@ export function categorizeGroupsByDate(
     }
   });
 
-  const finalListData: ExtendedListDataItem[] = [];
+  const finalListData: GroupListItem[] = [];
   const addedCategories = new Set<Category>();
 
   CATEGORIES.forEach((cat) => {

@@ -1,5 +1,5 @@
 import type { TRPCRouterRecord } from '@trpc/server';
-import { and, asc, count, desc, eq, lt, or } from 'drizzle-orm';
+import { and, asc, desc, eq, lt, or } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
@@ -10,9 +10,18 @@ import {
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
-import { expense, group, groupMember } from '~/db/schema';
+import { group, groupMember } from '~/db/schema';
+import { getGroupBalances } from '~/server/functions/get-group-balances';
 
 const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
+
+type GroupWithMembers = typeof group.$inferSelect & {
+  members: (typeof groupMember.$inferSelect)[];
+};
+
+type GroupWithBalance = GroupWithMembers & {
+  balance: number;
+};
 
 export const groupRouter = {
   // Get all groups the current user is a member of
@@ -31,7 +40,7 @@ export const groupRouter = {
       const { cursor } = input;
 
       // Fetch groups where the user is a member
-      const items = await ctx.db.query.group.findMany({
+      const groups = (await ctx.db.query.group.findMany({
         where: (groupSchema, { exists, and: andWhere }) =>
           andWhere(
             // Filter by user membership
@@ -52,12 +61,40 @@ export const groupRouter = {
           ),
         orderBy: [desc(group.createdAt), desc(group.id)], // Order matching cursor logic
         limit: limit + 1, // Fetch one extra item to determine if there's a next page
-      });
+        with: {
+          members: {
+            columns: {
+              userId: true,
+            },
+          },
+        },
+      })) as GroupWithMembers[];
+
+      //* for each item, get getGroupBalances
+      const [balances] = await Promise.all(
+        groups.map((item) => getGroupBalances(ctx, { groupId: item.id, limit: 100 }))
+      );
+
+      //* accumulate sum of balances into groups
+      const groupedBalances: Record<string, number> = {};
+
+      // For each group, calculate the total balance
+      for (const [index, expense] of groups.entries()) {
+        // The balance for this group is the sum of all user balances
+        const groupBalance = balances[index];
+        groupedBalances[expense.id] = groupBalance.balance;
+      }
+
+      //* add groupedBalances to groups
+      const groupWithBalances = groups.map((item) => ({
+        ...item,
+        balance: groupedBalances[item.id],
+      })) satisfies GroupWithBalance[];
 
       let nextCursor: typeof cursor | undefined = undefined;
-      if (items.length > limit) {
+      if (groups.length > limit) {
         // Remove the extra item
-        const nextItem = items.pop();
+        const nextItem = groups.pop();
         // Set the next cursor based on the last item *not* returned
         if (nextItem) {
           nextCursor = { createdAt: nextItem.createdAt, id: nextItem.id };
@@ -65,19 +102,9 @@ export const groupRouter = {
       }
 
       return {
-        items,
+        items: groupWithBalances,
         nextCursor,
       };
-    }),
-  getGroupExpensesCount: protectedProcedure
-    .input(groupIdInputSchema)
-    .query(async ({ ctx, input }) => {
-      return ctx.db
-        .select({
-          count: count(),
-        })
-        .from(expense)
-        .where(eq(expense.groupId, input.groupId));
     }),
   // Get a specific group by ID
   getById: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {

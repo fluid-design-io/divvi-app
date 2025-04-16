@@ -10,19 +10,37 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-
+import { useFonts } from 'expo-font';
 import { useColorScheme, useInitialAndroidBarSync } from '~/lib/useColorScheme';
 import { NAV_THEME } from '~/theme';
 import { queryClient } from '~/utils/api';
+
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   useInitialAndroidBarSync();
+  const [loaded, error] = useFonts({
+    'SF-Pro-Rounded-Regular': require('./assets/fonts/SF-Pro-Rounded-Regular.otf'),
+  });
   const { colorScheme, isDarkColorScheme } = useColorScheme();
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <>

@@ -46,6 +46,13 @@ module.exports = {
       borderWidth: {
         hairline: hairlineWidth(),
       },
+      fontFamily: {
+        rounded: platformSelect({
+          ios: 'SF-Pro-Rounded-Regular',
+          android: 'sans-serif',
+          default: 'ui-sans-serif',
+        }),
+      },
     },
   },
   plugins: [],

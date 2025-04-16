@@ -38,6 +38,7 @@
         "expo-constants": "~17.1.1",
         "expo-dev-client": "~5.1.1",
         "expo-dev-launcher": "^5.0.35",
+        "expo-font": "~13.1.1",
         "expo-linking": "~7.1.1",
         "expo-navigation-bar": "~4.1.2",
         "expo-router": "~5.0.2-preview.4",
@@ -1076,7 +1077,7 @@
 
     "expo-file-system": ["expo-file-system@18.1.4", "", { "dependencies": { "web-streams-polyfill": "^3.3.2" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-kT4t/hRlfFFOMZxc4Zn0lEbhuFy9MDK0NbRAyTxGo7kZjWYlhXBmg2oYiaFyJnsvOgm1RVJ/QPJLO7O52qG7Nw=="],
 
-    "expo-font": ["expo-font@13.0.4", "", { "dependencies": { "fontfaceobserver": "^2.1.0" }, "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-eAP5hyBgC8gafFtprsz0HMaB795qZfgJWqTmU0NfbSin1wUuVySFMEPMOrTkTgmazU73v4Cb4x7p86jY1XXYUw=="],
+    "expo-font": ["expo-font@13.1.2", "", { "dependencies": { "fontfaceobserver": "^2.1.0" }, "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-8I8nZsPsaFzSu9LmJDokKnN8wFjvzhrc26YPKcXRyTPjBv+WZA2JdlbeUfSaFE4TFBAMWIr2jpPxdxhGaGdoQw=="],
 
     "expo-json-utils": ["expo-json-utils@0.15.0", "", {}, "sha512-duRT6oGl80IDzH2LD2yEFWNwGIC2WkozsB6HF3cDYNoNNdUvFk6uN3YiwsTsqVM/D0z6LEAQ01/SlYvN+Fw0JQ=="],
 
@@ -2253,8 +2254,6 @@
     "execa/signal-exit": ["signal-exit@3.0.7", "", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
 
     "expo/expo-constants": ["expo-constants@17.1.2", "", { "dependencies": { "@expo/config": "~11.0.3", "@expo/env": "~1.0.3" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-zKKjQlRJ6td2+wuf+OeTd/vJmzq512oJDIAMhpcQx3PhvmHu65RnWt7tpRhDTAgqNcr8hXbDUTiXF31BWuxzWw=="],
-
-    "expo/expo-font": ["expo-font@13.1.2", "", { "dependencies": { "fontfaceobserver": "^2.1.0" }, "peerDependencies": { "expo": "*", "react": "*" } }, "sha512-8I8nZsPsaFzSu9LmJDokKnN8wFjvzhrc26YPKcXRyTPjBv+WZA2JdlbeUfSaFE4TFBAMWIr2jpPxdxhGaGdoQw=="],
 
     "expo-asset/expo-constants": ["expo-constants@17.1.2", "", { "dependencies": { "@expo/config": "~11.0.3", "@expo/env": "~1.0.3" }, "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-zKKjQlRJ6td2+wuf+OeTd/vJmzq512oJDIAMhpcQx3PhvmHu65RnWt7tpRhDTAgqNcr8hXbDUTiXF31BWuxzWw=="],
 

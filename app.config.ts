@@ -57,5 +57,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         imageWidth: 48,
       },
     ],
+    [
+      'expo-font',
+      {
+        fonts: ['assets/fonts/SF-Pro-Rounded-Regular.otf'],
+      },
+    ],
   ],
 });

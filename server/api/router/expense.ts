@@ -11,6 +11,7 @@ import {
 import { protectedProcedure } from '../trpc';
 
 import { expense, expenseSplit, group, groupMember } from '~/db/schema';
+import { getGroupBalances } from '~/server/functions/get-group-balances';
 
 const EXPENSES_PER_PAGE = 20;
 
@@ -334,65 +335,7 @@ export const expenseRouter = {
   // Get balances for all users in a group
   getGroupBalances: protectedProcedure
     .input(groupIdWithPaginationSchema)
-    .query(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
-
-      // Check if user is a member of this group
-      const membership = await ctx.db.query.groupMember.findFirst({
-        where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
-      });
-
-      if (!membership) {
-        throw new Error("You don't have access to this group");
-      }
-
-      // Get all group members
-      const members = await ctx.db.query.groupMember.findMany({
-        where: eq(groupMember.groupId, input.groupId),
-        with: {
-          user: {
-            columns: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      });
-
-      // Initialize balances for each user
-      const balances: Record<string, number> = {};
-      for (const member of members) {
-        balances[member.userId] = 0;
-      }
-
-      // Get all expenses for this group
-      const expenses = await ctx.db.query.expense.findMany({
-        where: eq(expense.groupId, input.groupId),
-        with: {
-          splits: true,
-        },
-      });
-
-      // Calculate balances
-      for (const exp of expenses) {
-        // The person who paid gets credit
-        balances[exp.paidById] += exp.amount;
-
-        // Everyone who owes pays
-        if (exp.splits) {
-          for (const split of exp.splits) {
-            balances[split.userId] -= split.amount;
-          }
-        }
-      }
-
-      // Format the response with user details
-      return members.map((member) => ({
-        userId: member.userId,
-        name: member.user?.name || 'Unknown User',
-        balance: balances[member.userId],
-      }));
-    }),
+    .query(async ({ ctx, input }) => getGroupBalances(ctx, input)),
 
   // Mark an expense split as settled
   settleSplit: protectedProcedure

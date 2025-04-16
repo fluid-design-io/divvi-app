@@ -183,7 +183,7 @@ type ListItemProps<T extends ListDataItem> = PressableProps &
   };
 type ListItemRef = React.Ref<View>;
 
-const itemVariants = cva('ios:gap-0 flex-row gap-0 bg-card', {
+export const itemVariants = cva('ios:gap-0 flex-row gap-0 bg-card', {
   variants: {
     variant: {
       insets: 'ios:bg-card bg-card/70',
