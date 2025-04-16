@@ -8,7 +8,7 @@ function ExpenseModalLayout() {
         animation: 'fade',
       }}>
       <Stack.Screen name="new" />
-      <Stack.Screen name="[id]" />
+      <Stack.Screen name="[id]/index" />
     </Stack>
   );
 }

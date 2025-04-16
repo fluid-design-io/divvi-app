@@ -30,10 +30,11 @@ type Category = (typeof CATEGORIES)[number] | string; // Month or Year strings
 
 export type GroupListItem =
   | string
-  | (ExtendedListDataItem & { memberCount: number; totalBalance: number });
+  | (ExtendedListDataItem & { memberCount: number; totalBalance: number; onDelete: () => void });
 
 export function categorizeGroupsByDate(
-  data: GroupInfiniteData | undefined | null
+  data: GroupInfiniteData | undefined | null,
+  onDelete: ({ groupId }: { groupId: string }) => void
 ): GroupListItem[] {
   const groups: Group[] = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -56,9 +57,8 @@ export function categorizeGroupsByDate(
     })}`,
     memberCount: item.members.length,
     totalBalance: item.balance,
-    onPress: () => {
-      router.push(`/group/${item.id}`);
-    },
+    onPress: () => router.push(`/group/${item.id}`),
+    onDelete: () => onDelete({ groupId: item.id }),
   });
 
   groups.forEach((item) => {

@@ -12,7 +12,11 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-const dimensions = Dimensions.get('window');
+const deviceDimensions = Dimensions.get('window');
+const dimensions = {
+  width: deviceDimensions.width - 16 * 2, // 16 is the padding
+  height: deviceDimensions.height,
+};
 
 const BUTTON_WIDTH = 75;
 
@@ -31,10 +35,10 @@ const ACTION_BUTTON_STYLE: ViewStyle = {
 
 export default function Swipeable({
   children,
-  isUnread,
+  onDelete: _onDelete,
 }: {
   children: React.ReactNode;
-  isUnread: boolean;
+  onDelete: () => void;
 }) {
   const translateX = useSharedValue(0);
   const previousTranslateX = useSharedValue(0);
@@ -45,14 +49,6 @@ export default function Swipeable({
       transform: [{ translateX: translateX.value }],
     };
   });
-  const statusActionStyle = useAnimatedStyle(() => {
-    return {
-      position: 'absolute',
-      flex: 1,
-      height: '100%',
-      width: interpolate(translateX.value, [0, dimensions.width], [0, dimensions.width]),
-    };
-  });
   const trashActionStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
@@ -60,42 +56,6 @@ export default function Swipeable({
       flex: 1,
       height: '100%',
       width: interpolate(-translateX.value, [0, dimensions.width], [0, dimensions.width]),
-    };
-  });
-  const notificationActionStyle = useAnimatedStyle(() => {
-    return {
-      overflow: 'hidden',
-      position: 'absolute',
-      left: interpolate(-translateX.value, [0, dimensions.width], [dimensions.width, 0]),
-      flex: 1,
-      height: '100%',
-      width:
-        previousTranslateX.value > translateX.value
-          ? interpolate(
-              -translateX.value,
-              [0, BUTTON_WIDTH * 2, BUTTON_WIDTH * 3, dimensions.width],
-              [0, BUTTON_WIDTH, BUTTON_WIDTH * 1.2, 0]
-            )
-          : interpolate(
-              -translateX.value,
-              [0, BUTTON_WIDTH * 2, dimensions.width],
-              [0, BUTTON_WIDTH, 0]
-            ),
-    };
-  });
-  const statusIconStyle = useAnimatedStyle(() => {
-    return {
-      overflow: 'hidden',
-      position: 'absolute',
-      left: interpolate(
-        translateX.value,
-        [0, BUTTON_WIDTH, BUTTON_WIDTH * 2, BUTTON_WIDTH * 3, dimensions.width],
-        [-BUTTON_WIDTH, 0, 0, BUTTON_WIDTH * 2, dimensions.width - BUTTON_WIDTH]
-      ),
-
-      flex: 1,
-      height: '100%',
-      width: BUTTON_WIDTH,
     };
   });
   const trashIconStyle = useAnimatedStyle(() => {
@@ -120,17 +80,9 @@ export default function Swipeable({
     };
   });
 
-  function onToggleMarkAsRead() {
-    console.log('onToggleMarkAsRead');
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }
   function onDelete() {
-    console.log('onDelete');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }
-  function onToggleNotifications() {
-    console.log('onToggleNotifications');
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    _onDelete();
   }
   const pan = Gesture.Pan()
     .manualActivation(Platform.OS !== 'ios')
@@ -169,20 +121,21 @@ export default function Swipeable({
       const left = event.translationX < 0 && translateX.value < 0;
 
       if (right) {
-        if (translateX.value > BUTTON_WIDTH * 2) {
-          translateX.value = withSpring(0, SPRING_CONFIG);
-          runOnJS(onToggleMarkAsRead)();
-          return;
-        }
-        translateX.value = withSpring(
-          event.translationX > 0 ? BUTTON_WIDTH : -BUTTON_WIDTH,
-          SPRING_CONFIG
-        );
+        // We're not using this as no right-swipe action is implemented
+        // if (translateX.value > BUTTON_WIDTH * 2) {
+        //   translateX.value = withSpring(0, SPRING_CONFIG);
+        //   runOnJS(onToggleMarkAsRead)();
+        //   return;
+        // }
+        // translateX.value = withSpring(
+        //   event.translationX > 0 ? BUTTON_WIDTH : -BUTTON_WIDTH,
+        //   SPRING_CONFIG
+        // );
         return;
       }
 
       if (left) {
-        if (translateX.value < -BUTTON_WIDTH * 3) {
+        if (translateX.value < -BUTTON_WIDTH * 2) {
           translateX.value = withSpring(-dimensions.width, SPRING_CONFIG);
           runOnJS(onDelete)();
           return;
@@ -197,42 +150,13 @@ export default function Swipeable({
       translateX.value = withSpring(0, SPRING_CONFIG);
     });
 
-  function onStatusActionPress() {
-    translateX.value = withSpring(0, SPRING_CONFIG);
-    onToggleMarkAsRead();
-  }
-
   function onDeleteActionPress() {
-    translateX.value = withSpring(-dimensions.width, SPRING_CONFIG);
+    translateX.value = withSpring(0, SPRING_CONFIG);
     onDelete();
   }
-
-  function onNotificationActionPress() {
-    translateX.value = withSpring(0, SPRING_CONFIG);
-    onToggleNotifications();
-  }
-
   return (
     <GestureDetector gesture={pan}>
       <View>
-        <Animated.View style={statusActionStyle} className="bg-primary">
-          <Animated.View style={statusIconStyle}>
-            <Pressable
-              style={ACTION_BUTTON_STYLE}
-              onPress={onStatusActionPress}
-              className="absolute bottom-0 right-0 top-0 items-center justify-center">
-              <Icon
-                ios={{ name: isUnread ? 'checkmark.message.fill' : 'message.badge.fill' }}
-                materialIcon={{
-                  type: 'MaterialCommunityIcons',
-                  name: isUnread ? 'read' : 'email-mark-as-unread',
-                }}
-                size={24}
-                color="white"
-              />
-            </Pressable>
-          </Animated.View>
-        </Animated.View>
         <Animated.View style={trashActionStyle} className="bg-destructive">
           <Animated.View style={trashIconStyle}>
             <Pressable
@@ -242,19 +166,6 @@ export default function Swipeable({
               <Icon name="trash-can" size={24} color="white" />
             </Pressable>
           </Animated.View>
-        </Animated.View>
-        <Animated.View style={notificationActionStyle} className="bg-violet-600">
-          <Pressable
-            style={ACTION_BUTTON_STYLE}
-            onPress={onNotificationActionPress}
-            className="absolute bottom-0 left-0 top-0 items-center justify-center">
-            <Icon
-              ios={{ name: 'bell.slash.fill' }}
-              materialIcon={{ type: 'MaterialCommunityIcons', name: 'bell-cancel' }}
-              size={24}
-              color="white"
-            />
-          </Pressable>
         </Animated.View>
         <Animated.View style={rootStyle}>{children}</Animated.View>
       </View>

@@ -1,4 +1,4 @@
-import type { TRPCRouterRecord } from '@trpc/server';
+import { TRPCError, type TRPCRouterRecord } from '@trpc/server';
 import { and, asc, desc, eq, ilike, lt, or } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -191,6 +191,35 @@ export const groupRouter = {
       .returning();
 
     return updatedGroup;
+  }),
+
+  // Delete a group (only if the user is the owner)
+  delete: protectedProcedure.input(groupIdInputSchema).mutation(async ({ ctx, input }) => {
+    const userId = ctx.session.user.id;
+
+    // Check if user is the owner of this group
+    const membership = await ctx.db.query.groupMember.findFirst({
+      where: and(
+        eq(groupMember.groupId, input.groupId),
+        eq(groupMember.userId, userId),
+        eq(groupMember.role, 'owner')
+      ),
+    });
+
+    if (!membership) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Only group owners can delete groups',
+      });
+    }
+
+    // Delete all group members first (due to foreign key constraints)
+    // await ctx.db.delete(groupMember).where(eq(groupMember.groupId, input.groupId));
+
+    // Delete the group
+    await ctx.db.delete(group).where(eq(group.id, input.groupId));
+
+    return { success: true };
   }),
 
   // Add a member to a group

@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import type { RefObject } from 'react';
 
@@ -15,6 +15,7 @@ import { useDebounce } from '@uidotdev/usehooks';
 
 // Main component name placeholder
 export default function GroupList() {
+  const queryClient = useQueryClient();
   const searchBarRef = useRef<LargeTitleSearchBarRef | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -26,17 +27,43 @@ export default function GroupList() {
           limit: 5,
         },
         {
-          getNextPageParam: (lastPage) => {
-            return lastPage.nextCursor;
-          },
+          getNextPageParam: (lastPage) => lastPage.nextCursor,
         }
       )
     );
 
+  const { mutate: deleteGroupMutation } = useMutation(
+    trpc.group.delete.mutationOptions({
+      onMutate: ({ groupId }) => {
+        // Optimistically update the cache by removing the deleted group
+        queryClient.setQueryData(
+          trpc.group.all.infiniteQueryKey({
+            limit: 5,
+          }),
+          (oldData) => {
+            if (!oldData) return oldData;
+            // For infinite queries, we need to update each page
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.filter((group: any) => group.id !== groupId),
+              })),
+            };
+          }
+        );
+      },
+      onSuccess: () => {
+        // Refetch the query to ensure the cache is in sync with the server
+        queryClient.invalidateQueries({ queryKey: trpc.group.all.queryKey() });
+      },
+    })
+  );
+
   if (isError) return <ErrorView message={error?.message} onRetry={refetch} />;
 
   // Use the categorization function
-  const DATA = categorizeGroupsByDate(data);
+  const DATA = categorizeGroupsByDate(data, deleteGroupMutation);
 
   return (
     <>

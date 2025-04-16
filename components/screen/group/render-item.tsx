@@ -4,6 +4,7 @@ import { ListRenderItemInfo, ListSectionHeader } from '~/components/nativewindui
 import { Text } from '~/components/nativewindui/Text';
 import { GroupListItem } from '~/utils/categorizeGroups';
 import ListItem from './list-item';
+import Swipeable from './swipeable';
 
 // Wrapper to pass the item info to the actual Item component
 export function renderItem(info: ListRenderItemInfo<GroupListItem>) {
@@ -25,27 +26,29 @@ function Item({ info }: { info: ListRenderItemInfo<GroupListItem> }) {
   }
 
   return (
-    <ListItem
-      {...info}
-      target="Cell"
-      variant="insets"
-      rightView={
-        <View className="flex-1 items-end justify-between gap-0.5 px-2">
-          <Text className="text-muted-foreground">
-            {info.item.memberCount + ` member${info.item.memberCount === 1 ? '' : 's'}`}
-          </Text>
-          <Text className="font-rounded text-muted-foreground">
-            {info.item.totalBalance.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 0,
-            })}
-          </Text>
-        </View>
-      }
-      disabled={info.item.disabled}
-      onPress={info.item.onPress}
-    />
+    <Swipeable onDelete={info.item.onDelete}>
+      <ListItem
+        {...info}
+        target="Cell"
+        variant="insets"
+        rightView={
+          <View className="flex-1 items-end justify-between gap-0.5 px-2">
+            <Text className="text-muted-foreground">
+              {info.item.memberCount + ` member${info.item.memberCount === 1 ? '' : 's'}`}
+            </Text>
+            <Text className="font-rounded text-muted-foreground">
+              {info.item.totalBalance.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 0,
+              })}
+            </Text>
+          </View>
+        }
+        disabled={info.item.disabled}
+        onPress={info.item.onPress}
+      />
+    </Swipeable>
   );
 }
