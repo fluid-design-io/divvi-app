@@ -1,44 +1,76 @@
 import type { TRPCRouterRecord } from '@trpc/server';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql, or, lt, ilike } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
+  groupIdWithPaginationSchema,
   createExpenseWithSplitsSchema,
   updateExpenseSchema,
-  groupIdInputSchema,
   groupIdWithTimeframeSchema,
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
 import { expense, expenseSplit, group, groupMember } from '~/db/schema';
 
+const EXPENSES_PER_PAGE = 20;
+
 export const expenseRouter = {
-  // Get all expenses for a group
-  getByGroupId: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {
-    const userId = ctx.session.user.id;
+  // Get all expenses for a group with pagination
+  getByGroupId: protectedProcedure
+    .input(groupIdWithPaginationSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const limit = input.limit ?? EXPENSES_PER_PAGE;
+      const { cursor, groupId, searchTerm } = input;
 
-    // Check if user is a member of this group
-    const membership = await ctx.db.query.groupMember.findFirst({
-      where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
-    });
+      // Check if user is a member of this group
+      const membership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, groupId), eq(groupMember.userId, userId)),
+      });
 
-    if (!membership) {
-      throw new Error("You don't have access to this group");
-    }
+      if (!membership) {
+        throw new Error("You don't have access to this group's expenses");
+      }
 
-    return ctx.db.query.expense.findMany({
-      where: eq(expense.groupId, input.groupId),
-      orderBy: [desc(expense.date)],
-      with: {
-        splits: {
-          with: {
-            user: true,
-          },
+      // Build search filter condition
+      const searchFilter = searchTerm
+        ? or(ilike(expense.title, `%${searchTerm}%`), ilike(expense.description, `%${searchTerm}%`))
+        : undefined;
+
+      // Fetch expenses with cursor logic AND search filter
+      const items = await ctx.db.query.expense.findMany({
+        where: (expenseSchema, { and: andWhere }) =>
+          andWhere(
+            eq(expenseSchema.groupId, groupId),
+            searchFilter,
+            cursor
+              ? or(
+                  lt(expenseSchema.date, cursor.date),
+                  and(eq(expenseSchema.date, cursor.date), lt(expenseSchema.id, cursor.id))
+                )
+              : undefined
+          ),
+        orderBy: [desc(expense.date), desc(expense.id)],
+        limit: limit + 1,
+        with: {
+          splits: { with: { user: true } },
+          paidBy: true,
         },
-        paidBy: true,
-      },
-    });
-  }),
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop();
+        if (nextItem) {
+          nextCursor = { date: nextItem.date, id: nextItem.id };
+        }
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
 
   // Get a specific expense by ID
   getById: protectedProcedure
@@ -300,60 +332,67 @@ export const expenseRouter = {
     }),
 
   // Get balances for all users in a group
-  getGroupBalances: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {
-    const userId = ctx.session.user.id;
+  getGroupBalances: protectedProcedure
+    .input(groupIdWithPaginationSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
 
-    // Check if user is a member of this group
-    const membership = await ctx.db.query.groupMember.findFirst({
-      where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
-    });
+      // Check if user is a member of this group
+      const membership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
+      });
 
-    if (!membership) {
-      throw new Error("You don't have access to this group");
-    }
+      if (!membership) {
+        throw new Error("You don't have access to this group");
+      }
 
-    // Get all group members
-    const members = await ctx.db.query.groupMember.findMany({
-      where: eq(groupMember.groupId, input.groupId),
-      with: {
-        user: true,
-      },
-    });
+      // Get all group members
+      const members = await ctx.db.query.groupMember.findMany({
+        where: eq(groupMember.groupId, input.groupId),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
 
-    // Initialize balances for each user
-    const balances: Record<string, number> = {};
-    for (const member of members) {
-      balances[member.userId] = 0;
-    }
+      // Initialize balances for each user
+      const balances: Record<string, number> = {};
+      for (const member of members) {
+        balances[member.userId] = 0;
+      }
 
-    // Get all expenses for this group
-    const expenses = await ctx.db.query.expense.findMany({
-      where: eq(expense.groupId, input.groupId),
-      with: {
-        splits: true,
-      },
-    });
+      // Get all expenses for this group
+      const expenses = await ctx.db.query.expense.findMany({
+        where: eq(expense.groupId, input.groupId),
+        with: {
+          splits: true,
+        },
+      });
 
-    // Calculate balances
-    for (const exp of expenses) {
-      // The person who paid gets credit
-      balances[exp.paidById] += exp.amount;
+      // Calculate balances
+      for (const exp of expenses) {
+        // The person who paid gets credit
+        balances[exp.paidById] += exp.amount;
 
-      // Everyone who owes pays
-      if (exp.splits) {
-        for (const split of exp.splits) {
-          balances[split.userId] -= split.amount;
+        // Everyone who owes pays
+        if (exp.splits) {
+          for (const split of exp.splits) {
+            balances[split.userId] -= split.amount;
+          }
         }
       }
-    }
 
-    // Format the response with user details
-    return members.map((member) => ({
-      userId: member.userId,
-      name: member.user?.name || 'Unknown User',
-      balance: balances[member.userId],
-    }));
-  }),
+      // Format the response with user details
+      return members.map((member) => ({
+        userId: member.userId,
+        name: member.user?.name || 'Unknown User',
+        balance: balances[member.userId],
+      }));
+    }),
 
   // Mark an expense split as settled
   settleSplit: protectedProcedure
@@ -365,7 +404,12 @@ export const expenseRouter = {
       const split = await ctx.db.query.expenseSplit.findFirst({
         where: eq(expenseSplit.id, input.splitId),
         with: {
-          expense: true,
+          expense: {
+            columns: {
+              id: true,
+              paidById: true,
+            },
+          },
         },
       });
 

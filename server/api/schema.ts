@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 // Import database schemas
 import { group, groupMember, expense, expenseSplit, settlement, activity } from '~/db/schema';
@@ -138,7 +138,13 @@ export const groupIdInputSchema = z.object({
 export const groupIdWithPaginationSchema = z.object({
   groupId: z.string().uuid(),
   limit: z.number().positive().optional().default(20),
-  cursor: z.string().uuid().optional(),
+  cursor: z
+    .object({
+      date: z.date(),
+      id: z.string().uuid(),
+    })
+    .nullish(),
+  searchTerm: z.string().optional(),
 });
 
 // Timeframe input schema
