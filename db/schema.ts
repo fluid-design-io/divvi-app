@@ -127,7 +127,7 @@ export const expense = pgTable(
     title: text('title').notNull().default('Expense'),
     description: text('description'),
     amount: doublePrecision('amount').notNull(),
-    paidById: text('paid_by_id')
+    paidById: text('paid_by_id') // The user who paid for the expense
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     date: timestamp('date').notNull().defaultNow(),

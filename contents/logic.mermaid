@@ -1,0 +1,68 @@
+sequenceDiagram
+    participant Oliver
+    participant Kate
+    participant Frontend
+    participant Backend
+    participant Database
+    participant Venmo
+
+    %% 1. Recording the Expense %%
+    Oliver->>Frontend: Initiate Add Expense (Meal: $90, PaidBy: Oliver, Split: Equal)
+    activate Frontend
+    Note right of Frontend: Calculates equal splits ($30 each for O, K, J)
+    Frontend->>+Backend: Call expense.create API (Expense + 3 Splits Data)
+    activate Backend
+
+    rect rgb(200, 255, 200)
+        Note over Backend, Database: **Feature: Automated Splitting & Recording**
+        Backend->>Database: Check Group Membership (Oliver in Group)
+        activate Database
+        Database-->>Backend: Membership OK
+        deactivate Database
+        Backend->>Backend: Validate Input (Amount vs Splits)
+        Backend->>+Database: INSERT INTO expense (title="Meal", amount=90, paidById=Oliver)
+        Database-->>-Backend: New Expense ID
+        Backend->>+Database: INSERT INTO expenseSplit (userId=Kate, amount=30, settled=false)
+        Database-->>-Backend: OK
+        Backend->>+Database: INSERT INTO expenseSplit (userId=James, amount=30, settled=false)
+        Database-->>-Backend: OK
+        Backend->>+Database: INSERT INTO expenseSplit (userId=Oliver, amount=30, settled=false)
+        Database-->>-Backend: OK
+    end
+
+    Backend-->>-Frontend: Expense Recorded Successfully
+    deactivate Backend
+    Frontend-->>Oliver: Show Recorded Expense in UI
+    deactivate Frontend
+
+    Note over Frontend, Backend: Balance Impact: Kate -$30, James -$30, Oliver +$60 (net)
+
+    %% 2. External Payment %%
+    Kate->>Venmo: Pays Oliver $30 (External Action)
+    Venmo->>Oliver: Notifies Oliver (External Action)
+    Note over Kate, Oliver: Payment happens outside the app
+
+    %% 3. Marking Split as Settled %%
+    Kate->>Frontend: Find "Meal" Expense, Mark Her $30 Split as Settled
+    activate Frontend
+    Note right of Frontend: Identifies unique ID for Kate's specific split
+    Frontend->>+Backend: Call expense.settleSplit API (splitId = Kate's ID for Meal)
+    activate Backend
+
+    rect rgb(200, 200, 255)
+        Note over Backend, Database: **Feature: In-App Settlement Tracking**
+        Backend->>Database: Fetch Split Record (splitId)
+        activate Database
+        Database-->>Backend: Split Data
+        deactivate Database
+        Backend->>Backend: Check Permissions (Kate requested, Kate is split.userId)
+        Backend->>+Database: UPDATE expenseSplit SET settled=true WHERE id=Kate's split ID
+        Database-->>-Backend: Update Successful
+    end
+
+    Backend-->>-Frontend: Split Settled Successfully
+    deactivate Backend
+    Frontend-->>Kate: Update UI to show split is settled
+    deactivate Frontend
+
+    Note over Frontend, Backend: Balance Impact (Ideal*): Kate $0, James -$30, Oliver +$30 (net)<br/>(*Requires getGroupBalances to ignore settled splits)
