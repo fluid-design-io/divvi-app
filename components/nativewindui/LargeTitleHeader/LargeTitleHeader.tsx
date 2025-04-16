@@ -113,7 +113,7 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
       <View
         style={{
           paddingTop: insets.top + 14,
-          backgroundColor: props.backgroundColor ?? colors.background,
+          backgroundColor: props.backgroundColor ?? colors.foreground,
         }}
         className={cn(
           'px-1 shadow-none',
@@ -177,11 +177,11 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
           <Animated.View exiting={FadeOut} className="absolute bottom-0 left-0 right-0 top-0">
             <View
               style={{ paddingTop: insets.top + 6 }}
-              className="bg-background relative z-50 overflow-hidden">
+              className="relative z-50 overflow-hidden bg-background">
               <Animated.View
                 entering={customEntering}
                 exiting={customExiting}
-                className="bg-muted/25 dark:bg-card absolute bottom-2.5 left-4 right-4 h-14 rounded-full"
+                className="bg-muted/25 absolute bottom-2.5 left-4 right-4 h-14 rounded-full dark:bg-card"
               />
               <View className="pb-2.5">
                 <Animated.View
@@ -190,7 +190,7 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
                   className="h-14 flex-row items-center pl-3.5 pr-5">
                   <Animated.View entering={FadeIn} exiting={FadeOut}>
                     <Button variant="plain" size="icon" onPress={onSearchBackPress}>
-                      <Icon color={colors.grey} name={'arrow-left'} size={24} />
+                      <Icon color={colors.grey} name="arrow-left" size={24} />
                     </Button>
                   </Animated.View>
                   <Animated.View entering={FadeInRight} exiting={FadeOutRight} className="flex-1">
@@ -207,11 +207,10 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
                       autoCapitalize={props.searchBar.autoCapitalize}
                       keyboardType={searchBarInputTypeToKeyboardType(props.searchBar.inputType)}
                       returnKeyType="search"
-                      blurOnSubmit={props.searchBar.materialBlurOnSubmit}
+                      submitBehavior="submit"
                       onSubmitEditing={props.searchBar.materialOnSubmitEditing}
                     />
                   </Animated.View>
-
                   <View className="flex-row items-center gap-3 pr-0.5">
                     {!!searchValue && (
                       <Animated.View entering={FadeIn} exiting={FadeOut}>
@@ -231,10 +230,10 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
                   </View>
                 </Animated.View>
               </View>
-              {isInlined && <Animated.View entering={ZoomIn} className="bg-border h-px" />}
+              {isInlined && <Animated.View entering={ZoomIn} className="h-px bg-border" />}
             </View>
-            <Animated.View entering={FadeInUp} className="bg-background flex-1 ">
-              <View className="bg-muted/25 dark:bg-card flex-1">{props.searchBar.content}</View>
+            <Animated.View entering={FadeInUp} className="flex-1 bg-background ">
+              <View className="bg-muted/25 flex-1 dark:bg-card">{props.searchBar.content}</View>
             </Animated.View>
           </Animated.View>
         </Portal>

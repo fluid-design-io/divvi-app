@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import Loading from '../core/loading';
 import { TouchableBounce } from '../core/touchable-bounce';
 
@@ -16,8 +17,8 @@ function AccountButton() {
   const { data: session } = authClient.useSession();
   if (!session) return <Loading />;
   return (
-    <TouchableBounce>
-      <Avatar alt="NativeWindUI Avatar">
+    <TouchableBounce onPress={() => router.push('/profile')}>
+      <Avatar alt={`${session.user.name}'s Profile`} className="h-8 w-8">
         <AvatarImage
           source={{
             uri: session?.user?.image ?? `https://ui-avatars.com/api/?name=${session?.user?.name}`,

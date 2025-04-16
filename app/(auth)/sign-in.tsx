@@ -35,7 +35,7 @@ export default function SignIn() {
   useEffect(() => {
     if (isAuthenticated) {
       if (navContainerRef.isReady()) {
-        router.push('/two');
+        router.push('/(tabs)/(home)');
       }
     }
   }, [isAuthenticated, navContainerRef.isReady()]);

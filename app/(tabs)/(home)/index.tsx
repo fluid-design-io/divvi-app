@@ -5,11 +5,9 @@ import { useRef } from 'react';
 import type { RefObject } from 'react';
 import { View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import Animated, { FadeIn, ZoomOut } from 'react-native-reanimated';
 
-import { ErrorView } from '~/components/core/error-view'; //! remove or rename if you don't have ErrorView
+import { ErrorView } from '~/components/core/error-view';
 import Loading from '~/components/core/loading';
-import { Button } from '~/components/nativewindui/Button';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 import type { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitleHeader/types';
 import {
@@ -27,7 +25,6 @@ import { categorizeGroupsByDate } from '~/utils/categorizeGroups';
 
 // Main component name placeholder
 export default function GroupList() {
-  const { colors } = useColorScheme();
   const searchBarRef = useRef<LargeTitleSearchBarRef | null>(null);
 
   const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage, refetch } =
@@ -58,15 +55,6 @@ export default function GroupList() {
           ref: searchBarRef as RefObject<LargeTitleSearchBarRef>,
           onChangeText: (text) => {
             console.log(text);
-          },
-          materialRightView() {
-            return (
-              <Animated.View entering={FadeIn} exiting={ZoomOut}>
-                <Button variant="plain" size="icon">
-                  <Icon size={24} name="cog-outline" color={colors.foreground} />
-                </Button>
-              </Animated.View>
-            );
           },
           content: (
             <KeyboardAwareScrollView
