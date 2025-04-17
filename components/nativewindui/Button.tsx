@@ -15,6 +15,8 @@ const buttonVariants = cva('flex-row items-center justify-center gap-2', {
       secondary: 'ios:border-primary ios:active:bg-primary/5 border border-foreground/40',
       tonal:
         'ios:bg-primary/10 dark:ios:bg-primary/10 ios:active:bg-primary/15 bg-primary/15 dark:bg-primary/30',
+      muted:
+        'ios:bg-muted/10 dark:ios:bg-muted/20 ios:active:bg-muted/25 bg-muted/15 dark:bg-muted/15',
       plain: 'ios:active:opacity-70',
     },
     size: {
@@ -52,6 +54,7 @@ const buttonTextVariants = cva('font-medium', {
       primary: 'text-white',
       secondary: 'ios:text-primary text-foreground',
       tonal: 'ios:text-primary text-foreground',
+      muted: 'text-foreground',
       plain: 'text-foreground',
     },
     size: {
@@ -88,12 +91,14 @@ const ANDROID_RIPPLE = {
     secondary: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
     plain: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
     tonal: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
+    muted: { color: convertToRGBA(COLORS.dark.grey5, 0.8), borderless: false },
   },
   light: {
     primary: { color: convertToRGBA(COLORS.light.grey4, 0.4), borderless: false },
     secondary: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
     plain: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
     tonal: { color: convertToRGBA(COLORS.light.grey6, 0.4), borderless: false },
+    muted: { color: convertToRGBA(COLORS.light.grey5, 0.4), borderless: false },
   },
 };
 
