@@ -1,14 +1,18 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { BadgeDollarSign } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FormTitle } from '~/components/core/form-scroll-view';
+import { TonalIcon } from '~/components/core/icon';
 
-import { Text } from '~/components/nativewindui/Text';
 import { trpc } from '~/utils/api';
 
 function NewExpenseModal() {
   const [mounted, setMounted] = useState(false);
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
 
   const { mutate: initializeExpense } = useMutation(
     trpc.expense.initialize.mutationOptions({
@@ -25,14 +29,23 @@ function NewExpenseModal() {
   useEffect(() => {
     if (!mounted) {
       setMounted(true);
-      initializeExpense();
+      setTimeout(() => {
+        initializeExpense();
+      }, 200);
     }
   }, [mounted]);
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View
+      className="items-center justify-center"
+      style={{
+        paddingTop:
+          // TODO: double check why we need to subtract 4 here
+          insets.top - 4,
+      }}>
+      <TonalIcon Icon={BadgeDollarSign} />
+      <FormTitle title="New Expense" />
       <ActivityIndicator />
-      <Text>Creating new expense...</Text>
     </View>
   );
 }

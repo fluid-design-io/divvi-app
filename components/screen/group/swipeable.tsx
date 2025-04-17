@@ -9,6 +9,7 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSpring,
 } from 'react-native-reanimated';
 
@@ -66,12 +67,12 @@ export default function Swipeable({
         previousTranslateX.value > translateX.value
           ? interpolate(
               -translateX.value,
-              [0, BUTTON_WIDTH * 2, BUTTON_WIDTH * 3, BUTTON_WIDTH * 3 + 40, dimensions.width],
+              [0, BUTTON_WIDTH * 1, BUTTON_WIDTH * 2, BUTTON_WIDTH * 2 + 40, dimensions.width],
               [-BUTTON_WIDTH, 0, 0, BUTTON_WIDTH + 40, dimensions.width - BUTTON_WIDTH]
             )
           : interpolate(
               -translateX.value,
-              [0, BUTTON_WIDTH * 2, dimensions.width],
+              [0, BUTTON_WIDTH * 1, dimensions.width],
               [-BUTTON_WIDTH, 0, dimensions.width - BUTTON_WIDTH]
             ),
       flex: 1,
@@ -131,17 +132,18 @@ export default function Swipeable({
         //   event.translationX > 0 ? BUTTON_WIDTH : -BUTTON_WIDTH,
         //   SPRING_CONFIG
         // );
-        return;
+        // return;
       }
 
       if (left) {
         if (translateX.value < -BUTTON_WIDTH * 2) {
           translateX.value = withSpring(-dimensions.width, SPRING_CONFIG);
           runOnJS(onDelete)();
+          translateX.value = withDelay(500, withSpring(0, SPRING_CONFIG));
           return;
         }
         translateX.value = withSpring(
-          event.translationX > 0 ? BUTTON_WIDTH * 2 : -BUTTON_WIDTH * 2,
+          event.translationX > 0 ? BUTTON_WIDTH : -BUTTON_WIDTH,
           SPRING_CONFIG
         );
         return;

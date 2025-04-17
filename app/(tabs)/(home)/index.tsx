@@ -10,7 +10,7 @@ import { List } from '~/components/nativewindui/List';
 import { ListEmpty, ListSearchContent, renderItem } from '~/components/screen/group';
 import AccountButton from '~/components/user/account-button';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate } from '~/utils/categorizeGroups';
+import { categorizeGroupsByDate } from '~/utils/categorize-groups';
 import { useDebounce } from '@uidotdev/usehooks';
 
 // Main component name placeholder

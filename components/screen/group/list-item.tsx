@@ -5,7 +5,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { ListItemProps, itemVariants } from '~/components/nativewindui/List';
 import { Text, TextClassContext } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
-import { GroupListItem } from '~/utils/categorizeGroups';
+import { GroupListItem } from '~/utils/categorize-groups';
 
 const ListItem = React.forwardRef(ListItemComponent) as <T extends GroupListItem>(
   props: ListItemProps<T> & { ref?: React.Ref<View> }

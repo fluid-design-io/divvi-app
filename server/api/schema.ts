@@ -5,6 +5,26 @@ import { z } from 'zod';
 import { group, groupMember, expense, expenseSplit, settlement, activity } from '~/db/schema';
 
 // ==========================================
+// Common Validation Schemas
+// ==========================================
+
+const positiveDecimalSchema = z.coerce
+  .number({
+    message: 'Invalid amount',
+  })
+  .positive()
+  .refine((amount) => amount.toString().split('.')[1]?.length <= 2, {
+    message: 'The amount can only have 2 decimal places',
+  });
+
+const percentageSchema = z.coerce
+  .number({
+    message: 'Invalid percentage',
+  })
+  .nonnegative()
+  .optional();
+
+// ==========================================
 // Common Validation Constants
 // ==========================================
 
@@ -78,19 +98,21 @@ export const createExpenseWithSplitsSchema = z.object({
 // Update expense schema
 export const updateExpenseSchema = z.object({
   id: z.string().uuid(),
+  groupId: z.string().uuid().optional(),
   title: z.string().min(1).optional(),
   description: z.string().optional(),
-  amount: z.number().positive().optional(),
+  amount: positiveDecimalSchema.optional(),
   category: z.enum(categoryValues).optional(),
   date: z.date().optional(),
   splitType: z.enum(splitTypeValues).optional(),
+  paidBy: z.string().uuid().optional(),
   splits: z
     .array(
       z.object({
         id: z.string().uuid().optional(),
         userId: z.string(),
-        amount: z.number().nonnegative(),
-        percentage: z.number().nonnegative().optional(),
+        amount: positiveDecimalSchema,
+        percentage: percentageSchema,
       })
     )
     .optional(),

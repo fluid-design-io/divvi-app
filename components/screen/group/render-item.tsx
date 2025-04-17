@@ -2,9 +2,12 @@ import { View } from 'react-native';
 
 import { ListRenderItemInfo, ListSectionHeader } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { GroupListItem } from '~/utils/categorizeGroups';
+import { GroupListItem } from '~/utils/categorize-groups';
 import ListItem from './list-item';
 import Swipeable from './swipeable';
+import { Icon } from '@roninoss/icons';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { formatCurrency } from '~/lib/format';
 
 // Wrapper to pass the item info to the actual Item component
 export function renderItem(info: ListRenderItemInfo<GroupListItem>) {
@@ -13,6 +16,7 @@ export function renderItem(info: ListRenderItemInfo<GroupListItem>) {
 
 // The actual ListItem (row) component.
 function Item({ info }: { info: ListRenderItemInfo<GroupListItem> }) {
+  const { colors } = useColorScheme();
   // If it's a string, treat it as a section header
   if (typeof info.item === 'string') {
     return (
@@ -31,18 +35,18 @@ function Item({ info }: { info: ListRenderItemInfo<GroupListItem> }) {
         {...info}
         target="Cell"
         variant="insets"
+        titleClassName="font-semibold"
+        textContentClassName="justify-between"
         rightView={
           <View className="flex-1 items-end justify-between gap-0.5 px-2">
-            <Text className="text-muted-foreground">
-              {info.item.memberCount + ` member${info.item.memberCount === 1 ? '' : 's'}`}
-            </Text>
-            <Text className="font-rounded text-muted-foreground">
-              {info.item.totalBalance.toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 0,
-              })}
+            <View className="flex-row items-center gap-0.5">
+              <Text className="font-rounded text-muted-foreground" variant="caption1">
+                {info.item.memberCount}
+              </Text>
+              <Icon name="person" size={14} color={colors.grey3} />
+            </View>
+            <Text className="font-rounded text-muted-foreground" variant="caption1">
+              {formatCurrency(info.item.totalBalance)}
             </Text>
           </View>
         }

@@ -68,18 +68,13 @@ export const FormScrollView = ({
   );
 
   return (
-    <View
-      className="flex-1"
-      style={{
-        paddingTop: Platform.OS === 'ios' ? 0 : insets.top + 48,
-        paddingBottom: insets.bottom,
-      }}>
+    <>
       <KeyboardAwareScrollView
         bottomOffset={Platform.select({ ios: 96, android: 84 })}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
         contentInsetAdjustmentBehavior="automatic"
-        contentContainerClassName={`p-4 web:p-0 ${contentContainerClassName}`}
+        contentContainerClassName={cn('px-4 web:p-0', contentContainerClassName)}
         {...props}>
         <View className={cn('mx-auto w-full max-w-lg', 'web:rounded-2xl web:bg-card web:p-6')}>
           <View className="items-center justify-center">
@@ -100,7 +95,7 @@ export const FormScrollView = ({
           {footerBody}
         </KeyboardStickyView>
       </OnlyNative>
-    </View>
+    </>
   );
 };
 

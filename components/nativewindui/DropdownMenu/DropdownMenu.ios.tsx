@@ -1,6 +1,5 @@
 import { ICON_MAPPING, type MaterialIconName } from '@roninoss/icons';
 import * as React from 'react';
-import { View } from 'react-native';
 import {
   ContextMenuButton,
   MenuAttributes,
@@ -39,16 +38,14 @@ const DropdownMenu = React.forwardRef<DropdownMenuRef, DropdownMenuProps>(
     ref
   ) => {
     return (
-      <View>
-        <ContextMenuButton
-          ref={ref as React.LegacyRef<ContextMenuButton>}
-          isMenuPrimaryAction
-          isContextMenuEnabled={enabled}
-          menuConfig={toConfigMenu(items, iOSItemSize, title)}
-          onPressMenuItem={toOnPressMenuItem(onItemPress)}
-          {...props}
-        />
-      </View>
+      <ContextMenuButton
+        ref={ref as React.LegacyRef<ContextMenuButton>}
+        isMenuPrimaryAction
+        isContextMenuEnabled={enabled}
+        menuConfig={toConfigMenu(items, iOSItemSize, title)}
+        onPressMenuItem={toOnPressMenuItem(onItemPress)}
+        {...props}
+      />
     );
   }
 );
@@ -157,7 +154,7 @@ function toConfigItem(item: DropdownItem): MenuElementConfig {
             iconType: 'SYSTEM',
             iconValue:
               item.icon?.namingScheme === 'sfSymbol'
-                ? item.icon.name ?? 'questionmark'
+                ? (item.icon.name ?? 'questionmark')
                 : item.icon.name && item.icon.name in ICON_MAPPING
                   ? ICON_MAPPING[item.icon.name as MaterialIconName].sfSymbol
                   : 'questionmark',

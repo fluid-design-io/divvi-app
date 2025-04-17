@@ -1,18 +1,22 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Icon } from '@roninoss/icons';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebounce } from '@uidotdev/usehooks';
+import { useLocalSearchParams } from 'expo-router';
 import { Info } from 'lucide-react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 
 // Assuming you have these components or similar ones
 import { ErrorView } from '~/components/core/error-view';
 import Loading from '~/components/core/loading';
+import { AdaptiveSearchHeader } from '~/components/nativewindui/AdaptiveSearchHeader';
 import {
   List,
   ListItem,
   ListRenderItemInfo, // Or define a specific type
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
+import Swipeable from '~/components/screen/group/swipeable';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { trpc } from '~/utils/api';
 import type { RouterOutputs } from '~/utils/api';
@@ -33,25 +37,14 @@ interface ExpenseListDataItem {
 }
 
 export default function GroupDetails() {
-  useColorScheme();
-  const { id: groupId } = useLocalSearchParams<{ id: string }>();
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
 
   // State for search input
   const [searchTerm, setSearchTerm] = useState('');
   // State for debounced search term (used in query)
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Debounce effect
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500); // Debounce time: 500ms
-
-    return () => {
-      clearTimeout(timerId); // Cleanup timeout on component unmount or searchTerm change
-    };
-  }, [searchTerm]);
-
+  const { data: group } = useQuery(trpc.group.getById.queryOptions({ groupId }));
   // Fetch expenses - place keepPreviousData inside the second argument
   const {
     data,
@@ -86,34 +79,9 @@ export default function GroupDetails() {
       id: item.id,
       title: item.title,
       subTitle: item.description ?? `Paid by ${paidByName}`,
-      value: `$${item.amount.toFixed(2)} - ${new Date(item.date).toLocaleDateString()}`,
       originalData: item,
     };
   });
-
-  // Render function uses the redefined interface
-  function renderExpenseListItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
-    return (
-      <ListItem
-        {...info}
-        variant="insets"
-        // rightView can still be customized if needed,
-        // but title/subtitle/value are likely handled by spreading info
-        // If the 'value' prop above is used by ListItem, we might not need this rightView
-        // Let's keep it for explicit amount/date display for now
-        rightView={
-          <View className="items-end px-2">
-            <Text className="font-medium">${info.item.originalData.amount.toFixed(2)}</Text>
-            <Text className="text-xs text-muted-foreground">
-              {new Date(info.item.originalData.date).toLocaleDateString()}
-            </Text>
-          </View>
-        }
-        // If needed, add onPress based on info.item.id or info.item.originalData.id
-        // onPress={() => console.log('Pressed:', info.item.id)}
-      />
-    );
-  }
 
   // Optional: Footer component to show loading indicator during fetchNextPage
   function ListFooter() {
@@ -134,31 +102,26 @@ export default function GroupDetails() {
 
   return (
     <>
-      {/* Stack.Screen can be used to set the header title dynamically */}
-      <Stack.Screen
-        options={{
-          title: `Group Expenses`,
-          headerSearchBarOptions: {
-            hideWhenScrolling: true,
-            placeholder: 'Search expenses...',
-            onChangeText: (event) => {
-              setSearchTerm(event.nativeEvent.text);
-            },
-            onCancelButtonPress: () => {
-              setSearchTerm('');
-            },
+      <AdaptiveSearchHeader
+        iosTitle={group?.name ?? 'Loading...'}
+        searchBar={{
+          // ! Causing UI glitch on mount
+          // iosHideWhenScrolling: true,
+          onChangeText: setSearchTerm,
+          onCancelButtonPress: () => {
+            setSearchTerm('');
           },
         }}
       />
       <List
         data={listData} // Pass the mapped data
-        renderItem={renderExpenseListItem} // Use the updated render function
+        renderItem={renderItem} // Use the updated render function
         extraData={debouncedSearchTerm}
         ListEmptyComponent={
           isPending ? <Loading /> : <ListEmpty searchTerm={debouncedSearchTerm} />
         }
         ListFooterComponent={ListFooter} // Show loading indicator at the bottom
-        refreshing={isRefetching && !isFetchingNextPage} // Only show top refresh indicator on manual refresh
+        refreshing={isRefetching}
         onRefresh={refetch} // Allow pull-to-refresh
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
@@ -166,7 +129,6 @@ export default function GroupDetails() {
           }
         }}
         onEndReachedThreshold={0.5} // Adjust as needed
-        estimatedItemSize={60} // Add estimate for performance
         contentInsetAdjustmentBehavior="automatic"
         variant="insets"
         keyboardDismissMode="on-drag"
@@ -186,5 +148,65 @@ function ListEmpty({ searchTerm }: { searchTerm?: string }) {
       <Info className="mb-2 h-6 w-6 text-muted-foreground" />
       <Text className="text-center text-sm text-muted-foreground">{message}</Text>
     </View>
+  );
+}
+
+function renderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
+  return <ListRenderItem {...info} />;
+}
+
+function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
+  const queryClient = useQueryClient();
+  const { colors } = useColorScheme();
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+
+  const { mutate: deleteExpense } = useMutation(
+    trpc.expense.delete.mutationOptions({
+      onMutate: ({ id }) => {
+        queryClient.setQueryData(
+          trpc.expense.getByGroupId.infiniteQueryKey({
+            groupId,
+          }),
+          (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.filter((item: ExpenseItem) => item.id !== id),
+              })),
+            };
+          }
+        );
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.expense.getByGroupId.infiniteQueryKey({
+            groupId,
+          }),
+        });
+      },
+    })
+  );
+  return (
+    <Swipeable onDelete={() => deleteExpense({ id: info.item.id })}>
+      <ListItem
+        {...info}
+        variant="insets"
+        rightView={
+          <View className="flex-1 flex-row items-center gap-0.5 px-2">
+            <View className="items-end justify-between">
+              <Text className="font-medium">${info.item.originalData.amount.toFixed(2)}</Text>
+              <Text className="text-xs text-muted-foreground">
+                {new Date(info.item.originalData.date).toLocaleDateString()}
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={22} color={colors.grey2} />
+          </View>
+        }
+        // If needed, add onPress based on info.item.id or info.item.originalData.id
+        // onPress={() => console.log('Pressed:', info.item.id)}
+      />
+    </Swipeable>
   );
 }

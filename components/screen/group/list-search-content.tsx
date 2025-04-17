@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import Loading from '~/components/core/loading';
 import { List } from '~/components/nativewindui/List';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate } from '~/utils/categorizeGroups';
+import { categorizeGroupsByDate } from '~/utils/categorize-groups';
 import ListEmpty from './list-empty';
 import { renderItem } from './render-item';
 

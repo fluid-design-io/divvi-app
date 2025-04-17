@@ -78,24 +78,22 @@ export const groupRouter = {
       })) as GroupWithMembers[];
 
       //* for each item, get getGroupBalances
-      const [balances] = await Promise.all(
+      const groupBalances = await Promise.all(
         groups.map((item) => getGroupBalances(ctx, { groupId: item.id, limit: 100 }))
       );
 
       //* accumulate sum of balances into groups
       const groupedBalances: Record<string, number> = {};
-
-      // For each group, calculate the total balance
       for (const [index, expense] of groups.entries()) {
-        // The balance for this group is the sum of all user balances
-        const groupBalance = balances[index];
-        groupedBalances[expense.id] = groupBalance.balance;
+        // For each group, calculate the total balance
+        const groupBalance = groupBalances[index];
+        groupedBalances[expense.id] = groupBalance.reduce((acc, curr) => acc + curr.balance, 0);
       }
 
       //* add groupedBalances to groups
-      const groupWithBalances = groups.map((item) => ({
-        ...item,
-        balance: groupedBalances[item.id],
+      const groupWithBalances = groups.map((expense) => ({
+        ...expense,
+        balance: groupedBalances[expense.id],
       })) satisfies GroupWithBalance[];
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -116,7 +114,6 @@ export const groupRouter = {
   // Get a specific group by ID
   getById: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
-
     // Check if user is a member of this group
     const membership = await ctx.db.query.groupMember.findFirst({
       where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),

@@ -117,10 +117,11 @@ export const expenseRouter = {
   // initalize an expense into "default" group (create if not exists)
   initialize: protectedProcedure.input(z.void()).mutation(async ({ ctx }) => {
     const userId = ctx.session.user.id;
+    const defaultGroupName = 'Default Group';
 
     // Check if "default" group exists
     let defaultGroup = await ctx.db.query.group.findFirst({
-      where: eq(group.name, 'Default'),
+      where: eq(group.name, defaultGroupName),
     });
 
     if (!defaultGroup) {
@@ -128,9 +129,9 @@ export const expenseRouter = {
       const [newGroup] = await ctx.db
         .insert(group)
         .values({
-          name: 'default',
+          name: defaultGroupName,
           createdById: userId,
-          description: 'Default group for expenses',
+          description: `${defaultGroupName} for expenses`,
         })
         .returning();
 

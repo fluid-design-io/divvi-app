@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 export default function ModalLayout() {
   return (
@@ -27,5 +27,5 @@ const FORM_SCREEN_OPTIONS = {
   headerTitle: '',
   headerShown: true,
   headerTransparent: true,
-  headerBackground: () => <View />,
+  headerBlurEffect: undefined,
 } as const;
