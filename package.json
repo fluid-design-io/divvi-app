@@ -58,6 +58,7 @@
     "expo-status-bar": "~2.2.0",
     "expo-system-ui": "~5.0.2",
     "expo-web-browser": "~14.1.2",
+    "jotai": "^2.12.3",
     "lucide-react-native": "^0.488.0",
     "nativewind": "latest",
     "pg": "^8.14.1",

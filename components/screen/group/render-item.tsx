@@ -28,31 +28,32 @@ function Item({ info }: { info: ListRenderItemInfo<GroupListItem> }) {
       />
     );
   }
-
-  return (
-    <Swipeable onDelete={info.item.onDelete}>
-      <ListItem
-        {...info}
-        target="Cell"
-        variant="insets"
-        titleClassName="font-semibold"
-        textContentClassName="justify-between"
-        rightView={
-          <View className="flex-1 items-end justify-between gap-0.5 px-2">
-            <View className="flex-row items-center gap-0.5">
-              <Text className="font-rounded text-muted-foreground" variant="caption1">
-                {info.item.memberCount}
-              </Text>
-              <Icon name="person" size={14} color={colors.grey3} />
-            </View>
+  const listItem = (
+    <ListItem
+      {...info}
+      target="Cell"
+      variant="insets"
+      titleClassName="font-semibold"
+      textContentClassName="justify-between"
+      rightView={
+        <View className="flex-1 items-end justify-between gap-0.5 px-2">
+          <View className="flex-row items-center gap-0.5">
             <Text className="font-rounded text-muted-foreground" variant="caption1">
-              {formatCurrency(info.item.totalBalance)}
+              {info.item.memberCount}
             </Text>
+            <Icon name="person" size={14} color={colors.grey3} />
           </View>
-        }
-        disabled={info.item.disabled}
-        onPress={info.item.onPress}
-      />
-    </Swipeable>
+          <Text className="font-rounded text-muted-foreground" variant="caption1">
+            {formatCurrency(info.item.totalBalance)}
+          </Text>
+        </View>
+      }
+      disabled={info.item.disabled}
+      onPress={info.item.onPress}
+    />
   );
+  if (info.item.onDelete) {
+    return <Swipeable onDelete={info.item.onDelete}>{listItem}</Swipeable>;
+  }
+  return listItem;
 }

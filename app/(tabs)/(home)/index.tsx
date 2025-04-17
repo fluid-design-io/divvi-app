@@ -12,6 +12,7 @@ import AccountButton from '~/components/user/account-button';
 import { trpc } from '~/utils/api';
 import { categorizeGroupsByDate } from '~/utils/categorize-groups';
 import { useDebounce } from '@uidotdev/usehooks';
+import { router } from 'expo-router';
 
 // Main component name placeholder
 export default function GroupList() {
@@ -63,7 +64,10 @@ export default function GroupList() {
   if (isError) return <ErrorView message={error?.message} onRetry={refetch} />;
 
   // Use the categorization function
-  const DATA = categorizeGroupsByDate(data, deleteGroupMutation);
+  const DATA = categorizeGroupsByDate(data, {
+    onPress: (groupId) => router.push(`/group/${groupId}`),
+    onDelete: deleteGroupMutation,
+  });
 
   return (
     <>

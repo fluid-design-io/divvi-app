@@ -19,13 +19,23 @@ import { authClient } from '~/lib/auth/client';
 import { SelectMember } from '~/components/screen/expense';
 import { ListItem } from '~/components/nativewindui/List';
 import { Icon } from '@roninoss/icons';
+import { atom, useAtomValue } from 'jotai';
 
 type UpdateExpenseSchemaType = z.infer<typeof updateExpenseSchema>;
 type Group = NonNullable<RouterOutputs['expense']['getById']>['group'];
 
+export const selectedGrouIdAtom = atom<string | undefined>(undefined);
+
 export default function FormPage() {
   const navigation = useNavigation();
   const { expenseId: id } = useGlobalSearchParams<{ expenseId: string }>();
+  const selectedGroupId = useAtomValue(selectedGrouIdAtom);
+  const { data: group } = useQuery(
+    trpc.group.getById.queryOptions(
+      { groupId: selectedGroupId ?? '' },
+      { enabled: !!selectedGroupId }
+    )
+  );
   const { data: expense, isPending: isExpensePending } = useQuery(
     trpc.expense.getById.queryOptions({ id })
   );
@@ -77,6 +87,13 @@ export default function FormPage() {
       setSelectedGroup(expense.group);
     }
   }, [expense]);
+
+  useEffect(() => {
+    if (selectedGroupId && group) {
+      setSelectedGroup(group);
+    }
+  }, [selectedGroupId, group]);
+
   return (
     <>
       <Stack.Screen
@@ -115,7 +132,7 @@ export default function FormPage() {
                 </View>
               }
               disabled={isExpensePending}
-              onPress={() => {}}
+              onPress={() => router.push(`/expense/${id}/select-group`)}
             />
           </FormSection>
           <FormSection fields={['amount', 'title', 'paidBy']} ios={{ title: 'Details' }}>

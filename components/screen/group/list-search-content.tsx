@@ -7,6 +7,7 @@ import { trpc } from '~/utils/api';
 import { categorizeGroupsByDate } from '~/utils/categorize-groups';
 import ListEmpty from './list-empty';
 import { renderItem } from './render-item';
+import { router } from 'expo-router';
 
 export default function GroupListSearchContent({ searchTerm }: { searchTerm: string }) {
   const queryClient = useQueryClient();
@@ -54,7 +55,10 @@ export default function GroupListSearchContent({ searchTerm }: { searchTerm: str
   );
 
   // Use the categorization function
-  const DATA = categorizeGroupsByDate(data, deleteGroupMutation);
+  const DATA = categorizeGroupsByDate(data, {
+    onPress: (groupId) => router.push(`/group/${groupId}`),
+    onDelete: deleteGroupMutation,
+  });
 
   return (
     <View className="flex-1 bg-background">

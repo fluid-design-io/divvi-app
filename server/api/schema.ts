@@ -13,9 +13,16 @@ const positiveDecimalSchema = z.coerce
     message: 'Invalid amount',
   })
   .positive()
-  .refine((amount) => amount.toString().split('.')[1]?.length <= 2, {
-    message: 'The amount can only have 2 decimal places',
-  });
+  .refine(
+    (amount) => {
+      const amountString = amount.toString();
+      const decimalPart = amountString.split('.')[1];
+      return !decimalPart || decimalPart.length <= 2;
+    },
+    {
+      message: 'The amount can only have 2 decimal places',
+    }
+  );
 
 const percentageSchema = z.coerce
   .number({

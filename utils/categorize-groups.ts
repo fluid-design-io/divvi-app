@@ -9,7 +9,6 @@ import {
   isYesterday,
   startOfDay,
 } from 'date-fns';
-import { router } from 'expo-router';
 
 import type { ExtendedListDataItem } from '~/components/nativewindui/List';
 import type { RouterOutputs } from '~/utils/api';
@@ -30,11 +29,16 @@ type Category = (typeof CATEGORIES)[number] | string; // Month or Year strings
 
 export type GroupListItem =
   | string
-  | (ExtendedListDataItem & { memberCount: number; totalBalance: number; onDelete: () => void });
+  | (ExtendedListDataItem & { memberCount: number; totalBalance: number; onDelete?: () => void });
+
+export type CategorizeGroupsOptions = {
+  onPress: (groupId: string) => void;
+  onDelete?: ({ groupId }: { groupId: string }) => void;
+};
 
 export function categorizeGroupsByDate(
   data: GroupInfiniteData | undefined | null,
-  onDelete: ({ groupId }: { groupId: string }) => void
+  { onPress, onDelete }: CategorizeGroupsOptions
 ): GroupListItem[] {
   const groups: Group[] = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -57,8 +61,8 @@ export function categorizeGroupsByDate(
     })}`,
     memberCount: item.members.length,
     totalBalance: item.balance,
-    onPress: () => router.push(`/group/${item.id}`),
-    onDelete: () => onDelete({ groupId: item.id }),
+    onPress: () => onPress(item.id),
+    ...(onDelete ? { onDelete: () => onDelete({ groupId: item.id }) } : {}),
   });
 
   groups.forEach((item) => {
