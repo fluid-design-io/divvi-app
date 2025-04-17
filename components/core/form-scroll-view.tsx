@@ -68,7 +68,7 @@ export const FormScrollView = ({
   );
 
   return (
-    <>
+    <View className="flex-1">
       <KeyboardAwareScrollView
         bottomOffset={Platform.select({ ios: 96, android: 84 })}
         keyboardDismissMode="interactive"
@@ -88,14 +88,14 @@ export const FormScrollView = ({
 
       <OnlyNative>
         <KeyboardStickyView
-          offset={{ closed: -footerBottomOffset, opened: insets.bottom }}
+          offset={{ closed: -footerBottomOffset, opened: insets.bottom - footerBottomOffset }}
           style={{
             backgroundColor: colors.background,
           }}>
           {footerBody}
         </KeyboardStickyView>
       </OnlyNative>
-    </>
+    </View>
   );
 };
 

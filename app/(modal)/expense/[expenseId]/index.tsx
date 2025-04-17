@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { Form, FormItem, FormSection, FormTextField } from '~/components/nativewindui/Form';
 import { FormScrollView } from '~/components/core/form-scroll-view';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RouterOutputs, trpc } from '~/utils/api';
 import { useEffect, useState } from 'react';
 import { usePreventRemove } from '@react-navigation/native';
@@ -15,7 +15,6 @@ import { BadgeDollarSign } from 'lucide-react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { authClient } from '~/lib/auth/client';
 import { SelectMember } from '~/components/screen/expense';
 import { ListItem } from '~/components/nativewindui/List';
 import { Icon } from '@roninoss/icons';
@@ -28,6 +27,7 @@ export const selectedGrouIdAtom = atom<string | undefined>(undefined);
 
 export default function FormPage() {
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const { expenseId: id } = useGlobalSearchParams<{ expenseId: string }>();
   const selectedGroupId = useAtomValue(selectedGrouIdAtom);
   const { data: group } = useQuery(
@@ -40,10 +40,24 @@ export default function FormPage() {
     trpc.expense.getById.queryOptions({ id })
   );
   const { mutate: deleteExpense } = useMutation(trpc.expense.delete.mutationOptions());
+  const { mutate: updateExpense, isPending: isUpdateExpensePending } = useMutation(
+    trpc.expense.update.mutationOptions({
+      onSuccess: async (data) => {
+        setPreventRemove(false);
+        // TODO: redirect to this group
+        await queryClient.invalidateQueries({
+          queryKey: trpc.group.getById.queryKey({ groupId: data.groupId }),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: trpc.expense.getByGroupId.infiniteQueryKey({ groupId: data.groupId }),
+        });
+        router.dismissTo(`/group/${data.groupId}`);
+      },
+    })
+  );
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(expense?.group ?? null);
-  const [preventRemove] = useState(true);
+  const [preventRemove, setPreventRemove] = useState(true);
   const { colors } = useColorScheme();
-  authClient.useSession();
 
   // prevent the user from leaving the screen unless they confirm
   usePreventRemove(preventRemove, ({ data }) => {
@@ -70,7 +84,8 @@ export default function FormPage() {
   });
 
   const onSubmit = async (data: UpdateExpenseSchemaType) => {
-    console.log('>>> data', data);
+    console.log('❤️ Updating expense...');
+    updateExpense(data);
   };
 
   const title = form.watch('title') ?? '';
@@ -115,25 +130,29 @@ export default function FormPage() {
         title={title.length > 0 ? title : 'New Expense'}
         onSubmit={form.handleSubmit(onSubmit)}
         buttonText="Save"
-        Icon={BadgeDollarSign}>
+        Icon={BadgeDollarSign}
+        footerBottomOffset={100}
+        buttonDisabled={isExpensePending || isUpdateExpensePending}>
         <Form form={form} className="gap-6">
           <FormSection fields={['groupId']} ios={{ title: 'Group' }} className="ios:pl-0">
-            <ListItem
-              index={0}
-              item={{
-                title: selectedGroup?.name ?? 'Loading...',
-                subTitle: selectedGroup?.description ?? '',
-              }}
-              target="Cell"
-              rightView={
-                <View className="flex-1 flex-row items-center gap-0.5 px-2">
-                  <Text className="text-muted-foreground">Change</Text>
-                  <Icon name="chevron-right" size={22} color={colors.grey2} />
-                </View>
-              }
-              disabled={isExpensePending}
-              onPress={() => router.push(`/expense/${id}/select-group`)}
-            />
+            <FormItem className="ios:pr-0">
+              <ListItem
+                index={0}
+                item={{
+                  title: selectedGroup?.name ?? 'Loading...',
+                  subTitle: selectedGroup?.description ?? '',
+                }}
+                target="Cell"
+                rightView={
+                  <View className="flex-1 flex-row items-center gap-0.5 px-2">
+                    <Text className="text-muted-foreground">Change</Text>
+                    <Icon name="chevron-right" size={22} color={colors.grey2} />
+                  </View>
+                }
+                disabled={isExpensePending}
+                onPress={() => router.push(`/expense/${id}/select-group`)}
+              />
+            </FormItem>
           </FormSection>
           <FormSection fields={['amount', 'title', 'paidBy']} ios={{ title: 'Details' }}>
             <FormItem>

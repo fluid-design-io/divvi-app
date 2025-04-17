@@ -1,10 +1,11 @@
 import { Icon } from '@roninoss/icons';
+import { FlashList } from '@shopify/flash-list';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Info } from 'lucide-react-native';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, LayoutAnimation } from 'react-native';
 
 // Assuming you have these components or similar ones
 import { ErrorView } from '~/components/core/error-view';
@@ -31,13 +32,16 @@ interface ExpenseListDataItem {
   subTitle?: string;
   value?: string;
   // Add any other standard fields ListItem might implicitly use (e.g., onPress, disabled - though we handle onPress separately)
-  // onPress?: () => void;
+  onPress: (id: string) => void;
+  onDelete?: (id: string) => void;
   // disabled?: boolean;
   originalData: ExpenseItem;
 }
 
 export default function GroupDetails() {
+  const queryClient = useQueryClient();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
+  const listRef = useRef<FlashList<ExpenseListDataItem>>(null);
 
   // State for search input
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,6 +70,40 @@ export default function GroupDetails() {
     )
   );
 
+  const { mutate: deleteExpense } = useMutation(
+    trpc.expense.delete.mutationOptions({
+      onMutate: ({ id }) => {
+        // Optimistically update the list
+        queryClient.setQueryData(
+          trpc.expense.getByGroupId.infiniteQueryKey({
+            groupId,
+          }),
+          (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                items: page.items.filter((item: ExpenseItem) => item.id !== id),
+              })),
+            };
+          }
+        );
+        // Prepare for layout animation
+        listRef.current?.prepareForLayoutAnimationRender();
+        // Configure the animation
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.expense.getByGroupId.infiniteQueryKey({
+            groupId,
+          }),
+        });
+      },
+    })
+  );
+
   // Handle error state
   if (isError) {
     return <ErrorView message={error?.message} onRetry={refetch} />;
@@ -80,26 +118,10 @@ export default function GroupDetails() {
       title: item.title,
       subTitle: item.description ?? `Paid by ${paidByName}`,
       originalData: item,
+      onDelete: () => deleteExpense({ id: item.id }),
+      onPress: () => router.push(`/expense/${item.id}`),
     };
   });
-
-  // Optional: Footer component to show loading indicator during fetchNextPage
-  function ListFooter() {
-    if (isFetchingNextPage) {
-      return <Loading className="py-4" />;
-    }
-    if (!hasNextPage && flattenedExpenses.length > 0) {
-      // Use flattenedExpenses here
-      // Optional: Indicate end of list
-      return (
-        <View className="items-center py-4">
-          <Text className="text-muted-foreground">No more expenses</Text>
-        </View>
-      );
-    }
-    return null;
-  }
-
   return (
     <>
       <AdaptiveSearchHeader
@@ -114,21 +136,29 @@ export default function GroupDetails() {
         }}
       />
       <List
-        data={listData} // Pass the mapped data
-        renderItem={renderItem} // Use the updated render function
+        ref={listRef}
+        data={listData}
+        renderItem={renderItem}
         extraData={debouncedSearchTerm}
+        keyExtractor={(item) => item.id}
         ListEmptyComponent={
           isPending ? <Loading /> : <ListEmpty searchTerm={debouncedSearchTerm} />
         }
-        ListFooterComponent={ListFooter} // Show loading indicator at the bottom
+        ListFooterComponent={
+          <ListFooter
+            isFetchingNextPage={isFetchingNextPage}
+            hasNextPage={hasNextPage}
+            hasItems={flattenedExpenses.length > 0}
+          />
+        }
         refreshing={isRefetching}
-        onRefresh={refetch} // Allow pull-to-refresh
+        onRefresh={refetch}
         onEndReached={() => {
           if (hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
           }
         }}
-        onEndReachedThreshold={0.5} // Adjust as needed
+        onEndReachedThreshold={0.5}
         contentInsetAdjustmentBehavior="automatic"
         variant="insets"
         keyboardDismissMode="on-drag"
@@ -156,40 +186,10 @@ function renderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
 }
 
 function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
-  const queryClient = useQueryClient();
   const { colors } = useColorScheme();
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
 
-  const { mutate: deleteExpense } = useMutation(
-    trpc.expense.delete.mutationOptions({
-      onMutate: ({ id }) => {
-        queryClient.setQueryData(
-          trpc.expense.getByGroupId.infiniteQueryKey({
-            groupId,
-          }),
-          (oldData) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                items: page.items.filter((item: ExpenseItem) => item.id !== id),
-              })),
-            };
-          }
-        );
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.expense.getByGroupId.infiniteQueryKey({
-            groupId,
-          }),
-        });
-      },
-    })
-  );
   return (
-    <Swipeable onDelete={() => deleteExpense({ id: info.item.id })}>
+    <Swipeable onDelete={() => info.item.onDelete?.(info.item.id)}>
       <ListItem
         {...info}
         variant="insets"
@@ -204,9 +204,31 @@ function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
             <Icon name="chevron-right" size={22} color={colors.grey2} />
           </View>
         }
-        // If needed, add onPress based on info.item.id or info.item.originalData.id
-        // onPress={() => console.log('Pressed:', info.item.id)}
+        onPress={() => info.item.onPress(info.item.id)}
       />
     </Swipeable>
   );
+}
+
+// Optional: Footer component to show loading indicator during fetchNextPage
+function ListFooter({
+  isFetchingNextPage,
+  hasNextPage,
+  hasItems,
+}: {
+  isFetchingNextPage: boolean;
+  hasNextPage: boolean;
+  hasItems: boolean;
+}) {
+  if (isFetchingNextPage) {
+    return <Loading className="py-4" />;
+  }
+  if (!hasNextPage && hasItems) {
+    return (
+      <View className="items-center py-4">
+        <Text className="text-muted-foreground">No more expenses</Text>
+      </View>
+    );
+  }
+  return null;
 }
