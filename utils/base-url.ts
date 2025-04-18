@@ -16,12 +16,8 @@ export const getBaseUrl = () => {
   const debuggerHost = Constants.expoConfig?.hostUri;
   const localhost = debuggerHost?.split(':')[0];
 
-  if (process.env.EXPO_PUBLIC_APP_BASE_URL) {
-    return process.env.EXPO_PUBLIC_APP_BASE_URL;
-  }
-
   if (!localhost) {
-    return 'http://192.168.31.125:8081';
+    return 'https://divvi-app.uing.dev';
   }
   return `http://${localhost}:8081`;
 };
