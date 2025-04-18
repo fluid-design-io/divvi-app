@@ -13,9 +13,10 @@ import { initials } from '~/utils/format';
 import { useLocalSearchParams } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
 import { useSheetRef } from '~/components/nativewindui/Sheet';
-import { ContactsPicker, Contact } from './contacts-picker';
+import { Contact } from './contacts-picker';
 import { usePreventRemove } from '@react-navigation/native';
 import { useState } from 'react';
+import { InviteMemberSheet } from './invite-member-sheet';
 
 type GroupMember = NonNullable<RouterOutputs['group']['getById']>['members'][number];
 
@@ -84,17 +85,6 @@ export const GroupMembers = ({
     setPreventRemove(true);
   };
 
-  const handleSelectContacts = (contacts: Contact[]) => {
-    // Here you would implement the logic to add the contact as a member
-    // For now, we'll just log the contact and close the sheet
-    console.log('Selected contact:', contacts);
-    bottomSheetModalRef.current?.dismiss();
-
-    // You can implement the actual member addition logic here
-    // For example:
-    // addMember({ groupId, contactId: contact.id });
-  };
-
   usePreventRemove(preventRemove, () => {});
 
   return (
@@ -129,11 +119,7 @@ export const GroupMembers = ({
         </View>
       </View>
 
-      <ContactsPicker
-        ref={bottomSheetModalRef}
-        onSelectContacts={handleSelectContacts}
-        onDismiss={() => setPreventRemove(false)}
-      />
+      <InviteMemberSheet onDismiss={() => setPreventRemove(false)} ref={bottomSheetModalRef} />
     </>
   );
 };
@@ -145,7 +131,7 @@ const GroupMemberAvatar = ({ member, onPress }: { member: GroupMember; onPress?:
         <Avatar alt="User Avatar" className="bg-muted/30 h-16 w-16">
           {member.user.image && <AvatarImage source={{ uri: member.user.image }} />}
           <AvatarFallback>
-            <Text>{initials(member.user.name)}</Text>
+            <Text>{initials(member.user.name ?? 'Anonymous')}</Text>
           </AvatarFallback>
         </Avatar>
         <Text
@@ -153,7 +139,7 @@ const GroupMemberAvatar = ({ member, onPress }: { member: GroupMember; onPress?:
           className="max-w-20 text-muted-foreground"
           numberOfLines={1}
           ellipsizeMode="middle">
-          {member.user.name ?? 'Unknown'}
+          {member.user.name ?? 'Anonymous'}
         </Text>
       </View>
     </TouchableBounce>

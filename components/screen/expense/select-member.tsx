@@ -42,7 +42,7 @@ export const SelectMember = ({
           createDropdownItem({
             loading: isGroupPending,
             actionKey: member.id,
-            title: member.user.id === session?.user?.id ? 'You' : member.user.name,
+            title: member.user.id === session?.user?.id ? 'You' : (member.user.name ?? ''),
             state: {
               checked: selectedMemberId === member.user.id,
             },

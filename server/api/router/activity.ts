@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from '@trpc/server';
 import { and, desc, eq, lt } from 'drizzle-orm';
 
-import { activity, groupMember } from '~/db/schema/app';
+import { activity, groupMember } from '~/db/schema';
 import { protectedProcedure } from '../trpc';
 import { createActivitySchema, groupIdWithPaginationSchema } from '../schema';
 

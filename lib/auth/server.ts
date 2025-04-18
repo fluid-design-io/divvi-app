@@ -4,7 +4,6 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { anonymous } from 'better-auth/plugins';
 
 import { db } from '~/db/client';
-import { appRouter, createCaller } from '~/server/api';
 import { linkAccount } from '~/server/functions/link-account';
 
 export const auth = betterAuth({
@@ -25,7 +24,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    expo(),
+    expo({
+      overrideOrigin: true,
+    }),
     anonymous({
       onLinkAccount: linkAccount,
     }),
@@ -40,4 +41,7 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg', // or "pg" or "mysql"
   }),
+  logger: {
+    level: 'debug',
+  },
 });

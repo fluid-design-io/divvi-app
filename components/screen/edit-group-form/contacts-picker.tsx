@@ -32,10 +32,6 @@ export const ContactsPicker = ({
 
   const insets = useSafeAreaInsets();
 
-  useEffect(() => {
-    loadContacts();
-  }, []);
-
   const loadContacts = async () => {
     try {
       setLoading(true);
@@ -83,6 +79,15 @@ export const ContactsPicker = ({
     }
   };
 
+  useEffect(() => {
+    loadContacts();
+    return () => {
+      console.log('unmounting');
+      setContacts([]);
+      setSelectedContacts([]);
+    };
+  }, []);
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center p-4">
@@ -120,6 +125,8 @@ export const ContactsPicker = ({
     <Sheet
       ref={ref}
       onDismiss={onDismiss}
+      enableDynamicSizing={false}
+      snapPoints={['100%']}
       footerComponent={(props) => (
         <BottomSheetFooter
           {...props}
@@ -160,7 +167,7 @@ export const ContactsPicker = ({
         )}
         estimatedItemSize={60}
         contentContainerStyle={{
-          paddingBottom: insets.bottom + 16,
+          paddingBottom: insets.bottom + 64,
         }}
       />
     </Sheet>

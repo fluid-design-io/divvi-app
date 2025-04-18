@@ -14,7 +14,6 @@ export default function SignIn() {
     const res = await authClient.signIn.social(
       {
         provider,
-        callbackURL: '/two',
       },
       {
         onRequest: (request) => {
@@ -32,6 +31,12 @@ export default function SignIn() {
       Alert.alert('Error', res.error.message);
     }
   };
+  const handleAnonymousLogin = async () => {
+    const res = await authClient.signIn.anonymous();
+    if (res.error) {
+      Alert.alert('Error', res.error.message);
+    }
+  };
   useEffect(() => {
     if (isAuthenticated) {
       if (navContainerRef.isReady()) {
@@ -42,13 +47,16 @@ export default function SignIn() {
   return (
     <>
       <Button onPress={() => handleLogin('google')}>
-        <Text>Login with Google</Text>
+        <Text>Sign in with Google</Text>
       </Button>
       <Button onPress={() => handleLogin('discord')}>
-        <Text>Login with Discord</Text>
+        <Text>Sign in with Discord</Text>
       </Button>
       <Button onPress={() => handleLogin('apple')}>
-        <Text>Login with Apple</Text>
+        <Text>Sign in with Apple</Text>
+      </Button>
+      <Button onPress={() => handleAnonymousLogin()}>
+        <Text>Sign in as Guest</Text>
       </Button>
     </>
   );

@@ -1,4 +1,4 @@
-import { expense, group, groupMember } from '~/db/schema/app';
+import { expense, group, groupMember } from '~/db/schema';
 import { createTRPCContext } from '../api';
 import { upsertExpenseSchema } from '../api/schema';
 

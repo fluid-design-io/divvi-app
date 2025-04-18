@@ -2,7 +2,7 @@ import type { TRPCRouterRecord } from '@trpc/server';
 import { z } from 'zod';
 import { and, desc, eq, or } from 'drizzle-orm';
 
-import { settlement, groupMember } from '~/db/schema/app';
+import { settlement, groupMember } from '~/db/schema';
 import { protectedProcedure } from '../trpc';
 import { createSettlementSchema, groupIdInputSchema, settlementStatusValues } from '../schema';
 

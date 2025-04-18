@@ -2,7 +2,7 @@ import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 // Import database schemas
-import { group, groupMember, expense, expenseSplit, settlement, activity } from '~/db/schema/app';
+import { group, groupMember, expense, expenseSplit, settlement, activity } from '~/db/schema';
 
 // ==========================================
 // Common Validation Schemas

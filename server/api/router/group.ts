@@ -10,7 +10,7 @@ import {
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
-import { group, groupMember } from '~/db/schema/app';
+import { group, groupMember } from '~/db/schema';
 import { getGroupBalances } from '~/server/functions/get-group-balances';
 import { DEFAULT_GROUP_NAME } from '~/server/functions/initialize-expense';
 const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
