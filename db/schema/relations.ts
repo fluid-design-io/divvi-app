@@ -116,10 +116,12 @@ export const settlementRelations = relations(settlement, ({ one }) => ({
   fromUser: one(user, {
     fields: [settlement.fromUserId],
     references: [user.id],
+    relationName: 'settlementsSent', // Match the relation name in userRelations
   }),
   toUser: one(user, {
     fields: [settlement.toUserId],
     references: [user.id],
+    relationName: 'settlementsReceived', // Match the relation name in userRelations
   }),
 }));
 

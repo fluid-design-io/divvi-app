@@ -16,7 +16,6 @@ export default function FormPage() {
   const queryClient = useQueryClient();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const isNewGroup = groupId === 'new';
-  console.log(`❤️ Enabled: ${!isNewGroup}`);
   const { data: existingGroup, isFetching: isFetchingExistingGroup } = useQuery(
     trpc.group.getById.queryOptions(
       {
