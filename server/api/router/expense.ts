@@ -9,7 +9,7 @@ import {
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
-import { expense, expenseSplit, group, groupMember } from '~/db/schema';
+import { expense, expenseSplit, group, groupMember } from '~/db/schema/app';
 import { getGroupBalances } from '~/server/functions/get-group-balances';
 import { initializeExpense } from '~/server/functions/initialize-expense';
 

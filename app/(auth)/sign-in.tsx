@@ -10,7 +10,7 @@ export default function SignIn() {
   const { data: isAuthenticated } = authClient.useSession();
   const navContainerRef = useNavigationContainerRef();
 
-  const handleLogin = async (provider: 'google' | 'discord') => {
+  const handleLogin = async (provider: 'google' | 'discord' | 'apple') => {
     const res = await authClient.signIn.social(
       {
         provider,
@@ -46,6 +46,9 @@ export default function SignIn() {
       </Button>
       <Button onPress={() => handleLogin('discord')}>
         <Text>Login with Discord</Text>
+      </Button>
+      <Button onPress={() => handleLogin('apple')}>
+        <Text>Login with Apple</Text>
       </Button>
     </>
   );

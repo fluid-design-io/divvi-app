@@ -138,6 +138,7 @@ export const ContactsPicker = ({
         </BottomSheetFooter>
       )}>
       <BottomSheetFlashList
+        //! BUG Scorll Locked for some reason
         data={contacts}
         renderItem={(items) =>
           renderContactListItem({

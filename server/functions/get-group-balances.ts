@@ -1,4 +1,4 @@
-import { expense, groupMember } from '~/db/schema';
+import { expense, groupMember } from '~/db/schema/app';
 import { createTRPCContext } from '../api';
 import { groupIdWithPaginationSchema } from '../api/schema';
 

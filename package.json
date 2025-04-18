@@ -10,7 +10,9 @@
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "web": "expo start --web",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "auth:gen": "npx @better-auth/cli generate --config ./lib/auth/server.ts --output ./db/schema/auth.ts"
   },
   "dependencies": {
     "@better-auth/expo": "^1.2.7",
@@ -41,6 +43,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.41.0",
     "drizzle-zod": "^0.7.1",
     "expo": "^53.0.0-preview.7",
@@ -62,6 +65,7 @@
     "expo-system-ui": "~5.0.2",
     "expo-web-browser": "~14.1.2",
     "jotai": "^2.12.3",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react-native": "^0.488.0",
     "nativewind": "latest",
     "pg": "^8.14.1",

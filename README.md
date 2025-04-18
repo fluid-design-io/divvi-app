@@ -1,5 +1,6 @@
 # TODOs
 
+- [ ] Add anonymous user id
 - [x] Remove a member from the group
 - [ ] Invite friends
 - [ ] Add upsert expense details logic

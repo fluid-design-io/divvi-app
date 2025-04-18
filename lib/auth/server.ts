@@ -1,8 +1,11 @@
 import { expo } from '@better-auth/expo';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { anonymous } from 'better-auth/plugins';
 
 import { db } from '~/db/client';
+import { appRouter, createCaller } from '~/server/api';
+import { linkAccount } from '~/server/functions/link-account';
 
 export const auth = betterAuth({
   trustedOrigins: ['divvi-app://'],
@@ -15,8 +18,18 @@ export const auth = betterAuth({
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
     },
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID as string,
+      clientSecret: process.env.APPLE_CLIENT_SECRET as string,
+      appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER as string,
+    },
   },
-  plugins: [expo()],
+  plugins: [
+    expo(),
+    anonymous({
+      onLinkAccount: linkAccount,
+    }),
+  ],
   advanced: {
     cookiePrefix: 'divvi',
   },
