@@ -1,0 +1,123 @@
+{
+  "apiRoutes": [
+    {
+      "file": "_expo/functions/api/trpc/[trpc]+api.js",
+      "page": "/api/trpc/[trpc]",
+      "namedRegex": "^/api/trpc/(?<trpc>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "trpc": "trpc"
+      }
+    },
+    {
+      "file": "_expo/functions/api/auth/[...auth]+api.js",
+      "page": "/api/auth/[...auth]",
+      "namedRegex": "^/api/auth(?:/(?<auth>.+?))?(?:/)?$",
+      "routeKeys": {
+        "auth": "auth"
+      }
+    }
+  ],
+  "htmlRoutes": [
+    {
+      "file": "./(tabs)/(home)/index.tsx",
+      "page": "/(tabs)/(home)/index",
+      "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(auth)/sign-in.tsx",
+      "page": "/(auth)/sign-in",
+      "namedRegex": "^(?:/\\(auth\\))?/sign\\-in(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/activity.tsx",
+      "page": "/(tabs)/activity",
+      "namedRegex": "^(?:/\\(tabs\\))?/activity(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "expo-router/build/views/Sitemap.js",
+      "page": "/_sitemap",
+      "namedRegex": "^/_sitemap(?:/)?$",
+      "routeKeys": {},
+      "generated": true
+    },
+    {
+      "file": "./add-expense.tsx",
+      "page": "/add-expense",
+      "namedRegex": "^/add\\-expense(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(modal)/profile/name.tsx",
+      "page": "/(modal)/profile/name",
+      "namedRegex": "^(?:/\\(modal\\))?/profile/name(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(modal)/profile/index.tsx",
+      "page": "/(modal)/profile/index",
+      "namedRegex": "^(?:/\\(modal\\))?/profile(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(modal)/profile/notifications.tsx",
+      "page": "/(modal)/profile/notifications",
+      "namedRegex": "^(?:/\\(modal\\))?/profile/notifications(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/(home)/group/[groupId]/index.tsx",
+      "page": "/(tabs)/(home)/group/[groupId]/index",
+      "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?/group/(?<groupId>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "groupId": "groupId"
+      }
+    },
+    {
+      "file": "./(modal)/upsert-group/[groupId].tsx",
+      "page": "/(modal)/upsert-group/[groupId]",
+      "namedRegex": "^(?:/\\(modal\\))?/upsert\\-group/(?<groupId>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "groupId": "groupId"
+      }
+    },
+    {
+      "file": "./(modal)/expense/[expenseId]/select-group.tsx",
+      "page": "/(modal)/expense/[expenseId]/select-group",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)/select\\-group(?:/)?$",
+      "routeKeys": {
+        "expenseId": "expenseId"
+      }
+    },
+    {
+      "file": "./(modal)/expense/[expenseId]/index_old.tsx",
+      "page": "/(modal)/expense/[expenseId]/index_old",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)/index_old(?:/)?$",
+      "routeKeys": {
+        "expenseId": "expenseId"
+      }
+    },
+    {
+      "file": "./(modal)/expense/[expenseId]/index.tsx",
+      "page": "/(modal)/expense/[expenseId]/index",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "expenseId": "expenseId"
+      }
+    }
+  ],
+  "notFoundRoutes": [
+    {
+      "file": "./+not-found.tsx",
+      "page": "/+not-found",
+      "namedRegex": "^(?:/(?<notfound>.+?))?(?:/)?$",
+      "routeKeys": {
+        "notfound": "not-found"
+      }
+    }
+  ],
+  "redirects": [],
+  "rewrites": []
+}
