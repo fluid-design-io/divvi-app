@@ -31,6 +31,7 @@ interface NumericKeypadProps {
   editable?: boolean;
 }
 
+// TODO: Element.Ref warning
 const AnimatedButton = Animated.createAnimatedComponent(Button);
 
 export function NumericKeypad({

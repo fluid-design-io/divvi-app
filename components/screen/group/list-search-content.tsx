@@ -14,7 +14,6 @@ export default function GroupListSearchContent({ searchTerm }: { searchTerm: str
   const { data, isPending, isRefetching, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery(
     trpc.group.all.infiniteQueryOptions(
       {
-        limit: 5,
         searchTerm: searchTerm || undefined,
       },
       {
@@ -30,26 +29,21 @@ export default function GroupListSearchContent({ searchTerm }: { searchTerm: str
     trpc.group.delete.mutationOptions({
       onMutate: ({ groupId }) => {
         // Optimistically update the cache by removing the deleted group
-        queryClient.setQueryData(
-          trpc.group.all.infiniteQueryKey({
-            limit: 5,
-          }),
-          (oldData) => {
-            if (!oldData) return oldData;
-            // For infinite queries, we need to update each page
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page) => ({
-                ...page,
-                items: page.items.filter((group: any) => group.id !== groupId),
-              })),
-            };
-          }
-        );
+        queryClient.setQueryData(trpc.group.all.infiniteQueryKey(), (oldData) => {
+          if (!oldData) return oldData;
+          // For infinite queries, we need to update each page
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              items: page.items.filter((group: any) => group.id !== groupId),
+            })),
+          };
+        });
       },
       onSuccess: () => {
         // Refetch the query to ensure the cache is in sync with the server
-        queryClient.invalidateQueries({ queryKey: trpc.group.all.queryKey() });
+        queryClient.invalidateQueries({ queryKey: trpc.group.all.infiniteQueryKey() });
       },
     })
   );

@@ -1,4 +1,4 @@
-import { createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 // Import database schemas
@@ -23,13 +23,6 @@ const positiveDecimalSchema = z.coerce
       message: 'The amount can only have 2 decimal places',
     }
   );
-
-const percentageSchema = z.coerce
-  .number({
-    message: 'Invalid percentage',
-  })
-  .nonnegative()
-  .optional();
 
 // ==========================================
 // Common Validation Constants
@@ -65,10 +58,10 @@ export const createGroupSchema = createInsertSchema(group, {
 });
 
 // Update group schema
-export const updateGroupSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).optional(),
-  description: z.string().optional(),
+export const upsertGroupSchema = createUpdateSchema(group, {
+  name: z.string({ required_error: 'Name is required' }).min(1, { message: 'Name is required' }),
+  createdAt: undefined,
+  updatedAt: undefined,
 });
 
 // Add member schema
@@ -102,27 +95,11 @@ export const createExpenseWithSplitsSchema = z.object({
   splits: z.array(createExpenseSplitSchema),
 });
 
-// Update expense schema
-export const updateExpenseSchema = z.object({
-  id: z.string().uuid(),
-  groupId: z.string().uuid().optional(),
-  title: z.string().min(1).optional(),
-  description: z.string().optional(),
-  amount: positiveDecimalSchema.optional(),
-  category: z.enum(categoryValues).optional(),
-  date: z.date().optional(),
-  splitType: z.enum(splitTypeValues).optional(),
-  paidBy: z.string().uuid().optional(),
-  splits: z
-    .array(
-      z.object({
-        id: z.string().uuid().optional(),
-        userId: z.string(),
-        amount: positiveDecimalSchema,
-        percentage: percentageSchema,
-      })
-    )
-    .optional(),
+// Upsert expense schema
+export const upsertExpenseSchema = createUpdateSchema(expense, {
+  amount: positiveDecimalSchema,
+}).extend({
+  splits: z.array(createUpdateSchema(expenseSplit)).optional(),
 });
 
 // ==========================================

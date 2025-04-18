@@ -1,5 +1,3 @@
-'use client';
-
 import { forwardRef } from 'react';
 import { ScrollView, ScrollViewProps } from 'react-native';
 
@@ -19,5 +17,3 @@ export const BodyScrollView = forwardRef<any, ScrollViewProps>((props, ref) => {
     />
   );
 });
-
-BodyScrollView.displayName = 'BodyScrollView';

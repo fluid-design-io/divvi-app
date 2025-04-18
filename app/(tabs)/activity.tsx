@@ -3,7 +3,7 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
 
-export default function Activityvity() {
+export default function Activity() {
   const { data: session } = authClient.useSession();
   return (
     <>

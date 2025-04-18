@@ -7,7 +7,7 @@ import ListItem from './list-item';
 import Swipeable from './swipeable';
 import { Icon } from '@roninoss/icons';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { formatCurrency } from '~/lib/format';
+import { formatCurrency } from '~/utils/format';
 
 // Wrapper to pass the item info to the actual Item component
 export function renderItem(info: ListRenderItemInfo<GroupListItem>) {

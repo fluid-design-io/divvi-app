@@ -1,17 +1,17 @@
-import type { TRPCRouterRecord } from '@trpc/server';
+import { TRPCError, type TRPCRouterRecord } from '@trpc/server';
 import { and, desc, eq, sql, or, lt, ilike } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
   groupIdWithPaginationSchema,
-  createExpenseWithSplitsSchema,
-  updateExpenseSchema,
+  upsertExpenseSchema,
   groupIdWithTimeframeSchema,
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
 import { expense, expenseSplit, group, groupMember } from '~/db/schema';
 import { getGroupBalances } from '~/server/functions/get-group-balances';
+import { initializeExpense } from '~/server/functions/initialize-expense';
 
 const EXPENSES_PER_PAGE = 20;
 
@@ -158,62 +158,49 @@ export const expenseRouter = {
     return newExpense;
   }),
 
-  // Create a new expense with splits
-  create: protectedProcedure
-    .input(createExpenseWithSplitsSchema)
-    .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
-
-      // Check if user is a member of this group
-      const membership = await ctx.db.query.groupMember.findFirst({
-        where: and(eq(groupMember.groupId, input.expense.groupId), eq(groupMember.userId, userId)),
-      });
-
-      if (!membership) {
-        throw new Error("You don't have access to this group");
-      }
-
-      // Validate the expense amount and splits
-      const totalSplitAmount = input.splits.reduce((sum, split) => sum + split.amount, 0);
-
-      if (Math.abs(totalSplitAmount - input.expense.amount) > 0.01) {
-        // Allow small floating point error
-        throw new Error('The sum of splits must equal the total expense amount');
-      }
-
-      // Create the expense
-      const [newExpense] = await ctx.db.insert(expense).values(input.expense).returning();
-
-      // Create the expense splits
-      const splitsWithExpenseId = input.splits.map((split) => ({
-        ...split,
-        expenseId: newExpense.id,
-      }));
-
-      const splits = await ctx.db.insert(expenseSplit).values(splitsWithExpenseId).returning();
-
-      return {
-        ...newExpense,
-        splits,
-      };
-    }),
-
   // Update an expense
-  update: protectedProcedure.input(updateExpenseSchema).mutation(async ({ ctx, input }) => {
+  upsert: protectedProcedure.input(upsertExpenseSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
+    let expenseId = input.id;
+
+    if (!userId) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'User not found',
+      });
+    }
+
+    //* Intialize an expense if it doesn't exist *//
+    if (!expenseId) {
+      const newExpense = await initializeExpense(ctx);
+      expenseId = newExpense.id;
+    }
+
+    if (!input.groupId) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Expense ID and Group ID are required',
+      });
+    }
 
     // Get the expense
     const expenseRecord = await ctx.db.query.expense.findFirst({
-      where: eq(expense.id, input.id),
+      where: eq(expense.id, expenseId),
     });
 
     if (!expenseRecord) {
-      throw new Error('Expense not found');
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Expense not found',
+      });
     }
 
     // Check if user created the expense
     if (expenseRecord.paidById !== userId) {
-      throw new Error('Only the expense creator can update it');
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Only the expense creator can update it',
+      });
     }
 
     // Update expense
@@ -225,37 +212,44 @@ export const expenseRouter = {
     if (input.category !== undefined) updateData.category = input.category;
     if (input.date !== undefined) updateData.date = input.date;
     if (input.splitType !== undefined) updateData.splitType = input.splitType;
+    if (input.groupId !== undefined) updateData.groupId = input.groupId;
+    if (input.paidById !== undefined) updateData.paidById = input.paidById;
 
     updateData.updatedAt = new Date();
 
     const [updatedExpense] = await ctx.db
       .update(expense)
       .set(updateData)
-      .where(eq(expense.id, input.id))
+      .where(eq(expense.id, expenseId))
       .returning();
 
     // Update splits if provided
     if (input.splits && input.splits.length > 0) {
       // Verify total amount
-      const totalSplitAmount = input.splits.reduce((sum, split) => sum + split.amount, 0);
+      const totalSplitAmount = input.splits.reduce((sum, split) => sum + (split?.amount ?? 0), 0);
 
       if (Math.abs(totalSplitAmount - (input.amount || expenseRecord.amount)) > 0.01) {
         throw new Error('The sum of splits must equal the total expense amount');
       }
 
       // Delete existing splits
-      await ctx.db.delete(expenseSplit).where(eq(expenseSplit.expenseId, input.id));
+      await ctx.db.delete(expenseSplit).where(eq(expenseSplit.expenseId, expenseId));
 
       // Create new splits
       const newSplits = input.splits.map((split) => ({
-        expenseId: input.id,
-        userId: split.userId,
-        amount: split.amount,
+        expenseId,
+        userId: split.userId!,
+        amount: split.amount!,
         percentage: split.percentage,
       }));
 
-      await ctx.db.insert(expenseSplit).values(newSplits);
+      if (newSplits.length > 0) {
+        await ctx.db.insert(expenseSplit).values(newSplits);
+      }
     }
+
+    // Update group's updatedAt
+    await ctx.db.update(group).set({ updatedAt: new Date() }).where(eq(group.id, input.groupId!));
 
     return updatedExpense;
   }),

@@ -4,15 +4,15 @@ import { z } from 'zod';
 
 import {
   createGroupSchema,
-  updateGroupSchema,
   addMemberSchema,
   groupIdInputSchema,
+  upsertGroupSchema,
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
 import { group, groupMember } from '~/db/schema';
 import { getGroupBalances } from '~/server/functions/get-group-balances';
-
+import { DEFAULT_GROUP_NAME } from '~/server/functions/initialize-expense';
 const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
 
 type GroupWithMembers = typeof group.$inferSelect & {
@@ -136,6 +136,16 @@ export const groupRouter = {
     });
   }),
 
+  /**
+   * Get the default group for the current user
+   */
+  getDefault: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    return ctx.db.query.group.findFirst({
+      where: and(eq(group.createdById, userId), eq(group.name, DEFAULT_GROUP_NAME)),
+    });
+  }),
+
   // Create a new group
   create: protectedProcedure.input(createGroupSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
@@ -159,14 +169,40 @@ export const groupRouter = {
     return newGroup;
   }),
 
-  // Update a group
-  update: protectedProcedure.input(updateGroupSchema).mutation(async ({ ctx, input }) => {
+  // Upsert a group
+  upsert: protectedProcedure.input(upsertGroupSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
+    let groupId = input.id;
+
+    //* Create if not exists *//
+    if (!groupId) {
+      if (!input.name) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Group name is required',
+        });
+      }
+      const [newGroup] = await ctx.db
+        .insert(group)
+        .values({
+          name: input.name,
+          description: input.description,
+          createdById: userId,
+        })
+        .returning();
+      // add owner to group
+      await ctx.db.insert(groupMember).values({
+        groupId: newGroup.id,
+        userId,
+        role: 'owner',
+      });
+      groupId = newGroup.id;
+    }
 
     // Check if user is the owner of this group
     const membership = await ctx.db.query.groupMember.findFirst({
       where: and(
-        eq(groupMember.groupId, input.id),
+        eq(groupMember.groupId, groupId),
         eq(groupMember.userId, userId),
         eq(groupMember.role, 'owner')
       ),
@@ -176,15 +212,17 @@ export const groupRouter = {
       throw new Error('Only group owners can update group details');
     }
 
+    const updateData: Partial<typeof group.$inferInsert> = {};
+
+    if (input.name !== undefined) updateData.name = input.name;
+    if (input.description !== undefined) updateData.description = input.description;
+    updateData.updatedAt = new Date();
+
     // Update the group
     const [updatedGroup] = await ctx.db
       .update(group)
-      .set({
-        name: input.name,
-        description: input.description,
-        updatedAt: new Date(),
-      })
-      .where(eq(group.id, input.id))
+      .set(updateData)
+      .where(eq(group.id, groupId))
       .returning();
 
     return updatedGroup;

@@ -6,19 +6,19 @@ import { List } from '~/components/nativewindui/List';
 import { ListEmpty, renderItem } from '~/components/screen/group';
 import { trpc } from '~/utils/api';
 import { categorizeGroupsByDate } from '~/utils/categorize-groups';
-import { router, Stack } from 'expo-router';
-import { useSetAtom } from 'jotai';
-import { selectedGrouIdAtom } from '.';
-// Main component name placeholder
+import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Button } from '~/components/nativewindui/Button';
+import { Icon } from '@roninoss/icons';
+import { useColorScheme } from '~/lib/useColorScheme';
+
 export default function SelectGroup() {
   const [searchTerm, setSearchTerm] = useState('');
-  const setSelectedGroupId = useSetAtom(selectedGrouIdAtom);
+  const { colors } = useColorScheme();
+  const { groupId } = useLocalSearchParams<{ groupId: string }>();
 
   const { data, isPending, isRefetching, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery(
     trpc.group.all.infiniteQueryOptions(
-      {
-        limit: 5,
-      },
+      {},
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       }
@@ -27,8 +27,8 @@ export default function SelectGroup() {
 
   const DATA = categorizeGroupsByDate(data, {
     onPress: (groupId) => {
-      setSelectedGroupId(groupId);
       router.back();
+      router.setParams({ groupId });
     },
   });
 
@@ -42,6 +42,11 @@ export default function SelectGroup() {
           headerSearchBarOptions: {
             placeholder: 'Search',
           },
+          headerRight: () => (
+            <Button variant="plain" size="none" onPress={() => router.push('/upsert-group/new')}>
+              <Icon name="plus" size={24} color={colors.primary} />
+            </Button>
+          ),
         }}
       />
 

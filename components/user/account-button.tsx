@@ -5,13 +5,7 @@ import { TouchableBounce } from '../core/touchable-bounce';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
-
-const initials = (name: string) => {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('');
-};
+import { initials } from '~/utils/format';
 
 function AccountButton() {
   const { data: session } = authClient.useSession();

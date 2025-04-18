@@ -1,6 +1,5 @@
 import * as Slot from '@rn-primitives/slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import * as React from 'react';
 import { Platform, Pressable, PressableProps, View, ViewStyle } from 'react-native';
 
 import { TextClassContext } from '~/components/nativewindui/Text';
@@ -122,40 +121,39 @@ type ButtonProps = PressableProps & ButtonVariantProps & AndroidOnlyButtonProps;
 
 const Root = Platform.OS === 'android' ? View : Slot.Pressable;
 
-const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  (
-    { className, variant = 'primary', size, style = BORDER_CURVE, androidRootClassName, ...props },
-    ref
-  ) => {
-    const { colorScheme } = useColorScheme();
+const Button = ({
+  className,
+  variant = 'primary',
+  size,
+  style = BORDER_CURVE,
+  androidRootClassName,
+  ...props
+}: ButtonProps) => {
+  const { colorScheme } = useColorScheme();
 
-    return (
-      <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
-        <Root
-          className={Platform.select({
-            ios: undefined,
-            default: androidRootVariants({
-              size,
-              className: androidRootClassName,
-            }),
-          })}>
-          <Pressable
-            className={cn(
-              props.disabled && 'opacity-50',
-              buttonVariants({ variant, size, className })
-            )}
-            ref={ref}
-            style={style}
-            android_ripple={ANDROID_RIPPLE[colorScheme][variant]}
-            {...props}
-          />
-        </Root>
-      </TextClassContext.Provider>
-    );
-  }
-);
-
-Button.displayName = 'Button';
+  return (
+    <TextClassContext.Provider value={buttonTextVariants({ variant, size })}>
+      <Root
+        className={Platform.select({
+          ios: undefined,
+          default: androidRootVariants({
+            size,
+            className: androidRootClassName,
+          }),
+        })}>
+        <Pressable
+          className={cn(
+            props.disabled && 'opacity-50',
+            buttonVariants({ variant, size, className })
+          )}
+          style={style}
+          android_ripple={ANDROID_RIPPLE[colorScheme][variant]}
+          {...props}
+        />
+      </Root>
+    </TextClassContext.Provider>
+  );
+};
 
 export { Button, buttonTextVariants, buttonVariants };
 export type { ButtonProps };

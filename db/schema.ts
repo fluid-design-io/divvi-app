@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm'; // Import relations
+import { relations, sql } from 'drizzle-orm'; // Import relations
 import {
   pgTable,
   text,
@@ -87,54 +87,61 @@ export const categoryEnum = pgEnum('category', [
 // Enum for settlement status
 export const settlementStatusEnum = pgEnum('settlement_status', ['pending', 'completed']);
 
+// Helper for timestamps
+const timestamps = {
+  createdAt: timestamp({ withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+  updatedAt: timestamp({ withTimezone: true, mode: 'date' })
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => sql`(now() AT TIME ZONE 'utc'::text)`),
+};
+
 // Groups table
 export const group = pgTable(
   'group',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: text('name').notNull(),
-    description: text('description'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
-    createdById: text('created_by_id')
+    id: uuid().defaultRandom().primaryKey(),
+    name: text().notNull(),
+    description: text(),
+    createdById: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    ...timestamps,
   },
   (t) => [index('group_created_by_id_idx').on(t.createdById)]
 );
 
 // Group members table
 export const groupMember = pgTable('group_member', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  groupId: uuid('group_id')
+  id: uuid().defaultRandom().primaryKey(),
+  groupId: uuid()
     .notNull()
     .references(() => group.id, { onDelete: 'cascade' }),
-  userId: text('user_id')
+  userId: text()
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
-  role: memberRoleEnum('role').notNull().default('member'),
-  joinedAt: timestamp('joined_at').notNull().defaultNow(),
+  role: memberRoleEnum().notNull().default('member'),
+  joinedAt: timestamp().notNull().defaultNow(),
 });
 
 // Expenses table
 export const expense = pgTable(
   'expense',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    groupId: uuid('group_id')
+    id: uuid().defaultRandom().primaryKey(),
+    groupId: uuid()
       .notNull()
       .references(() => group.id, { onDelete: 'cascade' }),
-    title: text('title').notNull().default('Expense'),
-    description: text('description'),
-    amount: doublePrecision('amount').notNull(),
-    paidById: text('paid_by_id') // The user who paid for the expense
+    title: text().notNull().default('Expense'),
+    description: text(),
+    amount: doublePrecision().notNull(),
+    paidById: text() // The user who paid for the expense
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    date: timestamp('date').notNull().defaultNow(),
-    splitType: splitTypeEnum('split_type').notNull().default('equal'),
-    category: categoryEnum('category').notNull().default('other'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    date: timestamp().notNull().defaultNow(),
+    splitType: splitTypeEnum().notNull().default('equal'),
+    category: categoryEnum().notNull().default('other'),
+    ...timestamps,
   },
   (t) => [index('expense_group_id_idx').on(t.groupId)]
 );
@@ -142,18 +149,17 @@ export const expense = pgTable(
 export const expenseSplit = pgTable(
   'expense_split',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    expenseId: uuid('expense_id')
+    id: uuid().defaultRandom().primaryKey(),
+    expenseId: uuid()
       .notNull()
       .references(() => expense.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    amount: doublePrecision('amount').notNull(),
-    percentage: doublePrecision('percentage'),
-    settled: boolean('settled').notNull().default(false),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    amount: doublePrecision().notNull(),
+    percentage: doublePrecision(),
+    settled: boolean().notNull().default(false),
+    ...timestamps,
   },
   (t) => [
     index('expense_split_expense_id_idx').on(t.expenseId),
@@ -164,21 +170,20 @@ export const expenseSplit = pgTable(
 export const settlement = pgTable(
   'settlement',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    groupId: uuid('group_id')
+    id: uuid().defaultRandom().primaryKey(),
+    groupId: uuid()
       .notNull()
       .references(() => group.id, { onDelete: 'cascade' }),
-    fromUserId: text('from_user_id')
+    fromUserId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    toUserId: text('to_user_id')
+    toUserId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    amount: doublePrecision('amount').notNull(),
-    status: settlementStatusEnum('status').notNull().default('pending'),
-    settledAt: timestamp('settled_at'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    amount: doublePrecision().notNull(),
+    status: settlementStatusEnum().notNull().default('pending'),
+    settledAt: timestamp(),
+    ...timestamps,
   },
   (t) => [
     index('settlement_group_id_idx').on(t.groupId),
@@ -190,17 +195,17 @@ export const settlement = pgTable(
 export const activity = pgTable(
   'activity',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    groupId: uuid('group_id')
+    id: uuid().defaultRandom().primaryKey(),
+    groupId: uuid()
       .notNull()
       .references(() => group.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    activityType: text('activity_type').notNull(),
-    entityId: uuid('entity_id'),
-    data: text('data'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
+    activityType: text().notNull(),
+    entityId: uuid(),
+    data: text(),
+    ...timestamps,
   },
   (t) => [index('activity_group_id_idx').on(t.groupId), index('activity_user_id_idx').on(t.userId)]
 );

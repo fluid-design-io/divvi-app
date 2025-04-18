@@ -12,34 +12,32 @@ import { ErrorView } from '~/components/core/error-view';
 import Loading from '~/components/core/loading';
 import { AdaptiveSearchHeader } from '~/components/nativewindui/AdaptiveSearchHeader';
 import {
+  ExtendedListDataItem,
   List,
   ListItem,
   ListRenderItemInfo, // Or define a specific type
 } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
 import Swipeable from '~/components/screen/group/swipeable';
+import { formatCurrency } from '~/utils/format';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { trpc } from '~/utils/api';
 import type { RouterOutputs } from '~/utils/api';
+import { Button } from '~/components/nativewindui/Button';
 
 // Define the type for a single expense item based on the router output
 type ExpenseItem = RouterOutputs['expense']['getByGroupId']['items'][number];
 
 // Redefine the interface without extending ListDataItem
-interface ExpenseListDataItem {
-  id: string;
-  title: string;
-  subTitle?: string;
-  value?: string;
-  // Add any other standard fields ListItem might implicitly use (e.g., onPress, disabled - though we handle onPress separately)
+type ExpenseListDataItem = Exclude<ExtendedListDataItem, string> & {
   onPress: (id: string) => void;
-  onDelete?: (id: string) => void;
-  // disabled?: boolean;
+  onDelete: (id: string) => void;
   originalData: ExpenseItem;
-}
+};
 
 export default function GroupDetails() {
   const queryClient = useQueryClient();
+  const { colors } = useColorScheme();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const listRef = useRef<FlashList<ExpenseListDataItem>>(null);
 
@@ -80,6 +78,10 @@ export default function GroupDetails() {
           }),
           (oldData) => {
             if (!oldData) return oldData;
+            // Prepare for layout animation
+            listRef.current?.prepareForLayoutAnimationRender();
+            // Configure the animation
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
             return {
               ...oldData,
               pages: oldData.pages.map((page) => ({
@@ -89,16 +91,15 @@ export default function GroupDetails() {
             };
           }
         );
-        // Prepare for layout animation
-        listRef.current?.prepareForLayoutAnimationRender();
-        // Configure the animation
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       },
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: trpc.expense.getByGroupId.infiniteQueryKey({
             groupId,
           }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.group.all.infiniteQueryKey(),
         });
       },
     })
@@ -116,7 +117,8 @@ export default function GroupDetails() {
     return {
       id: item.id,
       title: item.title,
-      subTitle: item.description ?? `Paid by ${paidByName}`,
+      subTitle: `Paid by ${paidByName}`,
+      tertiaryText: item.description ?? undefined,
       originalData: item,
       onDelete: () => deleteExpense({ id: item.id }),
       onPress: () => router.push(`/expense/${item.id}`),
@@ -134,6 +136,14 @@ export default function GroupDetails() {
             setSearchTerm('');
           },
         }}
+        rightView={() => (
+          <Button
+            variant="plain"
+            size="none"
+            onPress={() => router.push(`/upsert-group/${groupId}`)}>
+            <Icon name="cog" size={22} color={colors.grey} />
+          </Button>
+        )}
       />
       <List
         ref={listRef}
@@ -196,7 +206,7 @@ function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
         rightView={
           <View className="flex-1 flex-row items-center gap-0.5 px-2">
             <View className="items-end justify-between">
-              <Text className="font-medium">${info.item.originalData.amount.toFixed(2)}</Text>
+              <Text className="font-medium">{formatCurrency(info.item.originalData.amount)}</Text>
               <Text className="text-xs text-muted-foreground">
                 {new Date(info.item.originalData.date).toLocaleDateString()}
               </Text>

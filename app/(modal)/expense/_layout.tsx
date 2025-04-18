@@ -5,10 +5,21 @@ function ExpenseModalLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animation: 'fade',
+        title: 'Expense',
+        headerTitle: 'Expense',
       }}>
-      <Stack.Screen name="new" />
-      <Stack.Screen name="[id]/index" />
+      <Stack.Screen
+        name="[expenseId]/index"
+        options={{
+          title: 'Expense',
+        }}
+      />
+      <Stack.Screen
+        name="[expenseId]/select-group"
+        options={{
+          title: 'Select Group',
+        }}
+      />
     </Stack>
   );
 }

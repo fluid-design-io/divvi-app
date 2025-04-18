@@ -254,7 +254,7 @@ const FormTextField = ({ name, placeholder, label, ios, ...props }: FormTextFiel
               <LeftLabel label={label ?? ''} className={props.labelClassName} />
             ),
           })}
-          onChangeText={onChange}
+          onChangeText={props?.onChangeText ?? onChange}
           errorMessage={error ? (error.message ?? 'Unknown error') : undefined}
           onSubmitEditing={() => {
             if (props.returnKeyType === 'next') {

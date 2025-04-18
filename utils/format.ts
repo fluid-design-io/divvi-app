@@ -24,3 +24,10 @@ export const formatFromCamelCase = (str: string, capitalize: boolean = false) =>
 export const formatCardNumber = (number: string) => {
   return number.replace(/(\d{4})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4');
 };
+
+export const initials = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('');
+};

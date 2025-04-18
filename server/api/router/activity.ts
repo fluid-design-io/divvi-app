@@ -30,7 +30,7 @@ export const activityRouter = {
       // Add cursor for pagination if provided
       if (input.cursor) {
         const cursorActivity = await ctx.db.query.activity.findFirst({
-          where: eq(activity.id, input.cursor),
+          where: eq(activity.id, input.cursor.id),
         });
 
         if (cursorActivity) {

@@ -23,11 +23,14 @@ export const SelectMember = ({
     trpc.group.getById.queryOptions({ groupId: groupId ?? '' }, { enabled: !!groupId })
   );
   const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
   // clear the selected member id if the group id changes
   const form = useFormContext();
   useEffect(() => {
-    form.setValue(name, session?.user?.id ?? '');
-  }, [groupId]);
+    if (groupId && userId) {
+      form.setValue(name, userId);
+    }
+  }, [groupId, userId]);
   return (
     <FormSelect
       selectLabel={session?.user?.id === selectedMemberId ? `You` : 'Select a member'}

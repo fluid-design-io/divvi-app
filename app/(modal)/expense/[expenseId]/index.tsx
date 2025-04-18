@@ -1,190 +1,98 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { router, Stack, useGlobalSearchParams, useNavigation } from 'expo-router';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-
-import { Form, FormItem, FormSection, FormTextField } from '~/components/nativewindui/Form';
-import { FormScrollView } from '~/components/core/form-scroll-view';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RouterOutputs, trpc } from '~/utils/api';
-import { useEffect, useState } from 'react';
-import { usePreventRemove } from '@react-navigation/native';
-import { Alert, View } from 'react-native';
-import { updateExpenseSchema } from '~/server/api/schema';
-import { BadgeDollarSign } from 'lucide-react-native';
+import { useQuery } from '@tanstack/react-query';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useAtom } from 'jotai';
+import { useEffect } from 'react';
+import { Platform, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlinkingCursor } from '~/components/core/blinking-cursor';
+import { NumericKeypad } from '~/components/core/keypad';
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
-import { useColorScheme } from '~/lib/useColorScheme';
-import { SelectMember } from '~/components/screen/expense';
-import { ListItem } from '~/components/nativewindui/List';
-import { Icon } from '@roninoss/icons';
-import { atom, useAtomValue } from 'jotai';
+import { expenseAtom, ExpenseDetails, SelectGroup } from '~/components/screen/edit-expense-form';
+import { useKeypad } from '~/hooks/use-keypad';
 
-type UpdateExpenseSchemaType = z.infer<typeof updateExpenseSchema>;
-type Group = NonNullable<RouterOutputs['expense']['getById']>['group'];
+import { trpc } from '~/utils/api';
+import { formatCurrency } from '~/utils/format';
+import Loading from '~/components/core/loading';
 
-export const selectedGrouIdAtom = atom<string | undefined>(undefined);
-
-export default function FormPage() {
-  const navigation = useNavigation();
-  const queryClient = useQueryClient();
-  const { expenseId: id } = useGlobalSearchParams<{ expenseId: string }>();
-  const selectedGroupId = useAtomValue(selectedGrouIdAtom);
-  const { data: group } = useQuery(
-    trpc.group.getById.queryOptions(
-      { groupId: selectedGroupId ?? '' },
-      { enabled: !!selectedGroupId }
+function NewExpenseModal() {
+  const { expenseId: id, groupId } = useLocalSearchParams<{
+    expenseId: string;
+    groupId?: string;
+  }>();
+  const [expense, setExpense] = useAtom(expenseAtom);
+  const { amount, handleNumberPress, clear } = useKeypad({
+    initialValue: expense?.amount.toString() ?? undefined,
+  });
+  const isNewExpense = id === 'new';
+  const { data: expenseData, isPending: isExpensePending } = useQuery(
+    trpc.expense.getById.queryOptions(
+      { id },
+      {
+        enabled: !isNewExpense,
+      }
     )
   );
-  const { data: expense, isPending: isExpensePending } = useQuery(
-    trpc.expense.getById.queryOptions({ id })
-  );
-  const { mutate: deleteExpense } = useMutation(trpc.expense.delete.mutationOptions());
-  const { mutate: updateExpense, isPending: isUpdateExpensePending } = useMutation(
-    trpc.expense.update.mutationOptions({
-      onSuccess: async (data) => {
-        setPreventRemove(false);
-        // TODO: redirect to this group
-        await queryClient.invalidateQueries({
-          queryKey: trpc.group.getById.queryKey({ groupId: data.groupId }),
-        });
-        await queryClient.invalidateQueries({
-          queryKey: trpc.expense.getByGroupId.infiniteQueryKey({ groupId: data.groupId }),
-        });
-        router.dismissTo(`/group/${data.groupId}`);
-      },
-    })
-  );
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(expense?.group ?? null);
-  const [preventRemove, setPreventRemove] = useState(true);
-  const { colors } = useColorScheme();
-
-  // prevent the user from leaving the screen unless they confirm
-  usePreventRemove(preventRemove, ({ data }) => {
-    Alert.alert('Are you sure you want to delete this expense?', 'This action cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          deleteExpense({ id });
-          navigation.dispatch(data.action);
-        },
-      },
-    ]);
-  });
-  const form = useForm<UpdateExpenseSchemaType>({
-    resolver: zodResolver(updateExpenseSchema),
-    defaultValues: {
-      id,
-      title: 'New Expense',
-      amount: 0,
-      splitType: 'equal',
-    },
-  });
-
-  const onSubmit = async (data: UpdateExpenseSchemaType) => {
-    console.log('❤️ Updating expense...');
-    updateExpense(data);
-  };
-
-  const title = form.watch('title') ?? '';
-  const paidBy = form.watch('paidBy');
 
   useEffect(() => {
-    if (expense) {
-      form.setValue('title', expense.title ?? '');
-      form.setValue('description', expense.description ?? '');
-      form.setValue('amount', expense.amount);
-      form.setValue('paidBy', expense.paidBy.id);
-      form.setValue('splitType', expense.splitType);
-      form.setValue('date', expense.date ?? new Date());
-      setSelectedGroup(expense.group);
+    if (amount) {
+      setExpense({
+        ...expenseData,
+        amount: Number(amount),
+      });
     }
-  }, [expense]);
-
+  }, [amount]);
   useEffect(() => {
-    if (selectedGroupId && group) {
-      setSelectedGroup(group);
+    if (groupId) {
+      setExpense({
+        ...expenseData,
+        amount: expenseData?.amount ?? 0,
+        groupId,
+      });
     }
-  }, [selectedGroupId, group]);
-
+  }, [groupId]);
+  if (!isNewExpense && isExpensePending) return <Loading expand />;
   return (
-    <>
-      <Stack.Screen
-        options={{
-          title: '',
-          headerShown: true,
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: colors.background,
-          },
-          headerLeft: () => (
-            <Button variant="plain" size="none" onPress={() => router.back()}>
-              <Text className="text-muted-foreground">Cancel</Text>
-            </Button>
-          ),
-        }}
-      />
-      <FormScrollView
-        title={title.length > 0 ? title : 'New Expense'}
-        onSubmit={form.handleSubmit(onSubmit)}
-        buttonText="Save"
-        Icon={BadgeDollarSign}
-        footerBottomOffset={100}
-        buttonDisabled={isExpensePending || isUpdateExpensePending}>
-        <Form form={form} className="gap-6">
-          <FormSection fields={['groupId']} ios={{ title: 'Group' }} className="ios:pl-0">
-            <FormItem className="ios:pr-0">
-              <ListItem
-                index={0}
-                item={{
-                  title: selectedGroup?.name ?? 'Loading...',
-                  subTitle: selectedGroup?.description ?? '',
-                }}
-                target="Cell"
-                rightView={
-                  <View className="flex-1 flex-row items-center gap-0.5 px-2">
-                    <Text className="text-muted-foreground">Change</Text>
-                    <Icon name="chevron-right" size={22} color={colors.grey2} />
-                  </View>
-                }
-                disabled={isExpensePending}
-                onPress={() => router.push(`/expense/${id}/select-group`)}
-              />
-            </FormItem>
-          </FormSection>
-          <FormSection fields={['amount', 'title', 'paidBy']} ios={{ title: 'Details' }}>
-            <FormItem>
-              <FormTextField
-                name="amount"
-                accessibilityLabel="amount"
-                placeholder="Amount"
-                label="Amount"
-                keyboardType="decimal-pad"
-                inputMode="decimal"
-              />
-            </FormItem>
-            <FormItem>
-              <FormTextField
-                name="title"
-                accessibilityLabel="title"
-                placeholder="What is this expense for?"
-                label="Title"
-              />
-            </FormItem>
-            <FormItem>
-              <SelectMember
-                name="paidBy"
-                label="Paid by"
-                groupId={selectedGroup?.id}
-                selectedMemberId={paidBy}
-              />
-            </FormItem>
-          </FormSection>
-          <FormSection fields={['splits']}></FormSection>
-        </Form>
-      </FormScrollView>
-    </>
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}
+      edges={['bottom']}>
+      <View className="flex flex-1 justify-between">
+        <View className="p-4">
+          <SelectGroup />
+        </View>
+        <View className="flex-1 items-center justify-center py-12">
+          <View className="flex-row items-center justify-center">
+            <Text className="font-rounded text-6xl">{formatCurrency(Number(amount) / 100)}</Text>
+            <BlinkingCursor />
+          </View>
+        </View>
+        <View className="gap-4 p-4">
+          <ExpenseDetails />
+          <NumericKeypad onNumberPress={handleNumberPress} onLongPress={clear} />
+          <View className="flex-row justify-between gap-4">
+            <View className="ios:flex-1">
+              <Button variant="muted" onPress={() => router.dismiss()}>
+                <Text>Cancel</Text>
+              </Button>
+            </View>
+            <View className="flex-1">
+              <Button
+                size={Platform.select({
+                  ios: 'lg',
+                  default: 'md',
+                })}
+                disabled={!amount}
+                onPress={() => {}}>
+                <Text>Add</Text>
+              </Button>
+            </View>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
+
+export default NewExpenseModal;
