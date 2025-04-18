@@ -18,6 +18,9 @@ COPY server.js server.js
 FROM oven/bun:1 AS release
 WORKDIR /divvi-app
 
+COPY --from=build /divvi-app/dist dist
+COPY --from=build /divvi-app/server.js server.js
+
 USER bun
 EXPOSE 3000
-ENTRYPOINT ["bun", "run", "start:server"]
+ENTRYPOINT ["bun", "server.js"]
