@@ -89,7 +89,7 @@ export const FormScrollView = ({
         bottomOffset={Platform.select({ ios: 96, android: 84 })}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="always"
-        // contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerClassName={cn('px-4 web:p-0', contentContainerClassName)}
         {...props}>
         <View className={cn('mx-auto w-full max-w-lg', 'web:rounded-2xl web:bg-card web:p-6')}>

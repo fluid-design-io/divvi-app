@@ -53,7 +53,7 @@ export const SelectGroup = () => {
           <View className="flex-row items-center justify-between">
             <View>
               <CardDescription className="text-xs">{selectedGroupData?.name}</CardDescription>
-              <Text className="font-medium">
+              <Text className="font-medium" numberOfLines={1} ellipsizeMode="tail">
                 {selectedGroupData?.description ?? 'No description'}
               </Text>
             </View>

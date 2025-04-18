@@ -9,7 +9,6 @@ import { upsertGroupSchema } from '~/server/api/schema';
 import { ListPlus, PencilLine } from 'lucide-react-native';
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { trpc } from '~/utils/api';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { GroupMembers } from '~/components/screen/edit-group-form';
 type UpsertGroupSchemaType = z.infer<typeof upsertGroupSchema>;
 
@@ -59,43 +58,44 @@ export default function FormPage() {
           title: '',
           headerShown: true,
           headerBackButtonDisplayMode: 'minimal',
+          headerBlurEffect: 'none',
           headerTransparent: true,
         }}
       />
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <FormScrollView
-          title={name ? name : 'New Group'}
-          subtitle={description ? description : 'Group description'}
-          onSubmit={groupForm.handleSubmit(onSubmit)}
-          buttonText="Save"
-          Icon={isNewGroup ? ListPlus : PencilLine}
-          buttonDisabled={isUpsertingGroup || isFetchingExistingGroup}
-          buttonLoading={isUpsertingGroup}>
-          <Form form={groupForm} className="gap-6">
-            <FormSection fields={['name', 'description']}>
-              <FormItem>
-                <FormTextField
-                  name="name"
-                  accessibilityLabel="name"
-                  placeholder="Enter name"
-                  label="Name"
-                />
-              </FormItem>
-              <FormItem>
-                <FormTextField
-                  name="description"
-                  accessibilityLabel="description"
-                  placeholder="Enter description"
-                  label="Description"
-                  numberOfLines={3}
-                  multiline
-                />
-              </FormItem>
-            </FormSection>
-          </Form>
-          <GroupMembers members={isNewGroup ? [] : existingGroup?.members} />
-        </FormScrollView>
-      </SafeAreaView>
+
+      <FormScrollView
+        title={name ? name : 'New Group'}
+        subtitle={description ? description : 'Group description'}
+        onSubmit={groupForm.handleSubmit(onSubmit)}
+        footerBottomOffset={24}
+        buttonText="Save"
+        Icon={isNewGroup ? ListPlus : PencilLine}
+        buttonDisabled={isUpsertingGroup || isFetchingExistingGroup}
+        buttonLoading={isUpsertingGroup}>
+        <Form form={groupForm} className="gap-6">
+          <FormSection fields={['name', 'description']}>
+            <FormItem>
+              <FormTextField
+                name="name"
+                accessibilityLabel="name"
+                placeholder="Enter name"
+                label="Name"
+              />
+            </FormItem>
+            <FormItem>
+              <FormTextField
+                name="description"
+                accessibilityLabel="description"
+                placeholder="Enter description"
+                label="Description"
+                numberOfLines={3}
+                multiline
+              />
+            </FormItem>
+          </FormSection>
+        </Form>
+        <GroupMembers members={isNewGroup ? [] : existingGroup?.members} editable />
+      </FormScrollView>
     </>
   );
 }

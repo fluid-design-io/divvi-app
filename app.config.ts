@@ -63,5 +63,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         fonts: ['assets/fonts/SF-Pro-Rounded-Regular.otf'],
       },
     ],
+    [
+      'expo-contacts',
+      {
+        contactsPermission:
+          'Allow $(PRODUCT_NAME) to access your contacts so you can invite your friends.',
+      },
+    ],
   ],
 });
