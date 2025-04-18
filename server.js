@@ -1,19 +1,24 @@
 #!/usr/bin/env node
 
 const path = require('path');
+const { createRequestHandler } = require('@expo/server/adapter/express');
+
 const express = require('express');
 const compression = require('compression');
 const morgan = require('morgan');
-const { createRequestHandler } = require('@expo/server/adapter/express');
 
-const CLIENT_BUILD_DIR = path.join(__dirname, 'dist', 'client');
-const SERVER_BUILD_DIR = path.join(__dirname, 'dist', 'server');
+const CLIENT_BUILD_DIR = path.join(process.cwd(), 'dist/client');
+const SERVER_BUILD_DIR = path.join(process.cwd(), 'dist/server');
 
 const app = express();
+
 app.use(compression());
+
+// http://expressjs.com/en/advanced/best-practice-security.html#at-a-minimum-disable-x-powered-by-header
 app.disable('x-powered-by');
 
-// Serve your static web build (if you have one)
+process.env.NODE_ENV = 'production';
+
 app.use(
   express.static(CLIENT_BUILD_DIR, {
     maxAge: '1h',
@@ -21,19 +26,16 @@ app.use(
   })
 );
 
-// Log requests
 app.use(morgan('tiny'));
 
-// Delegate *all* other routes (including your /api routes) to Expo’s server runtime
 app.all(
-  '*',
+  '*splat',
   createRequestHandler({
     build: SERVER_BUILD_DIR,
   })
 );
-
-// Honor the PORT env var that Coolify will set
 const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
-  console.log(`🚀 Server listening on port ${port}`);
+  console.log(`Express server listening on port ${port}`);
 });
