@@ -1,22 +1,19 @@
-# 🐋 Use a small Node base
-FROM node:22-alpine
+# Stage 1: base image with Bun
+FROM oven/bun:1 AS base
+WORKDIR /divvi-app
 
-WORKDIR /app
+COPY package.json .
+COPY bun.lock .
 
-# Copy lockfiles first for caching
-COPY package.json package-lock.json* yarn.lock* ./
+RUN bun install --frozen-lockfile
 
-# Install deps
-RUN npm ci
 
-# Bring in your source and expo config
+# Stage 5: release stage
+FROM oven/bun:1 AS release
+WORKDIR /divvi-app
 COPY . .
 
-# Run the expo export step
-RUN npm run build:web
 
-# Expose the port Coolify will use
+USER bun
 EXPOSE 3000
-
-# Start your Express wrapper
-CMD ["npm", "run", "start:server"]
+ENTRYPOINT ["bun", "run", "start:server"]

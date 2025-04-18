@@ -10,7 +10,6 @@
         "@expo/vector-icons": "^14.0.0",
         "@gorhom/bottom-sheet": "^5.1.2",
         "@hookform/resolvers": "^5.0.1",
-        "@legendapp/list": "^1.0.0-beta.24",
         "@react-native-async-storage/async-storage": "2.1.2",
         "@react-native-community/slider": "4.5.6",
         "@react-native-picker/picker": "2.11.0",
@@ -469,8 +468,6 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.0", "", {}, "sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.25", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ=="],
-
-    "@legendapp/list": ["@legendapp/list@1.0.0-beta.42", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-lkjp+ZBuwGwkv4EbMDTXC0ZVHHptSFiQWxP1+2xZ9n69c4s/JEnnAm9wiDYsXvb1WOSbgnvXxc2qQ3cmiSsV5Q=="],
 
     "@levischuck/tiny-cbor": ["@levischuck/tiny-cbor@0.2.11", "", {}, "sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow=="],
 
