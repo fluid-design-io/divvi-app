@@ -12,9 +12,10 @@ import { RouterOutputs } from '~/utils/api';
 import { initials } from '~/utils/format';
 import { useLocalSearchParams } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
-import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
-import { BottomSheetFlashList } from '@gorhom/bottom-sheet';
-import { renderContactListItem } from './render-contact-list-item';
+import { useSheetRef } from '~/components/nativewindui/Sheet';
+import { ContactsPicker, Contact } from './contacts-picker';
+import { usePreventRemove } from '@react-navigation/native';
+import { useState } from 'react';
 
 type GroupMember = NonNullable<RouterOutputs['group']['getById']>['members'][number];
 
@@ -28,6 +29,7 @@ export const GroupMembers = ({
   const queryClient = useQueryClient();
   const { showActionSheetWithOptions } = useActionSheet();
   const bottomSheetModalRef = useSheetRef();
+  const [preventRemove, setPreventRemove] = useState(false);
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { mutate: removeMember } = useMutation(
@@ -79,7 +81,22 @@ export const GroupMembers = ({
   };
   const openSheet = () => {
     bottomSheetModalRef.current?.present();
+    setPreventRemove(true);
   };
+
+  const handleSelectContacts = (contacts: Contact[]) => {
+    // Here you would implement the logic to add the contact as a member
+    // For now, we'll just log the contact and close the sheet
+    console.log('Selected contact:', contacts);
+    bottomSheetModalRef.current?.dismiss();
+
+    // You can implement the actual member addition logic here
+    // For example:
+    // addMember({ groupId, contactId: contact.id });
+  };
+
+  usePreventRemove(preventRemove, () => {});
+
   return (
     <>
       <View className="mt-4 gap-2">
@@ -111,9 +128,12 @@ export const GroupMembers = ({
           </ScrollView>
         </View>
       </View>
-      <Sheet ref={bottomSheetModalRef} enableDynamicSizing>
-        <BottomSheetFlashList data={[]} renderItem={renderContactListItem} />
-      </Sheet>
+
+      <ContactsPicker
+        ref={bottomSheetModalRef}
+        onSelectContacts={handleSelectContacts}
+        onDismiss={() => setPreventRemove(false)}
+      />
     </>
   );
 };
