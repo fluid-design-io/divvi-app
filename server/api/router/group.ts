@@ -258,7 +258,7 @@ export const groupRouter = {
   }),
 
   // Add a member to a group
-  addMember: protectedProcedure.input(addMemberSchema).mutation(async ({ ctx, input }) => {
+  inviteMember: protectedProcedure.input(addMemberSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
 
     // Check if user is a member of this group

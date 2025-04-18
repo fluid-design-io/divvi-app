@@ -276,7 +276,7 @@ function ListItemComponent<T extends ListDataItem>(
     disabled,
     ...props
   }: ListItemProps<T>,
-  ref: ListItemRef
+  _ref: ListItemRef
 ) {
   if (typeof item === 'string') {
     console.log(
@@ -303,8 +303,7 @@ function ListItemComponent<T extends ListDataItem>(
           className,
           removeSeparator,
         })}
-        {...props}
-        ref={ref}>
+        {...props}>
         <TextClassContext.Provider value="font-normal leading-5">
           {!!leftView && <View>{leftView}</View>}
           <View

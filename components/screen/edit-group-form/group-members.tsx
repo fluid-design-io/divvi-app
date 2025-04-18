@@ -12,6 +12,9 @@ import { RouterOutputs } from '~/utils/api';
 import { initials } from '~/utils/format';
 import { useLocalSearchParams } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
+import { Sheet, useSheetRef } from '~/components/nativewindui/Sheet';
+import { BottomSheetFlashList } from '@gorhom/bottom-sheet';
+import { renderContactListItem } from './render-contact-list-item';
 
 type GroupMember = NonNullable<RouterOutputs['group']['getById']>['members'][number];
 
@@ -24,6 +27,7 @@ export const GroupMembers = ({
 }) => {
   const queryClient = useQueryClient();
   const { showActionSheetWithOptions } = useActionSheet();
+  const bottomSheetModalRef = useSheetRef();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { mutate: removeMember } = useMutation(
@@ -74,38 +78,43 @@ export const GroupMembers = ({
     );
   };
   const openSheet = () => {
-    console.log('open sheet');
+    bottomSheetModalRef.current?.present();
   };
   return (
-    <View className="mt-4 gap-2">
-      <Text variant="caption1">Members</Text>
-      <View className="w-full rounded-lg bg-card">
-        <ScrollView
-          horizontal
-          contentContainerClassName="gap-4 p-4"
-          showsHorizontalScrollIndicator={false}>
-          {members?.map((member) => (
-            <GroupMemberAvatar
-              key={`member-${member.id}`}
-              member={member}
-              onPress={() => onDeleteMember(member)}
-            />
-          ))}
-          {editable && (
-            <TouchableBounce onPress={openSheet}>
-              <View className="items-center gap-2">
-                <View className="ios:bg-background bg-muted/30 h-16 w-16 items-center justify-center rounded-full">
-                  <PlusIcon className="h-8 w-8 text-muted-foreground" />
+    <>
+      <View className="mt-4 gap-2">
+        <Text variant="caption1">Members</Text>
+        <View className="w-full rounded-lg bg-card">
+          <ScrollView
+            horizontal
+            contentContainerClassName="gap-4 p-4"
+            showsHorizontalScrollIndicator={false}>
+            {members?.map((member) => (
+              <GroupMemberAvatar
+                key={`member-${member.id}`}
+                member={member}
+                onPress={() => onDeleteMember(member)}
+              />
+            ))}
+            {editable && (
+              <TouchableBounce onPress={openSheet}>
+                <View className="items-center gap-2">
+                  <View className="ios:bg-background bg-muted/30 h-16 w-16 items-center justify-center rounded-full">
+                    <PlusIcon className="h-8 w-8 text-muted-foreground" />
+                  </View>
+                  <Text className="text-muted-foreground" variant="caption1">
+                    Invite
+                  </Text>
                 </View>
-                <Text className="text-muted-foreground" variant="caption1">
-                  Invite
-                </Text>
-              </View>
-            </TouchableBounce>
-          )}
-        </ScrollView>
+              </TouchableBounce>
+            )}
+          </ScrollView>
+        </View>
       </View>
-    </View>
+      <Sheet ref={bottomSheetModalRef} enableDynamicSizing>
+        <BottomSheetFlashList data={[]} renderItem={renderContactListItem} />
+      </Sheet>
+    </>
   );
 };
 
