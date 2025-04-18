@@ -14,6 +14,7 @@ export default function SignIn() {
     const res = await authClient.signIn.social(
       {
         provider,
+        callbackURL: 'divvi-app://',
       },
       {
         onRequest: (request) => {

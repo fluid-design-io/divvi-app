@@ -1,7 +1,7 @@
 import { expo } from '@better-auth/expo';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { anonymous, oAuthProxy } from 'better-auth/plugins';
+import { anonymous } from 'better-auth/plugins';
 
 import { db } from '~/db/client';
 import { linkAccount } from '~/server/functions/link-account';
@@ -27,7 +27,6 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    oAuthProxy(),
     expo({
       overrideOrigin: true,
     }),
