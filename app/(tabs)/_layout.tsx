@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Icon, IconProps } from '@roninoss/icons';
-import { Redirect, router, Stack, Tabs } from 'expo-router';
+import { Redirect, router, Stack, Tabs, useGlobalSearchParams } from 'expo-router';
 import * as React from 'react';
 import { ActivityIndicator, Platform, Pressable, PressableProps, View } from 'react-native';
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
@@ -310,11 +310,12 @@ function IosTabItem({
 }
 
 function AddExpenseTabItem() {
+  const { groupId } = useGlobalSearchParams<{ groupId?: string }>();
   return (
     <View className="items-center">
       <Pressable
         className="relative items-center justify-center gap-1 p-4"
-        onPress={() => router.push('/expense/new')}>
+        onPress={() => router.push(`/expense/new?groupId=${groupId}`)}>
         <AddExpenseIcon />
       </Pressable>
     </View>

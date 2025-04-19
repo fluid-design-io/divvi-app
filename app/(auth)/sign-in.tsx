@@ -1,6 +1,6 @@
 import { router, useNavigationContainerRef } from 'expo-router';
 import { useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
@@ -46,7 +46,7 @@ export default function SignIn() {
     }
   }, [isAuthenticated, navContainerRef.isReady()]);
   return (
-    <>
+    <View className="gap-4 px-4">
       <Button onPress={() => handleLogin('google')}>
         <Text>Sign in with Google</Text>
       </Button>
@@ -59,6 +59,6 @@ export default function SignIn() {
       <Button onPress={() => handleAnonymousLogin()}>
         <Text>Sign in as Guest</Text>
       </Button>
-    </>
+    </View>
   );
 }

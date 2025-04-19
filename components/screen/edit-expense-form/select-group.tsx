@@ -8,13 +8,25 @@ import { trpc } from '~/utils/api';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '~/components/core/skeleton';
 import { router, useLocalSearchParams } from 'expo-router';
+import { ErrorView } from '~/components/core/error-view';
 
 export const SelectGroup = () => {
   const { colors } = useColorScheme();
   const { groupId } = useLocalSearchParams<{ groupId?: string }>();
-  const { data: groupData, isPending: isGroupPending } = useQuery(
-    trpc.group.getById.queryOptions({ groupId: groupId ?? '' }, { enabled: !!groupId })
+
+  const {
+    data: groupData,
+    isPending: isGroupPending,
+    isError,
+    error,
+    refetch,
+  } = useQuery(
+    trpc.group.getById.queryOptions(
+      { groupId: groupId ?? '' },
+      { enabled: groupId?.toString() !== 'undefined' }
+    )
   );
+
   if (groupId && isGroupPending)
     return (
       <Card>

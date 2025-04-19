@@ -48,6 +48,7 @@ export default function GroupDetails() {
 
   const { data: group } = useQuery(trpc.group.getById.queryOptions({ groupId }));
   // Fetch expenses - place keepPreviousData inside the second argument
+
   const {
     data,
     isPending,

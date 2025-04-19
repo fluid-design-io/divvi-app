@@ -21,9 +21,9 @@ export default function NewGroup() {
   );
   useEffect(() => {
     if (mounted) return;
-    createGroup({ name: 'New Group', description: 'Group description' });
     setMounted(true);
-  }, []);
+    createGroup({ name: 'New Group', description: 'Group description' });
+  }, [mounted]);
 
   return (
     <>

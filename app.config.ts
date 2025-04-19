@@ -21,6 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       light: './assets/expo/ios-light.png',
       tinted: './assets/expo/ios-tinted.png',
     },
+    associatedDomains: ['applinks:divvi-app.uing.dev', 'webcredentials:divvi-app.uing.dev'],
   },
   android: {
     package: 'dev.uing.divvi',

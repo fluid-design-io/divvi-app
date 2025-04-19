@@ -30,6 +30,12 @@ app.use(
 
 app.use(morgan('tiny'));
 
+// Serve .well-known/apple-app-site-association
+app.get('/.well-known/apple-app-site-association', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.sendFile(path.join(process.cwd(), 'public/.well-known/apple-app-site-association'));
+});
+
 app.all(
   '*splat',
   createRequestHandler({
