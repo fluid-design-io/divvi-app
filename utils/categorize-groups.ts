@@ -32,13 +32,14 @@ export type GroupListItem =
   | (ExtendedListDataItem & { memberCount: number; totalBalance: number; onDelete?: () => void });
 
 export type CategorizeGroupsOptions = {
+  userId: string;
   onPress: (groupId: string) => void;
   onDelete?: ({ groupId }: { groupId: string }) => void;
 };
 
 export function categorizeGroupsByDate(
   data: GroupInfiniteData | undefined | null,
-  { onPress, onDelete }: CategorizeGroupsOptions
+  { userId, onPress, onDelete }: CategorizeGroupsOptions
 ): GroupListItem[] {
   const groups: Group[] = data?.pages.flatMap((page) => page.items) ?? [];
 
@@ -52,18 +53,23 @@ export function categorizeGroupsByDate(
 
   const categorized: Record<Category, GroupListItem[]> = {};
 
-  const createListItem = (item: Group): GroupListItem => ({
-    id: item.id,
-    title: item.name || 'Untitled Group',
-    subTitle: item.description || '',
-    tertiaryText: `Last updated ${formatDistanceToNow(item.updatedAt, {
-      addSuffix: true,
-    })}`,
-    memberCount: item.members.length,
-    totalBalance: item.balance,
-    onPress: () => onPress(item.id),
-    ...(onDelete ? { onDelete: () => onDelete({ groupId: item.id }) } : {}),
-  });
+  const createListItem = (item: Group): GroupListItem => {
+    const canDelete = item.members.some(
+      (member) => member.userId === userId && member.role === 'owner'
+    );
+    return {
+      id: item.id,
+      title: item.name || 'Untitled Group',
+      subTitle: item.description || '',
+      tertiaryText: `Last updated ${formatDistanceToNow(item.updatedAt, {
+        addSuffix: true,
+      })}`,
+      memberCount: item.members.length,
+      totalBalance: item.balance,
+      onPress: () => onPress(item.id),
+      ...(onDelete && canDelete ? { onDelete: () => onDelete({ groupId: item.id }) } : {}),
+    };
+  };
 
   groups.forEach((item) => {
     const updatedAt = item.updatedAt;

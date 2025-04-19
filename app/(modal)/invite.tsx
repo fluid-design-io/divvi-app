@@ -1,14 +1,18 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { trpc } from '~/utils/api';
 import { Button } from '~/components/nativewindui/Button';
 import { Stack } from 'expo-router';
-import { COLORS } from '~/theme/colors';
 import { authClient } from '~/lib/auth/client';
 import Loading from '~/components/core/loading';
 import { ErrorView } from '~/components/core/error-view';
+import { cn } from '~/lib/cn';
+import { UserPlus2 } from 'lucide-react-native';
+import { TonalIcon } from '~/components/core/icon';
+import { SelectGroupCard, SelectGroupCardPending } from '~/components/screen/group';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Invite() {
   const { token } = useLocalSearchParams<{ token: string }>();
@@ -45,15 +49,18 @@ export default function Invite() {
 
 const JoinGroupView = ({ token }: { token: string }) => {
   const router = useRouter();
+  const { data: joinGroupData, isPending: isJoinGroupDataPending } = useQuery(
+    trpc.group.getByInviteToken.queryOptions({ token })
+  );
   const {
     mutate: joinGroup,
-    isPending,
+    isPending: isJoinGroupPending,
     isError,
     error,
   } = useMutation(
     trpc.group.joinByInvite.mutationOptions({
       onSuccess: (data) => {
-        router.push(`/group/${data.groupId}`);
+        router.dismissTo(`/group/${data.groupId}`);
       },
     })
   );
@@ -65,27 +72,51 @@ const JoinGroupView = ({ token }: { token: string }) => {
       <Stack.Screen
         options={{
           title: 'Join Group',
-          headerShown: true,
-          headerShadowVisible: false,
-          headerStyle: {
-            backgroundColor: COLORS.light.background,
-          },
+          headerShown: false,
         }}
       />
-      <View className="flex-1 items-center justify-center p-4">
-        <Text className="text-center text-lg font-semibold">Join Group</Text>
-        <Text className="mt-2 text-center text-muted-foreground">
-          You've been invited to join a group. Click the button below to accept the invitation.
-        </Text>
-
+      <SafeAreaView className="mt-6 flex-1 justify-between px-4" edges={['top', 'bottom']}>
+        {isJoinGroupDataPending || !joinGroupData ? (
+          <SelectGroupCardPending />
+        ) : (
+          <SelectGroupCard
+            group={{
+              id: joinGroupData?.id,
+              name: joinGroupData?.name,
+              description: joinGroupData?.description ?? '',
+            }}
+            showIcon={false}
+          />
+        )}
+        <View className="flex-1 items-center justify-center">
+          <View className={cn('mx-auto w-full max-w-lg', 'web:rounded-2xl web:bg-card web:p-6')}>
+            <View className="items-center justify-center">
+              <TonalIcon Icon={UserPlus2} />
+            </View>
+            <View className="mb-6 gap-2">
+              <Text variant="title1" className={cn('ios:font-bold pt-4 text-center')}>
+                Join Group
+              </Text>
+              <Text variant="body" className="px-8 text-center text-muted-foreground">
+                You've been invited to join a group. Click the button below to accept the
+                invitation.
+              </Text>
+            </View>
+          </View>
+        </View>
         <Button
           onPress={() => joinGroup({ token })}
-          className="mt-6"
+          className="mb-6"
           variant="primary"
-          disabled={isPending}>
-          Join Group
+          size="lg"
+          disabled={isJoinGroupPending}>
+          {isJoinGroupPending ? (
+            <Loading variant="button" color="white" />
+          ) : (
+            <Text className="text-center font-rounded text-lg font-semibold">Join Group</Text>
+          )}
         </Button>
-      </View>
+      </SafeAreaView>
     </>
   );
 };

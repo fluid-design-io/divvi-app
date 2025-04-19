@@ -10,16 +10,21 @@ import { List } from '~/components/nativewindui/List';
 import { ListEmpty, ListSearchContent, renderItem } from '~/components/screen/group';
 import AccountButton from '~/components/user/account-button';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate } from '~/utils/categorize-groups';
+import { categorizeGroupsByDate, GroupListItem } from '~/utils/categorize-groups';
 import { useDebounce } from '@uidotdev/usehooks';
 import { router } from 'expo-router';
+import { authClient } from '~/lib/auth/client';
+import { LayoutAnimation } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 
 // Main component name placeholder
 export default function GroupList() {
   const queryClient = useQueryClient();
+  const listRef = useRef<FlashList<GroupListItem>>(null);
   const searchBarRef = useRef<LargeTitleSearchBarRef | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
 
   const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage, refetch } =
     useInfiniteQuery(
@@ -37,6 +42,10 @@ export default function GroupList() {
         // Optimistically update the cache by removing the deleted group
         queryClient.setQueryData(trpc.group.all.infiniteQueryKey({}), (oldData) => {
           if (!oldData) return oldData;
+          // Prepare for layout animation
+          listRef.current?.prepareForLayoutAnimationRender();
+          // Configure the animation
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           // For infinite queries, we need to update each page
           return {
             ...oldData,
@@ -53,13 +62,14 @@ export default function GroupList() {
       },
     })
   );
-
+  if (isSessionPending) return <Loading />;
   if (isError) return <ErrorView message={error?.message} onRetry={refetch} />;
 
   // Use the categorization function
   const DATA = categorizeGroupsByDate(data, {
     onPress: (groupId) => router.push(`/group/${groupId}`),
     onDelete: deleteGroupMutation,
+    userId: session?.user.id!,
   });
 
   return (
@@ -75,6 +85,7 @@ export default function GroupList() {
       />
 
       <List
+        ref={listRef}
         variant="insets"
         data={DATA}
         renderItem={renderItem}

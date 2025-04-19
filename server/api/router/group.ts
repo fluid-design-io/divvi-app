@@ -6,7 +6,7 @@ import {
   createGroupSchema,
   addMemberSchema,
   groupIdInputSchema,
-  upsertGroupSchema,
+  updateGroupSchema,
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
@@ -72,6 +72,7 @@ export const groupRouter = {
           members: {
             columns: {
               userId: true,
+              role: true,
             },
           },
         },
@@ -160,46 +161,13 @@ export const groupRouter = {
   }),
 
   // Upsert a group
-  upsert: protectedProcedure.input(upsertGroupSchema).mutation(async ({ ctx, input }) => {
-    const userId = ctx.session.user.id;
+  update: protectedProcedure.input(updateGroupSchema).mutation(async ({ ctx, input }) => {
     let groupId = input.id;
-
-    //* Create if not exists *//
     if (!groupId) {
-      if (!input.name) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Group name is required',
-        });
-      }
-      const [newGroup] = await ctx.db
-        .insert(group)
-        .values({
-          name: input.name,
-          description: input.description,
-          createdById: userId,
-        })
-        .returning();
-      // add owner to group
-      await ctx.db.insert(groupMember).values({
-        groupId: newGroup.id,
-        userId,
-        role: 'owner',
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Group ID is required',
       });
-      groupId = newGroup.id;
-    }
-
-    // Check if user is the owner of this group
-    const membership = await ctx.db.query.groupMember.findFirst({
-      where: and(
-        eq(groupMember.groupId, groupId),
-        eq(groupMember.userId, userId),
-        eq(groupMember.role, 'owner')
-      ),
-    });
-
-    if (!membership) {
-      throw new Error('Only group owners can update group details');
     }
 
     const updateData: Partial<typeof group.$inferInsert> = {};
@@ -213,7 +181,9 @@ export const groupRouter = {
       .update(group)
       .set(updateData)
       .where(eq(group.id, groupId))
-      .returning();
+      .returning({
+        id: group.id,
+      });
 
     return updatedGroup;
   }),
@@ -385,6 +355,28 @@ export const groupRouter = {
         .where(and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, input.userId)));
 
       return { success: true };
+    }),
+
+  // Get a group by invite token
+  getByInviteToken: protectedProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const invite = await ctx.db.query.groupInvite.findFirst({
+        where: and(eq(groupInvite.token, input.token), gt(groupInvite.expiresAt, new Date())),
+      });
+
+      if (!invite) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Invalid or expired invite link' });
+      }
+
+      return ctx.db.query.group.findFirst({
+        where: eq(group.id, invite.groupId),
+        columns: {
+          name: true,
+          description: true,
+          id: true,
+        },
+      });
     }),
 
   // Join a group using an invite link

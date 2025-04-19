@@ -37,7 +37,7 @@ function ListItemComponent<T extends GroupListItem>(
     disabled,
     ...props
   }: ListItemProps<T>,
-  ref: React.Ref<View>
+  _ref: React.Ref<View>
 ) {
   if (typeof item === 'string') {
     console.log(
@@ -64,8 +64,7 @@ function ListItemComponent<T extends GroupListItem>(
           className,
           removeSeparator,
         })}
-        {...props}
-        ref={ref}>
+        {...props}>
         <TextClassContext.Provider value="font-normal leading-5">
           {!!leftView && <View>{leftView}</View>}
           <View

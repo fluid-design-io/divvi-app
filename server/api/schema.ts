@@ -58,7 +58,7 @@ export const createGroupSchema = createInsertSchema(group, {
 });
 
 // Update group schema
-export const upsertGroupSchema = createUpdateSchema(group, {
+export const updateGroupSchema = createUpdateSchema(group, {
   name: z.string({ required_error: 'Name is required' }).min(1, { message: 'Name is required' }),
   createdAt: undefined,
   updatedAt: undefined,

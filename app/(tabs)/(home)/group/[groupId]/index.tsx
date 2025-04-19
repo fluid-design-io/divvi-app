@@ -3,9 +3,9 @@ import { FlashList } from '@shopify/flash-list';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Info } from 'lucide-react-native';
 import { useState, useRef } from 'react';
-import { View, LayoutAnimation } from 'react-native';
+import { View, LayoutAnimation, Dimensions } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 // Assuming you have these components or similar ones
 import { ErrorView } from '~/components/core/error-view';
@@ -24,6 +24,8 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { trpc } from '~/utils/api';
 import type { RouterOutputs } from '~/utils/api';
 import { Button } from '~/components/nativewindui/Button';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Define the type for a single expense item based on the router output
 type ExpenseItem = RouterOutputs['expense']['getByGroupId']['items'][number];
@@ -142,7 +144,7 @@ export default function GroupDetails() {
             variant="plain"
             size="none"
             onPress={() => router.push(`/(modal)/group/${groupId}/edit`)}>
-            <Icon name="cog" size={22} color={colors.grey} />
+            <Icon name="cog" size={22} color={colors.primary} />
           </Button>
         )}
       />
@@ -181,12 +183,24 @@ export default function GroupDetails() {
 
 // Displayed when the list is empty
 function ListEmpty({ searchTerm }: { searchTerm?: string }) {
+  const { colors } = useColorScheme();
+  const headerHeight = useHeaderHeight();
+  const bottomTabHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
   const message = searchTerm
     ? `No expenses found for "${searchTerm}"`
-    : 'No expenses found in this group';
+    : 'Click on the "+" button to add an expense';
+
   return (
-    <View className="flex-1 items-center justify-center p-10">
-      <Info className="mb-2 h-6 w-6 text-muted-foreground" />
+    <View
+      className="flex-1 items-center justify-center p-10"
+      style={{
+        minHeight: Dimensions.get('window').height - headerHeight - bottomTabHeight - insets.bottom,
+      }}>
+      <Icon name={searchTerm ? 'magnify' : 'information'} size={48} color={colors.grey2} />
+      <Text variant="title3" className="mt-2 text-center font-bold">
+        No Expenses
+      </Text>
       <Text className="text-center text-sm text-muted-foreground">{message}</Text>
     </View>
   );

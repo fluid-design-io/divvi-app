@@ -1,5 +1,4 @@
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams } from 'expo-router';
 import { Sheet } from '~/components/nativewindui/Sheet';
 import { Text } from '~/components/nativewindui/Text';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,23 +14,24 @@ import QRCode from 'react-native-qrcode-svg';
 import { useColorScheme } from '~/lib/useColorScheme';
 
 export const InviteMemberSheet = ({
+  groupId,
   onDismiss,
   ref,
 }: {
+  groupId: string;
   onDismiss: () => void;
   ref: React.RefObject<BottomSheetModal | null>;
 }) => {
   return (
     <Sheet ref={ref} onDismiss={onDismiss} enableDynamicSizing>
       <BottomSheetView>
-        <InviteLink />
+        <InviteLink groupId={groupId} />
       </BottomSheetView>
     </Sheet>
   );
 };
 
-const InviteLink = () => {
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
+const InviteLink = ({ groupId }: { groupId: string }) => {
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const { colors } = useColorScheme();

@@ -10,12 +10,13 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Button } from '~/components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { authClient } from '~/lib/auth/client';
 
 export default function SelectGroup() {
   const [searchTerm, setSearchTerm] = useState('');
   const { colors } = useColorScheme();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
-
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data, isPending, isRefetching, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery(
     trpc.group.all.infiniteQueryOptions(
       {},
@@ -25,11 +26,14 @@ export default function SelectGroup() {
     )
   );
 
+  if (isSessionPending) return <Loading expand />;
+
   const DATA = categorizeGroupsByDate(data, {
     onPress: (groupId) => {
       router.back();
       router.setParams({ groupId });
     },
+    userId: session?.user.id ?? '',
   });
 
   return (
@@ -37,6 +41,7 @@ export default function SelectGroup() {
       <Stack.Screen
         options={{
           title: 'Select Group',
+          headerTitle: 'Select Group',
           headerShown: true,
           animation: 'default',
           headerSearchBarOptions: {

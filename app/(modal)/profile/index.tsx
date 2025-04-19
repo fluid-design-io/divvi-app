@@ -55,6 +55,16 @@ export default function Profile() {
       ...(Platform.OS === 'ios' ? { value: 'Divvi' } : { subTitle: 'Divvi' }),
       onPress: () => Linking.openURL('https://divvi-app.uing.dev'),
     },
+    ...(session.user.isAnonymous
+      ? [
+          'Link Account',
+          {
+            id: '8',
+            title: 'Link Account',
+            onPress: () => router.push('/profile/link-account'),
+          },
+        ]
+      : []),
   ];
   return (
     <>

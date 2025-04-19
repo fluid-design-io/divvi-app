@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/A
 import { Text } from '~/components/nativewindui/Text';
 import { RouterOutputs } from '~/utils/api';
 import { initials } from '~/utils/format';
-import { useLocalSearchParams } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
 import { useSheetRef } from '~/components/nativewindui/Sheet';
 import { usePreventRemove } from '@react-navigation/native';
@@ -22,15 +21,18 @@ type GroupMember = NonNullable<RouterOutputs['group']['getById']>['members'][num
 export const GroupMembers = ({
   members,
   editable = false,
+  isUserOwner = false,
+  groupId,
 }: {
   members?: GroupMember[];
   editable?: boolean;
+  isUserOwner?: boolean;
+  groupId: string;
 }) => {
   const queryClient = useQueryClient();
   const { showActionSheetWithOptions } = useActionSheet();
   const bottomSheetModalRef = useSheetRef();
   const [preventRemove, setPreventRemove] = useState(false);
-  const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const { data: session, isPending: isAuthPending } = authClient.useSession();
   const { mutate: removeMember } = useMutation(
     trpc.group.removeMember.mutationOptions({
@@ -44,7 +46,10 @@ export const GroupMembers = ({
     if (isAuthPending) return;
     // ignore if the member is the same as the user
     if (session?.user.id === member.user.id) return;
-
+    // ignore if the member is the owner
+    if (member.role === 'owner') return;
+    // ignore if the user is not the owner
+    if (!isUserOwner) return;
     const options = [`Remove ${member.user.name}`, 'Cancel'];
     const destructiveButtonIndex = 0;
     const cancelButtonIndex = 1;
@@ -100,6 +105,7 @@ export const GroupMembers = ({
                 key={`member-${member.id}`}
                 member={member}
                 onPress={() => onDeleteMember(member)}
+                isUser={member.userId === session?.user.id}
               />
             ))}
             {editable && (
@@ -117,12 +123,24 @@ export const GroupMembers = ({
           </ScrollView>
         </View>
       </View>
-      <InviteMemberSheet onDismiss={() => setPreventRemove(false)} ref={bottomSheetModalRef} />
+      <InviteMemberSheet
+        groupId={groupId}
+        onDismiss={() => setPreventRemove(false)}
+        ref={bottomSheetModalRef}
+      />
     </>
   );
 };
 
-const GroupMemberAvatar = ({ member, onPress }: { member: GroupMember; onPress?: () => void }) => {
+const GroupMemberAvatar = ({
+  member,
+  onPress,
+  isUser,
+}: {
+  member: GroupMember;
+  onPress?: () => void;
+  isUser?: boolean;
+}) => {
   return (
     <TouchableBounce onPress={onPress}>
       <View className="items-center gap-2">
@@ -132,13 +150,18 @@ const GroupMemberAvatar = ({ member, onPress }: { member: GroupMember; onPress?:
             <Text>{initials(member.user.name ?? 'Anonymous')}</Text>
           </AvatarFallback>
         </Avatar>
-        <Text
-          variant="caption1"
-          className="max-w-20 text-muted-foreground"
-          numberOfLines={1}
-          ellipsizeMode="middle">
-          {member.user.name ?? 'Anonymous'}
-        </Text>
+        <View className="items-center">
+          <Text
+            variant="caption1"
+            className="max-w-20 text-muted-foreground"
+            numberOfLines={1}
+            ellipsizeMode="middle">
+            {member.user.name ?? 'Anonymous'}
+          </Text>
+          <Text variant="caption2" className="text-muted-foreground">
+            {isUser ? `${member.role} (You)` : member.role}
+          </Text>
+        </View>
       </View>
     </TouchableBounce>
   );

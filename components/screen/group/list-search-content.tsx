@@ -8,9 +8,11 @@ import { categorizeGroupsByDate } from '~/utils/categorize-groups';
 import ListEmpty from './list-empty';
 import { renderItem } from './render-item';
 import { router } from 'expo-router';
+import { authClient } from '~/lib/auth/client';
 
 export default function GroupListSearchContent({ searchTerm }: { searchTerm: string }) {
   const queryClient = useQueryClient();
+  const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data, isPending, isRefetching, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery(
     trpc.group.all.infiniteQueryOptions(
       {
@@ -48,10 +50,12 @@ export default function GroupListSearchContent({ searchTerm }: { searchTerm: str
     })
   );
 
+  if (isSessionPending) return <Loading />;
   // Use the categorization function
   const DATA = categorizeGroupsByDate(data, {
     onPress: (groupId) => router.push(`/group/${groupId}`),
     onDelete: deleteGroupMutation,
+    userId: session?.user.id!,
   });
 
   return (
