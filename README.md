@@ -1,10 +1,10 @@
 # TODOs
 
-- [ ] Add anonymous user id
+- [x] Add anonymous user id
 - [x] Remove a member from the group
-- [ ] Invite friends
+- [x] Invite friends
 - [ ] Add upsert expense details logic
-- [ ] Add Apple Sign In
+- [x] Add Apple Sign In
 - [ ] Add activity feed
 - [ ] Add notification logic (also settings)
 - [ ] Add Error Boundaries

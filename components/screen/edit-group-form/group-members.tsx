@@ -13,7 +13,6 @@ import { initials } from '~/utils/format';
 import { useLocalSearchParams } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
 import { useSheetRef } from '~/components/nativewindui/Sheet';
-import { Contact } from './contacts-picker';
 import { usePreventRemove } from '@react-navigation/native';
 import { useState } from 'react';
 import { InviteMemberSheet } from './invite-member-sheet';
@@ -118,7 +117,6 @@ export const GroupMembers = ({
           </ScrollView>
         </View>
       </View>
-
       <InviteMemberSheet onDismiss={() => setPreventRemove(false)} ref={bottomSheetModalRef} />
     </>
   );

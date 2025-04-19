@@ -20,7 +20,7 @@ const Sheet = React.forwardRef<
   return (
     <BottomSheetModal
       ref={ref}
-      index={0}
+      index={index}
       backgroundStyle={
         backgroundStyle ?? {
           backgroundColor: colors.card,

@@ -11,14 +11,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 
 export const SelectGroup = () => {
   const { colors } = useColorScheme();
-  const { groupId } = useLocalSearchParams<{ id: string; groupId?: string }>();
-  const { data: defaultGroup, isPending: isDefaultGroupPending } = useQuery(
-    trpc.group.getDefault.queryOptions(undefined, { enabled: !groupId })
-  );
+  const { groupId } = useLocalSearchParams<{ groupId?: string }>();
   const { data: groupData, isPending: isGroupPending } = useQuery(
     trpc.group.getById.queryOptions({ groupId: groupId ?? '' }, { enabled: !!groupId })
   );
-  if ((groupId && isGroupPending) || (!groupId && isDefaultGroupPending))
+  if (groupId && isGroupPending)
     return (
       <Card>
         <CardContent>
@@ -35,15 +32,11 @@ export const SelectGroup = () => {
         </CardContent>
       </Card>
     );
-  const selectedGroupData = groupId ? groupData : defaultGroup;
+  const selectedGroupData = groupId ? groupData : null;
 
   return (
     <TouchableBounce
       onPress={() =>
-        // router.push({
-        //   pathname: '/expense/[expenseId]/select-group',
-        //   params: { expenseId: id, groupId: selectedGroupData?.id },
-        // })
         router.push(`./select-group?groupId=${selectedGroupData?.id}`, {
           relativeToDirectory: true,
         })
@@ -52,9 +45,13 @@ export const SelectGroup = () => {
         <CardContent>
           <View className="flex-row items-center justify-between">
             <View>
-              <CardDescription className="text-xs">{selectedGroupData?.name}</CardDescription>
+              <CardDescription className="text-xs">
+                {selectedGroupData?.name ?? 'No group selected'}
+              </CardDescription>
               <Text className="font-medium" numberOfLines={1} ellipsizeMode="tail">
-                {selectedGroupData?.description ?? 'No description'}
+                {(selectedGroupData?.description ?? groupId)
+                  ? 'No description'
+                  : 'Create new group'}
               </Text>
             </View>
             <Icon name="chevron-right" size={22} color={colors.grey2} />

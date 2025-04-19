@@ -9,6 +9,7 @@ import {
   expenseSplit,
   settlement,
   activity,
+  groupInvite,
 } from './tables';
 
 //****************************/
@@ -72,6 +73,13 @@ export const groupMemberRelations = relations(groupMember, ({ one }) => ({
   user: one(user, {
     fields: [groupMember.userId],
     references: [user.id],
+  }),
+}));
+
+export const groupInviteRelations = relations(groupInvite, ({ one }) => ({
+  group: one(group, {
+    fields: [groupInvite.groupId],
+    references: [group.id],
   }),
 }));
 

@@ -43,7 +43,7 @@ export default function SelectGroup() {
             placeholder: 'Search',
           },
           headerRight: () => (
-            <Button variant="plain" size="none" onPress={() => router.push('/upsert-group/new')}>
+            <Button variant="plain" size="none" onPress={() => router.push('/(modal)/group/new')}>
               <Icon name="plus" size={24} color={colors.primary} />
             </Button>
           ),

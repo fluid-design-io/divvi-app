@@ -9,6 +9,8 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { timestamps } from '../helper';
+import { addDays } from 'date-fns';
+import { sql } from 'drizzle-orm';
 
 //****************************/
 //**** ENUMS *******/
@@ -110,6 +112,26 @@ export const groupMember = pgTable('group_member', {
   role: memberRoleEnum().notNull().default('member'),
   joinedAt: timestamp().notNull().defaultNow(),
 });
+
+// A link that can be sent to a user to join a group
+export const groupInvite = pgTable(
+  'group_invite',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    groupId: uuid()
+      .notNull()
+      .references(() => group.id, { onDelete: 'cascade' }),
+    token: text()
+      .notNull()
+      .default(sql`gen_random_uuid()`)
+      .unique(),
+    expiresAt: timestamp()
+      .notNull()
+      .$defaultFn(() => addDays(new Date(), 7)),
+    ...timestamps,
+  },
+  (t) => [index('group_invite_token_idx').on(t.token)]
+);
 
 //****************************/
 //**** EXPENSE TABLES *******/

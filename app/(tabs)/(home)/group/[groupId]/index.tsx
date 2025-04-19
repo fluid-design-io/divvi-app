@@ -140,7 +140,7 @@ export default function GroupDetails() {
           <Button
             variant="plain"
             size="none"
-            onPress={() => router.push(`/upsert-group/${groupId}`)}>
+            onPress={() => router.push(`/(modal)/group/${groupId}/edit`)}>
             <Icon name="cog" size={22} color={colors.grey} />
           </Button>
         )}

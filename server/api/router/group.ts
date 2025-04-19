@@ -1,5 +1,5 @@
 import { TRPCError, type TRPCRouterRecord } from '@trpc/server';
-import { and, asc, desc, eq, ilike, lt, or } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, lt, or, gt } from 'drizzle-orm';
 import { z } from 'zod';
 
 import {
@@ -10,9 +10,9 @@ import {
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
-import { group, groupMember } from '~/db/schema';
+import { group, groupInvite, groupMember } from '~/db/schema';
 import { getGroupBalances } from '~/server/functions/get-group-balances';
-import { DEFAULT_GROUP_NAME } from '~/server/functions/initialize-expense';
+import { addDays } from 'date-fns';
 const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
 
 type GroupWithMembers = typeof group.$inferSelect & {
@@ -136,16 +136,6 @@ export const groupRouter = {
     });
   }),
 
-  /**
-   * Get the default group for the current user
-   */
-  getDefault: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    return ctx.db.query.group.findFirst({
-      where: and(eq(group.createdById, userId), eq(group.name, DEFAULT_GROUP_NAME)),
-    });
-  }),
-
   // Create a new group
   create: protectedProcedure.input(createGroupSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
@@ -257,8 +247,94 @@ export const groupRouter = {
     return { success: true };
   }),
 
+  // Get an existing invite link for a group
+  getInviteLink: protectedProcedure.input(groupIdInputSchema).query(async ({ ctx, input }) => {
+    const userId = ctx.session.user.id;
+
+    // Check if user is a member of this group
+    const membership = await ctx.db.query.groupMember.findFirst({
+      where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
+    });
+
+    if (!membership) {
+      throw new Error("You don't have access to this group");
+    }
+
+    // Check if an invite link already exists and is not expired
+    const existingInvite = await ctx.db.query.groupInvite.findFirst({
+      where: and(eq(groupInvite.groupId, input.groupId), gt(groupInvite.expiresAt, new Date())),
+    });
+
+    return existingInvite || null;
+  }),
+
+  // Generate a new invite link for a group
+  generateInviteLink: protectedProcedure
+    .input(groupIdInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Check if user is a member of this group
+      const membership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
+      });
+
+      if (!membership) {
+        throw new Error("You don't have access to this group");
+      }
+
+      // Check if an invite link already exists
+      const existingInvite = await ctx.db.query.groupInvite.findFirst({
+        where: eq(groupInvite.groupId, input.groupId),
+      });
+
+      if (existingInvite) {
+        // Update the invite link
+        const [updatedInvite] = await ctx.db
+          .update(groupInvite)
+          .set({
+            expiresAt: addDays(new Date(), 7),
+          })
+          .where(eq(groupInvite.id, existingInvite.id))
+          .returning();
+
+        return updatedInvite;
+      }
+
+      // Create a new invite link
+      const [newInvite] = await ctx.db
+        .insert(groupInvite)
+        .values({
+          groupId: input.groupId,
+        })
+        .returning();
+
+      return newInvite;
+    }),
+
+  // Deactivate (remove) an invite link for a group
+  deactivateInviteLink: protectedProcedure
+    .input(groupIdInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Check if user is a member of this group
+      const membership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
+      });
+
+      if (!membership) {
+        throw new Error("You don't have access to this group");
+      }
+
+      // Delete the invite link
+      await ctx.db.delete(groupInvite).where(eq(groupInvite.groupId, input.groupId));
+
+      return { success: true };
+    }),
+
   // Add a member to a group
-  inviteMember: protectedProcedure.input(addMemberSchema).mutation(async ({ ctx, input }) => {
+  addMember: protectedProcedure.input(addMemberSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
 
     // Check if user is a member of this group
@@ -309,5 +385,48 @@ export const groupRouter = {
         .where(and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, input.userId)));
 
       return { success: true };
+    }),
+
+  // Join a group using an invite link
+  joinByInvite: protectedProcedure
+    .input(z.object({ token: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Find the invite and check if it's valid
+      const invite = await ctx.db.query.groupInvite.findFirst({
+        where: and(eq(groupInvite.token, input.token), gt(groupInvite.expiresAt, new Date())),
+      });
+
+      if (!invite) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Invalid or expired invite link',
+        });
+      }
+
+      // Check if user is already a member of this group
+      const existingMembership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, invite.groupId), eq(groupMember.userId, userId)),
+      });
+
+      if (existingMembership) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'You are already a member of this group',
+        });
+      }
+
+      // Add the user as a member
+      const [newMember] = await ctx.db
+        .insert(groupMember)
+        .values({
+          groupId: invite.groupId,
+          userId,
+          role: 'member',
+        })
+        .returning();
+
+      return newMember;
     }),
 } satisfies TRPCRouterRecord;

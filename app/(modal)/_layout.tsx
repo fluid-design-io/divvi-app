@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Platform } from 'react-native';
@@ -12,6 +13,7 @@ export default function ModalLayout() {
           <Stack.Screen name="profile/notifications" options={FORM_SCREEN_OPTIONS} />
         </Stack>
       </BottomSheetModalProvider>
+      <PortalHost name="modal" />
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} animated />
     </>
   );

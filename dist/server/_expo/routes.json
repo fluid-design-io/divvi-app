@@ -25,6 +25,12 @@
       "routeKeys": {}
     },
     {
+      "file": "./(modal)/invite.tsx",
+      "page": "/(modal)/invite",
+      "namedRegex": "^(?:/\\(modal\\))?/invite(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(auth)/sign-in.tsx",
       "page": "/(auth)/sign-in",
       "namedRegex": "^(?:/\\(auth\\))?/sign\\-in(?:/)?$",
@@ -42,6 +48,12 @@
       "namedRegex": "^/_sitemap(?:/)?$",
       "routeKeys": {},
       "generated": true
+    },
+    {
+      "file": "./(modal)/group/new.tsx",
+      "page": "/(modal)/group/new",
+      "namedRegex": "^(?:/\\(modal\\))?/group/new(?:/)?$",
+      "routeKeys": {}
     },
     {
       "file": "./add-expense.tsx",
@@ -76,9 +88,9 @@
       }
     },
     {
-      "file": "./(modal)/upsert-group/[groupId].tsx",
-      "page": "/(modal)/upsert-group/[groupId]",
-      "namedRegex": "^(?:/\\(modal\\))?/upsert\\-group/(?<groupId>[^/]+?)(?:/)?$",
+      "file": "./(modal)/group/[groupId]/edit.tsx",
+      "page": "/(modal)/group/[groupId]/edit",
+      "namedRegex": "^(?:/\\(modal\\))?/group/(?<groupId>[^/]+?)/edit(?:/)?$",
       "routeKeys": {
         "groupId": "groupId"
       }
