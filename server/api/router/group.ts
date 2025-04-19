@@ -148,7 +148,10 @@ export const groupRouter = {
         ...input,
         createdById: userId,
       })
-      .returning();
+      .returning({
+        id: group.id,
+        name: group.name,
+      });
 
     // Add the creator as a member with owner role
     await ctx.db.insert(groupMember).values({

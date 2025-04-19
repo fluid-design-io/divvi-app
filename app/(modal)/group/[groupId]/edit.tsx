@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -20,8 +20,10 @@ type UpsertGroupSchemaType = z.infer<typeof updateGroupSchema>;
 
 export default function FormPage() {
   const queryClient = useQueryClient();
-  const { groupId, isNew } = useLocalSearchParams<{ groupId: string; isNew?: string }>();
+  const { groupId } = useGlobalSearchParams<{ groupId: string }>();
+  const { isNew } = useLocalSearchParams<{ isNew?: string }>();
   const isNewGroup = isNew === 'true';
+  console.log('❤️ GroupID', groupId);
   const { data: session } = authClient.useSession();
   const { data: groupData, isFetching: isFetchingExistingGroup } = useQuery(
     trpc.group.getById.queryOptions({

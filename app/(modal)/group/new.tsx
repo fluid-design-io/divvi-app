@@ -19,10 +19,20 @@ export default function NewGroup() {
         await queryClient.invalidateQueries({
           queryKey: trpc.group.getById.queryKey({ groupId: data.id }),
         });
-        router.replace({
-          pathname: '/(modal)/group/[groupId]/edit',
-          params: { groupId: data.id, isNew: 'true' },
-        });
+        await queryClient.prefetchQuery(
+          trpc.group.getById.queryOptions({
+            groupId: data.id,
+          })
+        );
+        router.replace(
+          {
+            pathname: '/(modal)/group/[groupId]/edit',
+            params: { groupId: data.id, isNew: 'true' },
+          },
+          {
+            relativeToDirectory: true,
+          }
+        );
       },
     })
   );
@@ -31,7 +41,6 @@ export default function NewGroup() {
     setMounted(true);
     createGroup({
       name: 'New Group',
-      description: 'Group description',
       createdById: session.user.id,
     });
   }, [mounted, session?.user.id]);
