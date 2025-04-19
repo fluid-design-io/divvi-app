@@ -30,11 +30,22 @@ app.use(
 
 app.use(morgan('tiny'));
 
-// Serve the apple-app-site-association file for Universal Links
+// Serve .well-known/apple-app-site-association
 app.get('/.well-known/apple-app-site-association', (_req, res) => {
-  const filePath = path.join(process.cwd(), 'public', '.well-known', 'apple-app-site-association');
-  res.type('application/json');
-  res.sendFile(filePath);
+  const filePath = path.join(CLIENT_BUILD_DIR, '.well-known/apple-app-site-association');
+  console.log('🔥 Attempting to serve apple-app-site-association from:', filePath);
+
+  try {
+    const fs = require('fs');
+    const content = fs.readFileSync(filePath, 'utf8');
+    console.log('🔥 Successfully read file contents');
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send(content);
+  } catch (err) {
+    console.error('🔥 Error reading/sending apple-app-site-association:', err);
+    res.status(500).json({ error: 'Failed to serve apple-app-site-association' });
+  }
 });
 
 app.all(
