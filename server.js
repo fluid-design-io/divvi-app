@@ -30,19 +30,11 @@ app.use(
 
 app.use(morgan('tiny'));
 
-// Serve .well-known/apple-app-site-association
+// Serve the apple-app-site-association file for Universal Links
 app.get('/.well-known/apple-app-site-association', (_req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json({
-    applinks: {
-      details: [
-        {
-          appID: 'F8V4932HJN.dev.uing.divvi',
-          paths: ['*'],
-        },
-      ],
-    },
-  });
+  const filePath = path.join(process.cwd(), 'public', '.well-known', 'apple-app-site-association');
+  res.type('application/json');
+  res.sendFile(filePath);
 });
 
 app.all(
