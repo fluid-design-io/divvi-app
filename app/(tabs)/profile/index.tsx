@@ -21,6 +21,7 @@ const SCREEN_OPTIONS = {
   title: 'Profile',
   headerTransparent: Platform.OS === 'ios',
   headerBlurEffect: 'systemMaterial',
+  headerShown: false,
 } as const;
 
 export default function Profile() {

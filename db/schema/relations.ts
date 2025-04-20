@@ -8,7 +8,6 @@ import {
   expense,
   expenseSplit,
   settlement,
-  activity,
   groupInvite,
 } from './tables';
 
@@ -25,7 +24,6 @@ export const userRelations = relations(user, ({ many }) => ({
   expenseSplitsOwed: many(expenseSplit), // User can owe splits in many expenses
   settlementsSent: many(settlement, { relationName: 'settlementsSent' }), // Explicit relation name needed for multiple relations to same table
   settlementsReceived: many(settlement, { relationName: 'settlementsReceived' }),
-  activities: many(activity),
 }));
 
 //****************************/
@@ -62,7 +60,6 @@ export const groupRelations = relations(group, ({ one, many }) => ({
   members: many(groupMember), // A group has many members
   expenses: many(expense), // A group has many expenses
   settlements: many(settlement), // A group has many settlements
-  activities: many(activity), // A group has many activities
 }));
 
 export const groupMemberRelations = relations(groupMember, ({ one }) => ({
@@ -130,20 +127,5 @@ export const settlementRelations = relations(settlement, ({ one }) => ({
     fields: [settlement.toUserId],
     references: [user.id],
     relationName: 'settlementsReceived', // Match the relation name in userRelations
-  }),
-}));
-
-//****************************/
-//**** ACTIVITY RELATIONS *******/
-//****************************/
-
-export const activityRelations = relations(activity, ({ one }) => ({
-  group: one(group, {
-    fields: [activity.groupId],
-    references: [group.id],
-  }),
-  user: one(user, {
-    fields: [activity.userId],
-    references: [user.id],
   }),
 }));

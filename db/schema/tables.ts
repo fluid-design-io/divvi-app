@@ -208,25 +208,3 @@ export const settlement = pgTable(
     index('settlement_to_user_id_idx').on(t.toUserId),
   ]
 );
-
-//****************************/
-//**** ACTIVITY TABLES *******/
-//****************************/
-
-export const activity = pgTable(
-  'activity',
-  {
-    id: uuid().defaultRandom().primaryKey(),
-    groupId: uuid()
-      .notNull()
-      .references(() => group.id, { onDelete: 'cascade' }),
-    userId: text()
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    activityType: text().notNull(),
-    entityId: uuid(),
-    data: text(),
-    ...timestamps,
-  },
-  (t) => [index('activity_group_id_idx').on(t.groupId), index('activity_user_id_idx').on(t.userId)]
-);

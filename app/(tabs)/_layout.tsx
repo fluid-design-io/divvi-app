@@ -54,9 +54,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="activity"
+          name="profile"
           options={{
-            title: 'Activity',
+            title: 'Profile',
           }}
         />
       </Tabs>
@@ -71,7 +71,7 @@ const TAB_BAR = Platform.select({
 
 const TAB_ICON = {
   '(home)': 'newspaper',
-  activity: 'bell',
+  profile: 'person',
 } as const;
 
 const TAB_ICON_SF = {
@@ -83,8 +83,8 @@ const TAB_ICON_SF = {
       direction: 'down',
     },
   },
-  activity: {
-    name: 'bell.fill',
+  profile: {
+    name: 'person.crop.circle.fill',
     symbolEffect: {
       type: 'bounce',
       direction: 'down',
@@ -292,7 +292,7 @@ function IosTabItem({
       <View className="relative items-center justify-center gap-1 p-4">
         <Icon
           ios={{
-            name: name.name,
+            name: name?.name,
             symbolEffect: { ...name.symbolEffect, value: isBouncing },
           }}
           size={27}

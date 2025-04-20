@@ -2,7 +2,7 @@ import { createInsertSchema, createUpdateSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 // Import database schemas
-import { group, groupMember, expense, expenseSplit, settlement, activity } from '~/db/schema';
+import { group, groupMember, expense, expenseSplit, settlement } from '~/db/schema';
 
 // ==========================================
 // Common Validation Schemas
@@ -104,16 +104,6 @@ export const createSettlementSchema = createInsertSchema(settlement, {
   updatedAt: undefined,
   settledAt: undefined,
   status: undefined,
-});
-
-// ==========================================
-// Activity Schemas
-// ==========================================
-
-// Create activity schema
-export const createActivitySchema = createInsertSchema(activity, {
-  id: undefined,
-  createdAt: undefined,
 });
 
 // ==========================================

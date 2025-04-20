@@ -9,7 +9,6 @@ import { View, LayoutAnimation } from 'react-native';
 // Assuming you have these components or similar ones
 import { ErrorView } from '~/components/core/error-view';
 import Loading from '~/components/core/loading';
-import { AdaptiveSearchHeader } from '~/components/nativewindui/AdaptiveSearchHeader';
 import {
   ExtendedListDataItem,
   List,
@@ -24,6 +23,7 @@ import { trpc } from '~/utils/api';
 import type { RouterOutputs } from '~/utils/api';
 import { Button } from '~/components/nativewindui/Button';
 import { EmptyView } from '~/components/core/empty-view';
+import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
 
 // Define the type for a single expense item based on the router output
 type ExpenseItem = RouterOutputs['expense']['getByGroupId']['items'][number];
@@ -127,11 +127,11 @@ export default function GroupDetails() {
   });
   return (
     <>
-      <AdaptiveSearchHeader
-        iosTitle={group?.name ?? 'Loading...'}
+      <LargeTitleHeader
+        title={group?.name ?? 'Loading...'}
         searchBar={{
           // ! Causing UI glitch on mount
-          // iosHideWhenScrolling: true,
+          iosHideWhenScrolling: true,
           onChangeText: setSearchTerm,
           onCancelButtonPress: () => {
             setSearchTerm('');
@@ -225,7 +225,6 @@ function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
   );
 }
 
-// Optional: Footer component to show loading indicator during fetchNextPage
 function ListFooter({
   isFetchingNextPage,
   hasNextPage,

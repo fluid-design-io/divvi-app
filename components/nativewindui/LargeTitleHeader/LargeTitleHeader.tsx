@@ -104,7 +104,7 @@ export function LargeTitleHeader(props: LargeTitleHeaderProps) {
   const canGoBack = navigation.canGoBack();
 
   if (props.shown === false) return null;
-
+return null;
   return (
     <>
       <Stack.Screen options={Object.assign(props.screen ?? {}, SCREEN_OPTIONS)} />

@@ -1,7 +1,7 @@
 import { Text } from '~/components/nativewindui/Text';
 import { Picker } from '@expo/ui/Picker';
 import React from 'react';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { BodyScrollView } from '~/components/core/body-scroll-view';
 import { Alert, View } from 'react-native';
 import { TonalIcon } from '~/components/core/icon';
@@ -22,9 +22,19 @@ import { Check } from 'lucide-react-native';
 import { Button } from '~/components/nativewindui/Button';
 import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
 import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
-import { Category, categoryValues } from '~/server/api/schema';
+import { Category } from '~/server/api/schema';
+import { Icon, SfSymbolIconName } from '@roninoss/icons';
+import { useColorScheme } from '~/lib/useColorScheme';
 const SPLIT_MODES = ['equal', 'percentage', 'exact'] as const;
-
+const CATEGORIES: Record<Category, { ios: { name: string } }> = {
+  food: { ios: { name: 'fork.knife' } },
+  transport: { ios: { name: 'car' } },
+  accommodation: { ios: { name: 'house' } },
+  entertainment: { ios: { name: 'film' } },
+  shopping: { ios: { name: 'cart' } },
+  utilities: { ios: { name: 'bolt' } },
+  other: { ios: { name: 'questionmark.circle' } },
+};
 export default function ExpenseDetails() {
   return (
     <>
@@ -33,6 +43,11 @@ export default function ExpenseDetails() {
           title: 'Expense Details',
           headerTitle: 'Expense Details',
           headerShown: true,
+          headerRight: () => (
+            <Button variant="plain" size="none" onPress={() => router.back()}>
+              <Text className="text-primary">Done</Text>
+            </Button>
+          ),
         }}
       />
 
@@ -94,6 +109,7 @@ const SplitDisplayInfo = React.memo(() => {
   const isValid = useExpenseStore((s) => s.validateSplits);
   const category = useExpenseStore((s) => s.expense?.category ?? 'other');
   const updateCategory = useExpenseStore((s) => s.updateCategory);
+  const { colors } = useColorScheme();
 
   const preventRemove = !isValid().isValid;
   usePreventRemove(preventRemove, () => {
@@ -111,10 +127,14 @@ const SplitDisplayInfo = React.memo(() => {
       </Text>
       <DropdownMenu
         items={[
-          ...categoryValues.map((category) =>
+          ...Object.entries(CATEGORIES).map(([category, { ios }]) =>
             createDropdownItem({
               actionKey: category,
               title: capitalize(category),
+              icon: {
+                namingScheme: 'sfSymbol',
+                name: ios.name as SfSymbolIconName,
+              },
             })
           ),
         ]}
@@ -123,6 +143,14 @@ const SplitDisplayInfo = React.memo(() => {
         }}>
         <Button variant="tonal" size="sm">
           <Text>{capitalize(category ?? 'Select Category...')}</Text>
+          <Icon
+            ios={{
+              name: CATEGORIES[category].ios.name as SfSymbolIconName,
+            }}
+            name="information"
+            size={16}
+            color={colors.primary}
+          />
         </Button>
       </DropdownMenu>
     </View>

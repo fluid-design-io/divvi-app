@@ -1,4 +1,3 @@
-import { activityRouter } from './router/activity';
 import { authRouter } from './router/auth';
 import { expenseRouter } from './router/expense';
 import { groupRouter } from './router/group';
@@ -10,7 +9,6 @@ export const appRouter = createTRPCRouter({
   group: groupRouter,
   expense: expenseRouter,
   settlement: settlementRouter,
-  activity: activityRouter,
 });
 
 // export type definition of API
