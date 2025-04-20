@@ -4,7 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useDebounce } from '@uidotdev/usehooks';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState, useRef } from 'react';
-import { View, LayoutAnimation } from 'react-native';
+import { View, LayoutAnimation, Pressable, StyleSheet } from 'react-native';
 
 // Assuming you have these components or similar ones
 import { ErrorView } from '~/components/core/error-view';
@@ -21,9 +21,10 @@ import { formatCurrency } from '~/utils/format';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { trpc } from '~/utils/api';
 import type { RouterOutputs } from '~/utils/api';
-import { Button } from '~/components/nativewindui/Button';
 import { EmptyView } from '~/components/core/empty-view';
 import { LargeTitleHeader } from '~/components/nativewindui/LargeTitleHeader';
+import { Toolbar, ToolbarCTA, ToolbarIcon } from '~/components/nativewindui/Toolbar';
+import Animated from 'react-native-reanimated';
 
 // Define the type for a single expense item based on the router output
 type ExpenseItem = RouterOutputs['expense']['getByGroupId']['items'][number];
@@ -37,7 +38,7 @@ type ExpenseListDataItem = Exclude<ExtendedListDataItem, string> & {
 
 export default function GroupDetails() {
   const queryClient = useQueryClient();
-  const { colors } = useColorScheme();
+  useColorScheme();
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const listRef = useRef<FlashList<ExpenseListDataItem>>(null);
 
@@ -137,14 +138,6 @@ export default function GroupDetails() {
             setSearchTerm('');
           },
         }}
-        rightView={() => (
-          <Button
-            variant="plain"
-            size="none"
-            onPress={() => router.push(`/(modal)/group/${groupId}/edit`)}>
-            <Icon name="cog" size={22} color={colors.primary} />
-          </Button>
-        )}
       />
       <List
         ref={listRef}
@@ -152,6 +145,7 @@ export default function GroupDetails() {
         renderItem={renderItem}
         extraData={debouncedSearchTerm}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={<GroupStatSwitcher />}
         ListEmptyComponent={
           isPending ? (
             <Loading />
@@ -187,6 +181,23 @@ export default function GroupDetails() {
         variant="insets"
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
+      />
+      <Toolbar
+        className="absolute bottom-0 left-0 right-0"
+        leftView={
+          <ToolbarIcon
+            icon={{ name: 'cog-outline' }}
+            onPress={() => router.push(`/(modal)/group/${groupId}/edit`)}
+            accessibilityLabel="Edit Group"
+          />
+        }
+        rightView={
+          <ToolbarCTA
+            icon={{ name: 'pencil-box-outline' }}
+            onPress={() => router.push(`/expense/new?groupId=${groupId}`)}
+            accessibilityLabel="Add Expense"
+          />
+        }
       />
     </>
   );
@@ -246,3 +257,115 @@ function ListFooter({
   }
   return null;
 }
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+function GroupStatSwitcher() {
+  const { colors } = useColorScheme();
+  const expenseActiveColor = colors.primary;
+  // const membersActiveColor = '#1758a3';
+  // const statsActiveColor = '#1758a3';
+  const inactiveColor = colors.grey5;
+  const activeIconColor = colors.background;
+  const inactiveIconColor = colors.grey;
+  const activeTextColor = colors.background;
+  const inactiveTextColor = colors.grey;
+  return (
+    <View className="-mt-2 mb-6 flex-row items-center gap-2">
+      <AnimatedPressable
+        style={[
+          statSwitcherButtonStyle.button,
+          statSwitcherButtonStyle.active,
+          { backgroundColor: expenseActiveColor },
+        ]}>
+        <Icon name="format-list-bulleted" size={22} color={activeIconColor} />
+        <Text
+          style={[
+            statSwitcherButtonStyle.text,
+            statSwitcherButtonStyle.textActive,
+            { color: activeTextColor },
+          ]}>
+          Expenses
+        </Text>
+      </AnimatedPressable>
+      <AnimatedPressable
+        style={[
+          statSwitcherButtonStyle.button,
+          statSwitcherButtonStyle.inactive,
+          { backgroundColor: inactiveColor },
+        ]}>
+        <Icon
+          name="account-circle"
+          ios={{
+            // todo: when active, it becomes person.3.fill
+            name: 'person.3',
+          }}
+          size={22}
+          color={inactiveIconColor}
+        />
+        <Text
+          style={[
+            statSwitcherButtonStyle.text,
+            statSwitcherButtonStyle.textInactive,
+            { color: inactiveTextColor },
+          ]}>
+          Members
+        </Text>
+      </AnimatedPressable>
+      <AnimatedPressable
+        style={[
+          statSwitcherButtonStyle.button,
+          statSwitcherButtonStyle.inactive,
+          { backgroundColor: inactiveColor },
+        ]}>
+        <Icon
+          name="chart-box"
+          ios={{
+            // todo: when active, it becomes chart.pie.fill
+            name: 'chart.pie',
+          }}
+          size={22}
+          color={inactiveIconColor}
+        />
+        <Text
+          style={[
+            statSwitcherButtonStyle.text,
+            statSwitcherButtonStyle.textInactive,
+            { color: inactiveTextColor },
+          ]}>
+          Stats
+        </Text>
+      </AnimatedPressable>
+    </View>
+  );
+}
+
+const statSwitcherButtonStyle = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 20,
+    borderCurve: 'continuous',
+    overflow: 'hidden',
+    height: 48,
+  },
+  active: {
+    width: 'auto',
+    paddingHorizontal: 24,
+  },
+  inactive: {
+    width: 64,
+    paddingHorizontal: 24,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  textActive: {
+    opacity: 1,
+  },
+  textInactive: {
+    opacity: 0,
+  },
+});

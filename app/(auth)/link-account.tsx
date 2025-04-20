@@ -33,14 +33,10 @@ export default function SignIn() {
       Alert.alert('Error', res.error.message);
     }
   };
-  const handleAnonymousLogin = async () => {
-    const res = await authClient.signIn.anonymous();
-    if (res.error) {
-      Alert.alert('Error', res.error.message);
-    }
-  };
+
+  // Redirect to home screen if user is authenticated and not anonymous
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !isAuthenticated.user.isAnonymous) {
       if (navContainerRef.isReady()) {
         router.push('/(tabs)/(home)');
       }
@@ -55,9 +51,6 @@ export default function SignIn() {
       </Button>
       <Button onPress={() => handleLogin('apple')}>
         <Text>Sign in with Apple</Text>
-      </Button>
-      <Button onPress={() => handleAnonymousLogin()}>
-        <Text>Sign in as Guest</Text>
       </Button>
     </View>
   );

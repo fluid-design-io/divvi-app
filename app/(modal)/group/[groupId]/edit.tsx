@@ -113,15 +113,8 @@ export default function FormPage() {
           headerTransparent: true,
           animation: isNewGroup ? 'fade' : 'default',
           headerLeft: () => (
-            <Button
-              size="none"
-              variant="plain"
-              onPress={() =>
-                queryClient.invalidateQueries({
-                  queryKey: trpc.group.getById.queryKey({ groupId }),
-                })
-              }>
-              <Text className="text-primary">Refresh</Text>
+            <Button size="none" variant="plain" onPress={() => router.back()}>
+              <Text className="text-primary">Cancel</Text>
             </Button>
           ),
           headerRight: () => (
@@ -130,7 +123,7 @@ export default function FormPage() {
               variant="plain"
               onPress={form.handleSubmit(onSubmit)}
               disabled={disabled}>
-              <Text className="text-primary">Save</Text>
+              <Text className="font-medium text-primary">Save</Text>
             </Button>
           ),
         }}

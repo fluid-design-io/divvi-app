@@ -36,13 +36,6 @@ export default function Profile() {
       ...(Platform.OS === 'ios' ? { value: session.user.name } : { subTitle: session.user.name }),
       onPress: () => router.push('/profile/name'),
     },
-    ...(Platform.OS !== 'ios' ? ['Stay up to date'] : ['']),
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      ...(Platform.OS === 'ios' ? { value: 'Push' } : { subTitle: 'Push' }),
-      onPress: () => router.push('/profile/notifications'),
-    },
     'Help',
     {
       id: '6',
@@ -62,7 +55,7 @@ export default function Profile() {
           {
             id: '8',
             title: 'Link Account',
-            onPress: () => router.push('/profile/link-account'),
+            onPress: () => router.push('/(auth)/link-account'),
           },
         ]
       : []),
@@ -134,7 +127,9 @@ function ListHeaderComponent() {
       </Avatar>
       <View className="p-1" />
       <Text variant="title1">{session.user.name}</Text>
-      <Text className="text-muted-foreground">{session.user.email}</Text>
+      <Text className="px-4 text-muted-foreground" numberOfLines={1} ellipsizeMode="middle">
+        {session.user.email}
+      </Text>
     </View>
   );
 }

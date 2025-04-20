@@ -68,7 +68,7 @@ export default function GroupList() {
 
   // Use the categorization function
   const DATA = categorizeGroupsByDate(data, {
-    onPress: (groupId) => router.push(`/group/${groupId}`),
+    onPress: (groupId) => router.push(`/(tabs)/(home)/group/${groupId}`),
     onDelete: deleteGroupMutation,
     userId: session?.user.id!,
   });
