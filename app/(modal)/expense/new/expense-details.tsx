@@ -12,12 +12,17 @@ import {
   useDisplayInfo,
   useExpenseStore,
 } from '~/components/screen/edit-expense-form';
-import { formatCurrency, initials } from '~/utils/format';
+import { capitalize, formatCurrency, initials } from '~/utils/format';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { TextField } from '~/components/nativewindui/TextField';
 import { Slider } from '~/components/nativewindui/Slider';
 import { usePreventRemove } from '@react-navigation/native';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import { Check } from 'lucide-react-native';
+import { Button } from '~/components/nativewindui/Button';
+import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
+import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
+import { Category, categoryValues } from '~/server/api/schema';
 const SPLIT_MODES = ['equal', 'percentage', 'exact'] as const;
 
 export default function ExpenseDetails() {
@@ -85,10 +90,12 @@ const ListHeaderComponent = React.memo(() => {
 });
 
 const SplitDisplayInfo = React.memo(() => {
-  const { expenseAmount, splitDescription } = useDisplayInfo();
+  const { expenseAmount, splitDescription, paidByUser } = useDisplayInfo();
   const isValid = useExpenseStore((s) => s.validateSplits);
-  const preventRemove = !isValid().isValid;
+  const category = useExpenseStore((s) => s.expense?.category ?? 'other');
+  const updateCategory = useExpenseStore((s) => s.updateCategory);
 
+  const preventRemove = !isValid().isValid;
   usePreventRemove(preventRemove, () => {
     Alert.alert('Invalid Split', isValid().message ?? 'Please fix the errors', [
       { text: 'OK', onPress: () => {} },
@@ -97,11 +104,27 @@ const SplitDisplayInfo = React.memo(() => {
   return (
     <View className="items-center justify-center gap-2 rounded-2xl bg-card p-4">
       <Text variant="title2" className="font-rounded text-foreground">
-        {formatCurrency(expenseAmount / 100)}
+        {formatCurrency(expenseAmount / 100)} paid by {paidByUser?.user.name}
       </Text>
       <Text variant="subhead" className="text-muted-foreground">
         {splitDescription}
       </Text>
+      <DropdownMenu
+        items={[
+          ...categoryValues.map((category) =>
+            createDropdownItem({
+              actionKey: category,
+              title: capitalize(category),
+            })
+          ),
+        ]}
+        onItemPress={(item) => {
+          updateCategory(item.actionKey as Category);
+        }}>
+        <Button variant="tonal" size="sm">
+          <Text>{capitalize(category ?? 'Select Category...')}</Text>
+        </Button>
+      </DropdownMenu>
     </View>
   );
 });
@@ -125,24 +148,38 @@ const MembersList = React.memo(() => {
 
 const MemberListItem = React.memo(({ member, split }: { member: Member; split?: Split }) => {
   const splitMode = useExpenseStore((s) => s.expense?.splitType);
+  const paidById = useExpenseStore((s) => s.expense?.paidById);
   const onExactAmountChange = useExpenseStore((s) => s.updateExactAmount);
+  const setPaidById = useExpenseStore((s) => s.updatePaidById);
   if (!split) return <Text>No split found for {member.user.name}</Text>; // Should not happen if data is consistent
 
   const memberAmount = split.amount ?? 0;
   const displayAmount = formatCurrency(memberAmount / 100);
   const exactInputText = split.amount != null ? (split.amount / 100).toFixed(2) : '0.00';
+  const isPaidBy = paidById === member.userId;
   return (
-    <View className="flex-row items-center justify-between gap-2">
+    <Button
+      variant="plain"
+      size="none"
+      className="flex-row items-center justify-between gap-2"
+      onPress={() => setPaidById(member.userId)}>
       <View className="flex-1 flex-row items-center gap-2 py-1">
-        <Avatar alt={member.user.name}>
-          {member.user.image && <AvatarImage source={{ uri: member.user.image }} />}
-          <AvatarFallback>
-            <Text className="font-rounded">{initials(member.user.name)}</Text>
-          </AvatarFallback>
-        </Avatar>
+        <View className="relative">
+          {isPaidBy && (
+            <View className="absolute -bottom-1 -right-1 z-10 flex items-center justify-center rounded-full border-2 border-background bg-primary p-0.5">
+              <Check size={14} color="white" />
+            </View>
+          )}
+          <Avatar alt={member.user.name}>
+            {member.user.image && <AvatarImage source={{ uri: member.user.image }} />}
+            <AvatarFallback>
+              <Text className="font-rounded">{initials(member.user.name)}</Text>
+            </AvatarFallback>
+          </Avatar>
+        </View>
         <View className="flex-1">
-          <Text variant="subhead" className="leading-none text-muted-foreground">
-            {member.user.name}
+          <Text variant="subhead" className="font-semibold leading-none text-muted-foreground">
+            {member.user.name} {isPaidBy && '(Payer)'}
           </Text>
           {splitMode === 'percentage' && (
             <PercentageSlider memberId={member.userId} value={split.percentage ?? 0} />
@@ -168,13 +205,13 @@ const MemberListItem = React.memo(({ member, split }: { member: Member; split?: 
         ) : splitMode === 'percentage' ? (
           <View className="items-end justify-center">
             <Text className="text-sm font-medium text-foreground">{split.percentage ?? 0}%</Text>
-            <Text className="text-xs text-muted-foreground">{displayAmount}</Text>
+            <Text className="font-rounded text-xs text-muted-foreground">{displayAmount}</Text>
           </View>
         ) : (
-          <Text className="text-sm text-muted-foreground">{displayAmount}</Text>
+          <Text className="font-rounded text-sm text-muted-foreground">{displayAmount}</Text>
         )}
       </View>
-    </View>
+    </Button>
   );
 });
 
@@ -190,6 +227,7 @@ const PercentageSlider = React.memo(({ memberId, value }: { memberId: string; va
       upperLimit={value + remainingPercentage}
       step={1}
       tapToSeek
+      className="-mb-1"
     />
   );
 });

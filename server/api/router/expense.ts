@@ -10,7 +10,7 @@ import {
 import { protectedProcedure } from '../trpc';
 
 import { expense, expenseSplit, group, groupMember } from '~/db/schema';
-import { getGroupBalances } from '~/server/functions/get-group-balances';
+import { getGroupBalancesByMember } from '~/server/functions/get-group-balances-by-member';
 
 const EXPENSES_PER_PAGE = 20;
 
@@ -310,7 +310,7 @@ export const expenseRouter = {
   // Get balances for all users in a group
   getGroupBalances: protectedProcedure
     .input(groupIdWithPaginationSchema)
-    .query(async ({ ctx, input }) => getGroupBalances(ctx, input)),
+    .query(async ({ ctx, input }) => getGroupBalancesByMember(ctx, input)),
 
   // Mark an expense split as settled
   settleSplit: protectedProcedure

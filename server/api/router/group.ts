@@ -11,8 +11,8 @@ import {
 import { protectedProcedure } from '../trpc';
 
 import { group, groupInvite, groupMember } from '~/db/schema';
-import { getGroupBalances } from '~/server/functions/get-group-balances';
 import { addDays } from 'date-fns';
+import { getGroupBalancesTotal } from '~/server/functions/get-group-balances-total';
 const GROUPS_PER_PAGE = 15; // Define how many groups to fetch per page
 
 type GroupWithMembers = typeof group.$inferSelect & {
@@ -80,21 +80,17 @@ export const groupRouter = {
 
       //* for each item, get getGroupBalances
       const groupBalances = await Promise.all(
-        groups.map((item) => getGroupBalances(ctx, { groupId: item.id, limit: 100 }))
+        groups.map(async (item) => ({
+          groupId: item.id,
+          balance: await getGroupBalancesTotal(ctx, { groupId: item.id, limit: 100 }),
+        }))
       );
 
-      //* accumulate sum of balances into groups
-      const groupedBalances: Record<string, number> = {};
-      for (const [index, expense] of groups.entries()) {
-        // For each group, calculate the total balance
-        const groupBalance = groupBalances[index];
-        groupedBalances[expense.id] = groupBalance.reduce((acc, curr) => acc + curr.balance, 0);
-      }
-
+      console.log('🔥 groupBalances', groupBalances);
       //* add groupedBalances to groups
-      const groupWithBalances = groups.map((expense) => ({
-        ...expense,
-        balance: groupedBalances[expense.id],
+      const groupWithBalances = groups.map((group) => ({
+        ...group,
+        balance: groupBalances.find((item) => item.groupId === group.id)?.balance || 0,
       })) satisfies GroupWithBalance[];
 
       let nextCursor: typeof cursor | undefined = undefined;

@@ -51,7 +51,12 @@ export default function SelectGroup() {
             placeholder: 'Search',
           },
           headerRight: () => (
-            <Button variant="plain" size="none" onPress={() => router.push('/(modal)/group/new')}>
+            <Button
+              variant="plain"
+              size="none"
+              onPress={() => router.push('/(modal)/group/new')}
+              accessibilityLabel="Create Group"
+              accessibilityHint="Create a new group to add expenses to">
               <Icon name="plus" size={24} color={colors.primary} />
             </Button>
           ),

@@ -24,7 +24,6 @@ export default function FormPage() {
   const { groupId } = useGlobalSearchParams<{ groupId: string }>();
   const { isNew } = useLocalSearchParams<{ isNew?: string }>();
   const isNewGroup = isNew === 'true';
-  console.log('❤️ GroupID', groupId);
   const { data: session } = authClient.useSession();
   const {
     data: groupData,
@@ -112,6 +111,7 @@ export default function FormPage() {
           headerBackButtonDisplayMode: 'minimal',
           headerBlurEffect: 'none',
           headerTransparent: true,
+          animation: isNewGroup ? 'fade' : 'default',
           headerLeft: () => (
             <Button
               size="none"
@@ -155,6 +155,13 @@ export default function FormPage() {
                 placeholder="Hawaii Trip"
                 label="Name"
                 onBlur={form.handleSubmit(onBlurSave)}
+                onSubmitEditing={() => KeyboardController.setFocusTo('next')}
+                keyboardType="default"
+                autoCapitalize="words"
+                enterKeyHint="next"
+                returnKeyType="next"
+                selectTextOnFocus={isNewGroup}
+                autoFocus={isNewGroup}
               />
             </FormItem>
             <FormItem>
@@ -164,8 +171,10 @@ export default function FormPage() {
                 placeholder="Wonderful trip to Hawaii"
                 label="Description"
                 numberOfLines={3}
-                multiline
                 onBlur={form.handleSubmit(onBlurSave)}
+                onSubmitEditing={() => KeyboardController.dismiss()}
+                enterKeyHint="done"
+                returnKeyType="done"
               />
             </FormItem>
           </FormSection>

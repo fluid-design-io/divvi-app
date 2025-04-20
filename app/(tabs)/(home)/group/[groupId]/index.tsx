@@ -209,7 +209,9 @@ function ListRenderItem(info: ListRenderItemInfo<ExpenseListDataItem>) {
         rightView={
           <View className="flex-1 flex-row items-center gap-0.5 px-2">
             <View className="items-end justify-between">
-              <Text className="font-medium">{formatCurrency(info.item.originalData.amount)}</Text>
+              <Text className="font-medium">
+                {formatCurrency(info.item.originalData.amount / 100)}
+              </Text>
               <Text className="text-xs text-muted-foreground">
                 {new Date(info.item.originalData.date).toLocaleDateString()}
               </Text>

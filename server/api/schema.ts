@@ -38,6 +38,7 @@ export const categoryValues = [
   'utilities',
   'other',
 ] as const;
+export type Category = (typeof categoryValues)[number];
 
 // Split type values for validation
 export const splitTypeValues = ['equal', 'percentage', 'exact'] as const;

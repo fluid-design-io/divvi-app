@@ -70,6 +70,7 @@ export const useDisplayInfo = () => {
   const totalAmount = expense?.amount ?? 0;
   const splitMode = expense?.splitType ?? 'equal';
   const numMembers = group?.members.length ?? 0;
+  const paidByUser = group?.members.find((m) => m.userId === expense?.paidById);
 
   const currentTotalPercentage = splits.reduce((sum, split) => sum + (split.percentage ?? 0), 0);
   const currentTotalExact = splits.reduce((sum, split) => sum + (split.amount ?? 0), 0);
@@ -118,5 +119,6 @@ export const useDisplayInfo = () => {
     splitMode,
     expenseAmount: totalAmount, // provide total amount if needed directly
     numMembers,
+    paidByUser,
   };
 };

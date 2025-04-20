@@ -26,7 +26,9 @@ export default function GroupList() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const { data: session, isPending: isSessionPending } = authClient.useSession();
 
-  const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage, refetch } =
+  const refetch = async () => await queryClient.invalidateQueries();
+
+  const { data, isPending, isRefetching, error, isError, hasNextPage, fetchNextPage } =
     useInfiniteQuery(
       trpc.group.all.infiniteQueryOptions(
         {},
@@ -42,10 +44,6 @@ export default function GroupList() {
         // Optimistically update the cache by removing the deleted group
         queryClient.setQueryData(trpc.group.all.infiniteQueryKey({}), (oldData) => {
           if (!oldData) return oldData;
-          // Prepare for layout animation
-          listRef.current?.prepareForLayoutAnimationRender();
-          // Configure the animation
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           // For infinite queries, we need to update each page
           return {
             ...oldData,
@@ -55,6 +53,10 @@ export default function GroupList() {
             })),
           };
         });
+        // Prepare for layout animation
+        listRef.current?.prepareForLayoutAnimationRender();
+        // Configure the animation
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       },
       onSuccess: () => {
         // Refetch the query to ensure the cache is in sync with the server

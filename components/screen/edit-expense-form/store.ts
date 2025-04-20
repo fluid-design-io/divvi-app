@@ -2,7 +2,7 @@ import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer'; // Use immer middleware
 import { z } from 'zod';
 import { RouterOutputs } from '~/utils/api';
-import { createExpenseSchema } from '~/server/api/schema';
+import { Category, createExpenseSchema } from '~/server/api/schema';
 import { formatCurrency } from '~/utils/format'; // Import formatCurrency if needed in selectors/actions
 
 // --- Types ---
@@ -30,8 +30,12 @@ export interface ExpenseDetailsActions {
   // Expense Property Updates
   updateAmount: (newAmount: number) => void;
   changeSplitType: (newSplitType: SplitMode) => void;
+  // Category
+  updateCategory: (newCategory: Category) => void;
+  // Title
   updateTitle: (newTitle: string) => void;
-
+  // Paid By
+  updatePaidById: (paidById: string) => void;
   // Split Updates
   updatePercentage: (userId: string, percentage: number) => void;
   updateExactAmount: (userId: string, amountString: string) => void; // Takes string, converts to cents
@@ -78,7 +82,7 @@ export const createExpenseDetailsStore = (
         });
       },
 
-      setPaidById: (paidById: string) => {
+      updatePaidById: (paidById: string) => {
         set((state) => {
           if (!state.expense) return;
           state.expense.paidById = paidById;
@@ -98,6 +102,13 @@ export const createExpenseDetailsStore = (
             console.warn('Store: Group members changed, recalculating splits.');
             state.expense.splits = calculateSplits(state.expense, groupData.members);
           }
+        });
+      },
+
+      updateCategory: (newCategory: Category) => {
+        set((state) => {
+          if (!state.expense) return;
+          state.expense.category = newCategory;
         });
       },
 

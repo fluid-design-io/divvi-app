@@ -10,7 +10,7 @@ import { TRPCError } from '@trpc/server';
  * Get the balances for all users in a group
  * @returns The balances for all users in the group
  */
-export const getGroupBalances = async (
+export const getGroupBalancesByMember = async (
   ctx: Awaited<ReturnType<typeof createTRPCContext>>,
   input: z.infer<typeof groupIdWithPaginationSchema>
 ) => {

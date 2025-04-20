@@ -44,7 +44,7 @@ function Item({ info }: { info: ListRenderItemInfo<GroupListItem> }) {
             <Icon name="person" size={14} color={colors.grey3} />
           </View>
           <Text className="font-rounded text-muted-foreground" variant="caption1">
-            {formatCurrency(info.item.totalBalance)}
+            {formatCurrency(info.item.totalBalance / 100)}
           </Text>
         </View>
       }

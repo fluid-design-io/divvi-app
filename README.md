@@ -4,7 +4,7 @@
 - [x] Remove a member from the group
 - [x] Invite friends
 - [ ] Link account
-- [ ] Add upsert expense details logic
+- [x] Add upsert expense details logic
 - [x] Add Apple Sign In
 - [ ] Add dom view for expense details
 - [ ] Add activity feed
