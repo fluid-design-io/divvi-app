@@ -74,32 +74,22 @@ export const addMemberSchema = createInsertSchema(groupMember, {
 // Expense Schemas
 // ==========================================
 
-// Create expense schema
-export const createExpenseSchema = createInsertSchema(expense, {
-  id: undefined,
-  createdAt: undefined,
-  updatedAt: undefined,
+// Create expense split schema
+export const createExpenseSplitSchema = createInsertSchema(expenseSplit).omit({
+  expenseId: true, // this will be set by the server
 });
 
-// Create expense split schema
-export const createExpenseSplitSchema = createInsertSchema(expenseSplit, {
-  id: undefined,
-  createdAt: undefined,
-  updatedAt: undefined,
-  settled: undefined,
+// Create expense schema
+export const createExpenseSchema = createInsertSchema(expense, {
+  amount: positiveDecimalSchema,
+}).extend({
+  splits: z.array(createExpenseSplitSchema),
 });
 
 // Extended schema for creating expense with splits in one operation
 export const createExpenseWithSplitsSchema = z.object({
   expense: createExpenseSchema,
   splits: z.array(createExpenseSplitSchema),
-});
-
-// Upsert expense schema
-export const upsertExpenseSchema = createUpdateSchema(expense, {
-  amount: positiveDecimalSchema,
-}).extend({
-  splits: z.array(createUpdateSchema(expenseSplit)).optional(),
 });
 
 // ==========================================

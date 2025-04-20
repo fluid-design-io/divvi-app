@@ -4,35 +4,19 @@ import { TouchableBounce } from '~/components/core/touchable-bounce';
 import { Card, CardContent, CardDescription } from '~/components/nativewindui/Card';
 import { Text } from '~/components/nativewindui/Text';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { trpc } from '~/utils/api';
-import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '~/components/core/skeleton';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
+import { RouterOutputs } from '~/server/api';
 
-type Group = {
-  id: string;
-  name: string;
-  description: string;
-};
+type Group = RouterOutputs['group']['getById'];
 
-export const SelectGroup = () => {
+export const SelectGroup = ({ group }: { group?: Group }) => {
   const { colors } = useColorScheme();
-  const { groupId } = useLocalSearchParams<{ groupId?: string }>();
-
-  const { data: groupData, isPending: isGroupPending } = useQuery(
-    trpc.group.getById.queryOptions(
-      { groupId: groupId ?? '' },
-      { enabled: groupId?.toString() !== 'undefined' }
-    )
-  );
-
-  if (!groupId && isGroupPending) return <SelectGroupCardPending />;
-  const selectedGroupData = groupId ? groupData : null;
 
   return (
     <TouchableBounce
       onPress={() =>
-        router.push(`./select-group?groupId=${selectedGroupData?.id}`, {
+        router.push(`./select-group?groupId=${group?.id}`, {
           relativeToDirectory: true,
         })
       }>
@@ -42,7 +26,7 @@ export const SelectGroup = () => {
             <View>
               <CardDescription className="text-xs">Group</CardDescription>
               <Text className="font-medium" numberOfLines={1} ellipsizeMode="tail">
-                {selectedGroupData?.name ?? 'No group selected'}
+                {group?.name ?? 'No group selected'}
               </Text>
             </View>
             <Icon name="chevron-right" size={22} color={colors.grey2} />
@@ -86,10 +70,10 @@ export const SelectGroupCard = ({
         <View className="flex-row items-center justify-between">
           <View>
             <CardDescription className="text-xs">
-              {group.name ?? 'No group selected'}
+              {group?.name ?? 'No group selected'}
             </CardDescription>
             <Text className="font-medium" numberOfLines={1} ellipsizeMode="tail">
-              {group.description ? 'No description' : 'Create new group'}
+              {group?.description ? 'No description' : 'Create new group'}
             </Text>
           </View>
           {showIcon && <Icon name="chevron-right" size={22} color={colors.grey2} />}

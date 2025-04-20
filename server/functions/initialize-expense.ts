@@ -1,6 +1,6 @@
 import { expense, group, groupMember } from '~/db/schema';
 import { createTRPCContext } from '../api';
-import { upsertExpenseSchema } from '../api/schema';
+import { createExpenseSchema } from '../api/schema';
 
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';

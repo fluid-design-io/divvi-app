@@ -137,6 +137,24 @@ export const groupRouter = {
     });
   }),
 
+  // Get most-recent group
+  getMostRecentGroup: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const mostRecentGroup = await ctx.db.query.group.findFirst({
+      where: eq(group.createdById, userId),
+      orderBy: desc(group.createdAt),
+      with: {
+        members: {
+          with: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    return mostRecentGroup;
+  }),
+
   // Create a new group
   create: protectedProcedure.input(createGroupSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;

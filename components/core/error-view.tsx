@@ -6,8 +6,9 @@ import { Button } from '../nativewindui/Button';
 import { Text } from '../nativewindui/Text';
 
 import { cn } from '~/lib/cn';
+import { useColorScheme } from '~/lib/useColorScheme';
 
-const errorViewVariants = cva('items-center justify-center', {
+const errorViewVariants = cva('items-center justify-center min-w-64', {
   variants: {
     variant: {
       plain: 'bg-transparent p-1',
@@ -37,15 +38,17 @@ export function ErrorView({
   textContainerClassName,
   variant,
 }: ErrorViewProps) {
+  const { colors } = useColorScheme();
   return (
     <View className={cn('w-full items-center justify-center', rootClassName)}>
       <View className={cn(errorViewVariants({ variant }), containerClassName)}>
         <AlertCircle
           size={48}
-          className={cn('text-destructive', variant === 'default' && 'mb-4')}
+          className={cn(variant === 'default' && 'mb-4')}
+          color={colors.destructive}
         />
         <Button variant="plain" onPress={onRetry}>
-          <RefreshCcw size={20} className="mr-1 text-primary" />
+          <RefreshCcw size={20} className="mr-1" color={colors.primary} />
           <Text className="font-medium text-primary">{retryText}</Text>
         </Button>
       </View>

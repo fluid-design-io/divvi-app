@@ -16,6 +16,7 @@ import { Toolbar, ToolbarIcon } from '~/components/nativewindui/Toolbar';
 import { Alert } from 'react-native';
 import { authClient } from '~/lib/auth/client';
 import { KeyboardController } from 'react-native-keyboard-controller';
+import { ErrorView } from '~/components/core/error-view';
 type UpsertGroupSchemaType = z.infer<typeof updateGroupSchema>;
 
 export default function FormPage() {
@@ -25,7 +26,12 @@ export default function FormPage() {
   const isNewGroup = isNew === 'true';
   console.log('❤️ GroupID', groupId);
   const { data: session } = authClient.useSession();
-  const { data: groupData, isFetching: isFetchingExistingGroup } = useQuery(
+  const {
+    data: groupData,
+    isFetching: isFetchingExistingGroup,
+    isError,
+    error,
+  } = useQuery(
     trpc.group.getById.queryOptions({
       groupId,
     })
@@ -36,6 +42,9 @@ export default function FormPage() {
         await queryClient.invalidateQueries({ queryKey: trpc.group.all.infiniteQueryKey() });
         await queryClient.invalidateQueries({
           queryKey: trpc.group.getById.queryKey({ groupId: data.id }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: trpc.group.getMostRecentGroup.queryKey(),
         });
         router.back();
         router.setParams({ groupId: data.id });
@@ -80,6 +89,20 @@ export default function FormPage() {
     return member.userId === session?.user.id && member.role === 'owner';
   });
 
+  if (isError) {
+    return (
+      <ErrorView
+        message={error.message}
+        onRetry={() => {
+          // invalidate all queries
+          queryClient.invalidateQueries();
+          router.dismissTo('/(tabs)/(home)');
+        }}
+        retryText="Ok"
+      />
+    );
+  }
+
   return (
     <>
       <Stack.Screen
@@ -89,6 +112,18 @@ export default function FormPage() {
           headerBackButtonDisplayMode: 'minimal',
           headerBlurEffect: 'none',
           headerTransparent: true,
+          headerLeft: () => (
+            <Button
+              size="none"
+              variant="plain"
+              onPress={() =>
+                queryClient.invalidateQueries({
+                  queryKey: trpc.group.getById.queryKey({ groupId }),
+                })
+              }>
+              <Text className="text-primary">Refresh</Text>
+            </Button>
+          ),
           headerRight: () => (
             <Button
               size="none"

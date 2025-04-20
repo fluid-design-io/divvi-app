@@ -4,12 +4,14 @@ interface NumericKeypadOptions {
   maxWholeLength?: number;
   maxDecimalPlaces?: number;
   initialValue?: string;
+  onAmountChange?: (amount: number) => void;
 }
 
 export function useKeypad({
   maxWholeLength = 7,
   maxDecimalPlaces = 2,
   initialValue = '',
+  onAmountChange,
 }: NumericKeypadOptions = {}) {
   const [amount, setAmount] = useState(initialValue);
   const handleNumberPress = (num: string) => {
@@ -45,6 +47,7 @@ export function useKeypad({
     if (whole.length > maxWholeLength) return;
 
     setAmount(newAmount);
+    onAmountChange?.(Number(newAmount));
   };
 
   const handleLongPress = (num: string) => {

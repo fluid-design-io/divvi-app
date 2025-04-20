@@ -15,6 +15,7 @@ import { useSheetRef } from '~/components/nativewindui/Sheet';
 import { usePreventRemove } from '@react-navigation/native';
 import { useState } from 'react';
 import { InviteMemberSheet } from './invite-member-sheet';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 type GroupMember = NonNullable<RouterOutputs['group']['getById']>['members'][number];
 
@@ -30,6 +31,7 @@ export const GroupMembers = ({
   groupId: string;
 }) => {
   const queryClient = useQueryClient();
+  const { colors } = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
   const bottomSheetModalRef = useSheetRef();
   const [preventRemove, setPreventRemove] = useState(false);
@@ -111,8 +113,8 @@ export const GroupMembers = ({
             {editable && (
               <TouchableBounce onPress={openSheet}>
                 <View className="items-center gap-2">
-                  <View className="ios:bg-background bg-muted/30 h-16 w-16 items-center justify-center rounded-full">
-                    <PlusIcon className="h-8 w-8 text-muted-foreground" />
+                  <View className="bg-muted/30 h-16 w-16 items-center justify-center rounded-full">
+                    <PlusIcon className="h-8 w-8" color={colors.grey} />
                   </View>
                   <Text className="text-muted-foreground" variant="caption1">
                     Invite
@@ -125,7 +127,10 @@ export const GroupMembers = ({
       </View>
       <InviteMemberSheet
         groupId={groupId}
-        onDismiss={() => setPreventRemove(false)}
+        onDismiss={() => {
+          queryClient.invalidateQueries({ queryKey: trpc.group.getById.queryKey({ groupId }) });
+          setPreventRemove(false);
+        }}
         ref={bottomSheetModalRef}
       />
     </>

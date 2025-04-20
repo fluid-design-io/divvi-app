@@ -51,6 +51,7 @@
     "expo-blur": "~14.1.1",
     "expo-constants": "~17.1.1",
     "expo-contacts": "~14.2.0",
+    "expo-crypto": "~14.1.1",
     "expo-dev-client": "~5.1.1",
     "expo-dev-launcher": "^5.0.35",
     "expo-font": "~13.1.1",

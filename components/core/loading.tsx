@@ -13,11 +13,13 @@ function Loading({
   expand,
   color,
   variant = 'default',
+  message,
 }: {
   className?: string;
   expand?: boolean;
   color?: 'primary' | 'white' | 'foreground';
   variant?: 'default' | 'button';
+  message?: string;
 }) {
   const { colors } = useColorScheme();
   let colorValue: string = colors.primary;
@@ -27,12 +29,13 @@ function Loading({
   return (
     <View
       className={cn(
-        expand ? 'flex-1' : 'w-full',
+        expand ? 'flex-1' : 'w-full p-4',
         'items-center justify-center',
         variant === 'button' && 'ios:h-[26px] h-6',
         className
       )}>
       <ActivityIndicator color={colorValue} />
+      {message && <Text className="text-sm font-bold text-muted-foreground">{message}</Text>}
     </View>
   );
 }
