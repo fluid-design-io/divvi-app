@@ -146,6 +146,10 @@ export const createExpenseDetailsStore = (
           const currentSplitIndex = splits.findIndex((s) => s.userId === userId);
           if (currentSplitIndex === -1) return;
 
+          // Check if there are exactly two members
+          const isTwoMembers = splits.length === 2;
+
+          // Calculate other members' total percentage
           const otherMembersTotal = splits
             .filter((s) => s.userId !== userId)
             .reduce((sum, s) => sum + (s.percentage ?? 0), 0);
@@ -155,9 +159,20 @@ export const createExpenseDetailsStore = (
             finalPercentage = Math.max(0, 100 - otherMembersTotal); // Cap value (ensure non-negative)
           }
 
+          // Update the current user's split
           const split = state.expense.splits[currentSplitIndex];
           split.percentage = finalPercentage;
           split.amount = ((state.expense.amount ?? 0) * finalPercentage) / 100;
+
+          // If there are exactly two members, automatically update the other person's percentage
+          if (isTwoMembers) {
+            const otherSplitIndex = currentSplitIndex === 0 ? 1 : 0;
+            const otherSplit = state.expense.splits[otherSplitIndex];
+            const otherPercentage = 100 - finalPercentage;
+
+            otherSplit.percentage = otherPercentage;
+            otherSplit.amount = ((state.expense.amount ?? 0) * otherPercentage) / 100;
+          }
         });
       },
 
