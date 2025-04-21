@@ -9,7 +9,7 @@ import type { LargeTitleSearchBarRef } from '~/components/nativewindui/LargeTitl
 import { List } from '~/components/nativewindui/List';
 import { ListEmpty, ListSearchContent, renderItem } from '~/components/screen/group';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate, GroupListItem } from '~/utils/categorize-groups';
+import { transformGroupsByDate, GroupListItem } from '~/utils/transform-groups-by-date';
 import { useDebounce } from '@uidotdev/usehooks';
 import { router } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
@@ -67,7 +67,7 @@ export default function GroupList() {
   if (isError) return <ErrorView message={error?.message} onRetry={refetch} />;
 
   // Use the categorization function
-  const DATA = categorizeGroupsByDate(data, {
+  const DATA = transformGroupsByDate(data, {
     onPress: (groupId) => router.push(`/(tabs)/(home)/group/${groupId}`),
     onDelete: deleteGroupMutation,
     userId: session?.user.id!,

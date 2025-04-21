@@ -6,7 +6,7 @@
 - [ ] Link account
 - [x] Add upsert expense details logic
 - [x] Add Apple Sign In
-- [ ] Add dom view for expense details
+- [x] Add dom view for expense details
 - ~~[ ] Add activity feed~~
 - ~~[ ] Add notification logic (also settings)~~
 - [x] Add Error Boundaries

@@ -5,7 +5,7 @@ import Loading from '~/components/core/loading';
 import { List } from '~/components/nativewindui/List';
 import { renderItem } from '~/components/screen/group';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate } from '~/utils/categorize-groups';
+import { transformGroupsByDate } from '~/utils/transform-groups-by-date';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Button } from '~/components/nativewindui/Button';
 import { Icon } from '@roninoss/icons';
@@ -31,7 +31,7 @@ export default function SelectGroup() {
 
   if (isSessionPending) return <Loading expand />;
 
-  const DATA = categorizeGroupsByDate(data, {
+  const DATA = transformGroupsByDate(data, {
     onPress: (groupId) => {
       router.back();
       router.setParams({ groupId });

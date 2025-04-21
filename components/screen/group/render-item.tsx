@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import { ListRenderItemInfo, ListSectionHeader } from '~/components/nativewindui/List';
 import { Text } from '~/components/nativewindui/Text';
-import { GroupListItem } from '~/utils/categorize-groups';
+import { GroupListItem } from '~/utils/transform-groups-by-date';
 import ListItem from './list-item';
 import Swipeable from './swipeable';
 import { Icon } from '@roninoss/icons';

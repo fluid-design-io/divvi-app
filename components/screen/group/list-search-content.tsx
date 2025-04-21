@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import Loading from '~/components/core/loading';
 import { List } from '~/components/nativewindui/List';
 import { trpc } from '~/utils/api';
-import { categorizeGroupsByDate } from '~/utils/categorize-groups';
+import { transformGroupsByDate } from '~/utils/transform-groups-by-date';
 import ListEmpty from './list-empty';
 import { renderItem } from './render-item';
 import { router } from 'expo-router';
@@ -52,7 +52,7 @@ export default function GroupListSearchContent({ searchTerm }: { searchTerm: str
 
   if (isSessionPending) return <Loading />;
   // Use the categorization function
-  const DATA = categorizeGroupsByDate(data, {
+  const DATA = transformGroupsByDate(data, {
     onPress: (groupId) => router.push(`/group/${groupId}`),
     onDelete: deleteGroupMutation,
     userId: session?.user.id!,

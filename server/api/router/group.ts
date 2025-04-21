@@ -86,7 +86,6 @@ export const groupRouter = {
         }))
       );
 
-      console.log('🔥 groupBalances', groupBalances);
       //* add groupedBalances to groups
       const groupWithBalances = groups.map((group) => ({
         ...group,

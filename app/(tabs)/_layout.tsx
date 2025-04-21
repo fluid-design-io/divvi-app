@@ -290,7 +290,6 @@ function IosTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     }
   };
 
-  console.log(segments);
   const isHome = segments[1] === '(home)' && segments.length === 2;
   const isProfile = segments[1] === 'profile' && segments.length === 2;
   const showBottomBar = isHome || isProfile;

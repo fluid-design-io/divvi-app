@@ -1,4 +1,4 @@
-import { expense, groupMember } from '~/db/schema';
+import { expense, groupMember, settlement } from '~/db/schema';
 import { createTRPCContext } from '../api';
 import { groupIdWithPaginationSchema } from '../api/schema';
 
@@ -73,6 +73,21 @@ export const getGroupBalancesByMember = async (
         balances[split.userId] -= split.amount;
       }
     }
+  }
+
+  console.log('🔥 balances', balances);
+
+  // Get all settlements for this group
+  const settlements = await ctx.db.query.settlement.findMany({
+    where: eq(settlement.groupId, input.groupId),
+  });
+
+  console.log('🔥 settlements', settlements);
+
+  // Apply settlements to balances
+  for (const settlement of settlements) {
+    balances[settlement.fromUserId] -= settlement.amount;
+    balances[settlement.toUserId] += settlement.amount;
   }
 
   // Format the response with user details

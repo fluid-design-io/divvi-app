@@ -312,6 +312,75 @@ export const expenseRouter = {
     .input(groupIdWithPaginationSchema)
     .query(async ({ ctx, input }) => getGroupBalancesByMember(ctx, input)),
 
+  // Get summary of expenses by member for a group
+  getSummaryByMember: protectedProcedure
+    .input(groupIdWithTimeframeSchema)
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Check if user is a member of this group
+      const membership = await ctx.db.query.groupMember.findFirst({
+        where: and(eq(groupMember.groupId, input.groupId), eq(groupMember.userId, userId)),
+      });
+
+      if (!membership) {
+        throw new Error("You don't have access to this group");
+      }
+
+      // Build time filter
+      let timeFilter = sql`TRUE`;
+      const now = new Date();
+
+      if (input.timeframe === 'week') {
+        const oneWeekAgo = new Date(now);
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        timeFilter = sql`${expense.date} >= ${oneWeekAgo}`;
+      } else if (input.timeframe === 'month') {
+        const oneMonthAgo = new Date(now);
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        timeFilter = sql`${expense.date} >= ${oneMonthAgo}`;
+      } else if (input.timeframe === 'year') {
+        const oneYearAgo = new Date(now);
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        timeFilter = sql`${expense.date} >= ${oneYearAgo}`;
+      }
+
+      // Get all group members
+      const members = await ctx.db.query.groupMember.findMany({
+        where: eq(groupMember.groupId, input.groupId),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      // Get summary by member (only expenses paid by each member)
+      const summary = await ctx.db
+        .select({
+          userId: expense.paidById,
+          total: sql<number>`sum(${expense.amount})`.as('total'),
+          count: sql<number>`count(*)`.as('count'),
+        })
+        .from(expense)
+        .where(and(eq(expense.groupId, input.groupId), timeFilter))
+        .groupBy(expense.paidById);
+
+      // Format the response with user details
+      return members.map((member) => {
+        const memberSummary = summary.find((s) => s.userId === member.userId);
+        return {
+          userId: member.userId,
+          name: member.user?.name || 'Unknown User',
+          total: memberSummary?.total || 0,
+          count: memberSummary?.count || 0,
+        };
+      });
+    }),
+
   // Mark an expense split as settled
   settleSplit: protectedProcedure
     .input(z.object({ splitId: z.string().uuid() }))

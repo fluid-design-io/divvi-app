@@ -37,7 +37,7 @@ export type CategorizeGroupsOptions = {
   onDelete?: ({ groupId }: { groupId: string }) => void;
 };
 
-export function categorizeGroupsByDate(
+export function transformGroupsByDate(
   data: GroupInfiniteData | undefined | null,
   { userId, onPress, onDelete }: CategorizeGroupsOptions
 ): GroupListItem[] {
