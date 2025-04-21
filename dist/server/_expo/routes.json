@@ -19,9 +19,21 @@
   ],
   "htmlRoutes": [
     {
+      "file": "./(tabs)/profile/index.tsx",
+      "page": "/(tabs)/profile/index",
+      "namedRegex": "^(?:/\\(tabs\\))?/profile(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(tabs)/(home)/index.tsx",
       "page": "/(tabs)/(home)/index",
       "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(tabs)/profile/name.tsx",
+      "page": "/(tabs)/profile/name",
+      "namedRegex": "^(?:/\\(tabs\\))?/profile/name(?:/)?$",
       "routeKeys": {}
     },
     {
@@ -34,12 +46,6 @@
       "file": "./(auth)/sign-in.tsx",
       "page": "/(auth)/sign-in",
       "namedRegex": "^(?:/\\(auth\\))?/sign\\-in(?:/)?$",
-      "routeKeys": {}
-    },
-    {
-      "file": "./(tabs)/activity.tsx",
-      "page": "/(tabs)/activity",
-      "namedRegex": "^(?:/\\(tabs\\))?/activity(?:/)?$",
       "routeKeys": {}
     },
     {
@@ -56,27 +62,39 @@
       "routeKeys": {}
     },
     {
-      "file": "./add-expense.tsx",
-      "page": "/add-expense",
-      "namedRegex": "^/add\\-expense(?:/)?$",
+      "file": "./(modal)/expense/new/index.tsx",
+      "page": "/(modal)/expense/new/index",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/new(?:/)?$",
       "routeKeys": {}
     },
     {
-      "file": "./(modal)/profile/name.tsx",
-      "page": "/(modal)/profile/name",
-      "namedRegex": "^(?:/\\(modal\\))?/profile/name(?:/)?$",
+      "file": "./(tabs)/(home)/settle/index.tsx",
+      "page": "/(tabs)/(home)/settle/index",
+      "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?/settle(?:/)?$",
       "routeKeys": {}
     },
     {
-      "file": "./(modal)/profile/index.tsx",
-      "page": "/(modal)/profile/index",
-      "namedRegex": "^(?:/\\(modal\\))?/profile(?:/)?$",
+      "file": "./(auth)/link-account.tsx",
+      "page": "/(auth)/link-account",
+      "namedRegex": "^(?:/\\(auth\\))?/link\\-account(?:/)?$",
       "routeKeys": {}
     },
     {
-      "file": "./(modal)/profile/notifications.tsx",
-      "page": "/(modal)/profile/notifications",
-      "namedRegex": "^(?:/\\(modal\\))?/profile/notifications(?:/)?$",
+      "file": "./(tabs)/profile/notifications.tsx",
+      "page": "/(tabs)/profile/notifications",
+      "namedRegex": "^(?:/\\(tabs\\))?/profile/notifications(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(modal)/expense/new/select-group.tsx",
+      "page": "/(modal)/expense/new/select-group",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/new/select\\-group(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(modal)/expense/new/expense-details.tsx",
+      "page": "/(modal)/expense/new/expense-details",
+      "namedRegex": "^(?:/\\(modal\\))?/expense/new/expense\\-details(?:/)?$",
       "routeKeys": {}
     },
     {
@@ -88,35 +106,19 @@
       }
     },
     {
+      "file": "./(tabs)/(home)/expense/[expenseId]/index.tsx",
+      "page": "/(tabs)/(home)/expense/[expenseId]/index",
+      "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?/expense/(?<expenseId>[^/]+?)(?:/)?$",
+      "routeKeys": {
+        "expenseId": "expenseId"
+      }
+    },
+    {
       "file": "./(modal)/group/[groupId]/edit.tsx",
       "page": "/(modal)/group/[groupId]/edit",
       "namedRegex": "^(?:/\\(modal\\))?/group/(?<groupId>[^/]+?)/edit(?:/)?$",
       "routeKeys": {
         "groupId": "groupId"
-      }
-    },
-    {
-      "file": "./(modal)/expense/[expenseId]/select-group.tsx",
-      "page": "/(modal)/expense/[expenseId]/select-group",
-      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)/select\\-group(?:/)?$",
-      "routeKeys": {
-        "expenseId": "expenseId"
-      }
-    },
-    {
-      "file": "./(modal)/expense/[expenseId]/index_old.tsx",
-      "page": "/(modal)/expense/[expenseId]/index_old",
-      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)/index_old(?:/)?$",
-      "routeKeys": {
-        "expenseId": "expenseId"
-      }
-    },
-    {
-      "file": "./(modal)/expense/[expenseId]/index.tsx",
-      "page": "/(modal)/expense/[expenseId]/index",
-      "namedRegex": "^(?:/\\(modal\\))?/expense/(?<expenseId>[^/]+?)(?:/)?$",
-      "routeKeys": {
-        "expenseId": "expenseId"
       }
     }
   ],

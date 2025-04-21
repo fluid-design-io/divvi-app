@@ -8,10 +8,7 @@ export default function ModalLayout() {
   return (
     <>
       <BottomSheetModalProvider>
-        <Stack screenOptions={SCREEN_OPTIONS}>
-          <Stack.Screen name="profile/name" options={FORM_SCREEN_OPTIONS} />
-          <Stack.Screen name="profile/notifications" options={FORM_SCREEN_OPTIONS} />
-        </Stack>
+        <Stack screenOptions={SCREEN_OPTIONS} />
       </BottomSheetModalProvider>
       <PortalHost name="modal" />
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} animated />
@@ -23,11 +20,4 @@ const SCREEN_OPTIONS = {
   headerTransparent: Platform.OS === 'ios',
   headerBlurEffect: 'systemMaterial',
   headerShown: false,
-} as const;
-
-const FORM_SCREEN_OPTIONS = {
-  headerTitle: '',
-  headerShown: true,
-  headerTransparent: true,
-  headerBlurEffect: undefined,
 } as const;

@@ -8,5 +8,10 @@
                 ]
             }
         ]
+    },
+    "webcredentials": {
+        "apps": [
+            "F8V4932HJN.dev.uing.divvi"
+        ]
     }
 }

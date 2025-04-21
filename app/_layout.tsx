@@ -60,7 +60,6 @@ export default function RootLayout() {
                     <Stack.Screen name="(tabs)" options={TABS_OPTIONS} />
                     <Stack.Screen name="(auth)" options={AUTH_OPTIONS} />
                     <Stack.Screen name="(modal)" options={MODAL_OPTIONS} />
-                    <Stack.Screen name="add-expense" options={ADD_EXPENSE_OPTIONS} />
                   </Stack>
                   <PortalHost />
                 </NavThemeProvider>
@@ -90,10 +89,4 @@ const AUTH_OPTIONS = {
 const MODAL_OPTIONS = {
   presentation: 'modal',
   headerShown: false,
-} as const;
-
-const ADD_EXPENSE_OPTIONS = {
-  presentation: 'formSheet',
-  headerShown: false,
-  sheetAllowedDetents: 'fitToContents',
 } as const;
