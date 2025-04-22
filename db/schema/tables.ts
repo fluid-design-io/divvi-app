@@ -53,7 +53,7 @@ export const session = pgTable('session', {
   userAgent: text('user_agent'),
   userId: text('user_id')
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
 });
 
 export const account = pgTable('account', {
@@ -62,7 +62,7 @@ export const account = pgTable('account', {
   providerId: text('provider_id').notNull(),
   userId: text('user_id')
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   accessToken: text('access_token'),
   refreshToken: text('refresh_token'),
   idToken: text('id_token'),
@@ -95,7 +95,7 @@ export const group = pgTable(
     description: text(),
     createdById: text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     ...timestamps,
   },
   (t) => [index('group_created_by_id_idx').on(t.createdById)]
@@ -105,10 +105,10 @@ export const groupMember = pgTable('group_member', {
   id: uuid().defaultRandom().primaryKey(),
   groupId: uuid()
     .notNull()
-    .references(() => group.id, { onDelete: 'cascade' }),
+    .references(() => group.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   userId: text()
     .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
+    .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   role: memberRoleEnum().notNull().default('member'),
   joinedAt: timestamp().notNull().defaultNow(),
 });
@@ -120,7 +120,7 @@ export const groupInvite = pgTable(
     id: uuid().defaultRandom().primaryKey(),
     groupId: uuid()
       .notNull()
-      .references(() => group.id, { onDelete: 'cascade' }),
+      .references(() => group.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     token: text()
       .notNull()
       .default(sql`gen_random_uuid()`)
@@ -143,13 +143,13 @@ export const expense = pgTable(
     id: uuid().defaultRandom().primaryKey(),
     groupId: uuid()
       .notNull()
-      .references(() => group.id, { onDelete: 'cascade' }),
+      .references(() => group.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     title: text().notNull().default('Expense'),
     description: text(),
     amount: doublePrecision().notNull(),
     paidById: text() // The user who paid for the expense
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     date: timestamp().notNull().defaultNow(),
     splitType: splitTypeEnum().notNull().default('equal'),
     category: categoryEnum().notNull().default('other'),
@@ -164,10 +164,10 @@ export const expenseSplit = pgTable(
     id: uuid().defaultRandom().primaryKey(),
     expenseId: uuid()
       .notNull()
-      .references(() => expense.id, { onDelete: 'cascade' }),
+      .references(() => expense.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     amount: doublePrecision().notNull(),
     percentage: doublePrecision(),
     settled: boolean().notNull().default(false),
@@ -188,13 +188,13 @@ export const settlement = pgTable(
     id: uuid().defaultRandom().primaryKey(),
     groupId: uuid()
       .notNull()
-      .references(() => group.id, { onDelete: 'cascade' }),
+      .references(() => group.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     fromUserId: text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     toUserId: text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     amount: doublePrecision().notNull(),
     settledAt: timestamp(),
     ...timestamps,

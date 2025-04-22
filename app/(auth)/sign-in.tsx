@@ -61,18 +61,18 @@ export default function AuthIndexScreen() {
           {isDarkColorScheme ? (
             <Image
               source={require('~/assets/images/welcome-dark.png')}
-              className="h-[240px] w-full"
+              className="h-[230px] w-full"
               resizeMode="contain"
             />
           ) : (
             <Image
               source={require('~/assets/images/welcome-light.png')}
-              className="h-[240px] w-full"
+              className="h-[230px] w-full"
               resizeMode="contain"
             />
           )}
         </View>
-        <View className="ios:justify-end flex-1 justify-center gap-4 px-8 pb-8 pt-4">
+        <View className="ios:justify-end flex-1 justify-center gap-4 px-8 pt-4">
           <View className="items-center">
             <Image
               source={require('~/assets/images/logo.png')}
@@ -127,7 +127,7 @@ export default function AuthIndexScreen() {
             onPress={handleAnonymousLogin}>
             <Text>Sign in as Guest</Text>
           </Button>
-          <View className="mb-4 items-center">
+          <View className="items-center">
             <Text variant="caption2" className="pt-1 text-center">
               By pressing continue, you agree to our{' '}
               <Link href="/(aux)/terms-of-use">

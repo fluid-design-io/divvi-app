@@ -14,7 +14,7 @@ export default function LinkAccount() {
   const navContainerRef = useNavigationContainerRef();
   const { colors } = useColorScheme();
   const handleLinkAccount = async (provider: 'google' | 'discord' | 'apple') => {
-    const res = await authClient.linkSocial(
+    const res = await authClient.signIn.social(
       {
         provider,
         callbackURL: 'divvi-app://',
