@@ -6,6 +6,7 @@ import {
   groupIdWithPaginationSchema,
   createExpenseSchema,
   groupIdWithTimeframeSchema,
+  updateExpenseSchema,
 } from '../schema';
 import { protectedProcedure } from '../trpc';
 
@@ -232,6 +233,41 @@ export const expenseRouter = {
     });
 
     return transaction;
+  }),
+  update: protectedProcedure.input(updateExpenseSchema).mutation(async ({ ctx, input }) => {
+    const userId = ctx.session.user.id;
+
+    // Get the expense
+    const expenseRecord = await ctx.db.query.expense.findFirst({
+      where: eq(expense.id, input.id),
+    });
+
+    if (!expenseRecord) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Expense not found',
+      });
+    }
+
+    // Check if user created the expense
+    if (expenseRecord.paidById !== userId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You are not allowed to update this expense',
+      });
+    }
+
+    // Update the expense
+    const [updatedExpense] = await ctx.db
+      .update(expense)
+      .set({
+        ...input,
+        updatedAt: new Date(),
+      })
+      .where(eq(expense.id, input.id))
+      .returning();
+
+    return updatedExpense;
   }),
 
   // Delete an expense

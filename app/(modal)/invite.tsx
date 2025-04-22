@@ -8,7 +8,6 @@ import { Stack } from 'expo-router';
 import { authClient } from '~/lib/auth/client';
 import Loading from '~/components/core/loading';
 import { ErrorView } from '~/components/core/error-view';
-import { cn } from '~/lib/cn';
 import { UserPlus2 } from 'lucide-react-native';
 import { TonalIcon } from '~/components/core/icon';
 import { SelectGroupCard, SelectGroupCardPending } from '~/components/screen/group';
@@ -89,12 +88,12 @@ const JoinGroupView = ({ token }: { token: string }) => {
           />
         )}
         <View className="flex-1 items-center justify-center">
-          <View className={cn('mx-auto w-full max-w-lg', 'web:rounded-2xl web:bg-card web:p-6')}>
+          <View className="mx-auto w-full max-w-lg web:rounded-2xl web:bg-card web:p-6">
             <View className="items-center justify-center">
               <TonalIcon Icon={UserPlus2} />
             </View>
             <View className="mb-6 gap-2">
-              <Text variant="title1" className={cn('ios:font-bold pt-4 text-center')}>
+              <Text variant="title1" className="ios:font-bold pt-4 text-center">
                 Join Group
               </Text>
               <Text variant="body" className="px-8 text-center text-muted-foreground">

@@ -7,12 +7,13 @@ import { Alert, View } from 'react-native';
 import { TonalIcon } from '~/components/core/icon';
 import LogoMono from '~/components/icon/logo-mono';
 import {
+  CategoryDropdownMenu,
   Member,
   Split,
   useDisplayInfo,
   useExpenseStore,
 } from '~/components/screen/edit-expense-form';
-import { capitalize, formatCurrency, initials } from '~/utils/format';
+import { formatCurrency, initials } from '~/utils/format';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/nativewindui/Avatar';
 import { TextField } from '~/components/nativewindui/TextField';
 import { Slider } from '~/components/nativewindui/Slider';
@@ -20,21 +21,10 @@ import { usePreventRemove } from '@react-navigation/native';
 import { KeyboardController } from 'react-native-keyboard-controller';
 import { Check } from 'lucide-react-native';
 import { Button } from '~/components/nativewindui/Button';
-import { DropdownMenu } from '~/components/nativewindui/DropdownMenu';
-import { createDropdownItem } from '~/components/nativewindui/DropdownMenu/utils';
-import { Category } from '~/server/api/schema';
-import { Icon, SfSymbolIconName } from '@roninoss/icons';
+
 import { useColorScheme } from '~/lib/useColorScheme';
 const SPLIT_MODES = ['equal', 'percentage', 'exact'] as const;
-const CATEGORIES: Record<Category, { ios: { name: string } }> = {
-  food: { ios: { name: 'fork.knife' } },
-  transport: { ios: { name: 'car' } },
-  accommodation: { ios: { name: 'house' } },
-  entertainment: { ios: { name: 'film' } },
-  shopping: { ios: { name: 'cart' } },
-  utilities: { ios: { name: 'bolt' } },
-  other: { ios: { name: 'questionmark.circle' } },
-};
+
 export default function ExpenseDetails() {
   return (
     <>
@@ -125,34 +115,7 @@ const SplitDisplayInfo = React.memo(() => {
       <Text variant="subhead" className="text-muted-foreground">
         {splitDescription}
       </Text>
-      <DropdownMenu
-        items={[
-          ...Object.entries(CATEGORIES).map(([category, { ios }]) =>
-            createDropdownItem({
-              actionKey: category,
-              title: capitalize(category),
-              icon: {
-                namingScheme: 'sfSymbol',
-                name: ios.name as SfSymbolIconName,
-              },
-            })
-          ),
-        ]}
-        onItemPress={(item) => {
-          updateCategory(item.actionKey as Category);
-        }}>
-        <Button variant="tonal" size="sm">
-          <Text>{capitalize(category ?? 'Select Category...')}</Text>
-          <Icon
-            ios={{
-              name: CATEGORIES[category].ios.name as SfSymbolIconName,
-            }}
-            name="information"
-            size={16}
-            color={colors.primary}
-          />
-        </Button>
-      </DropdownMenu>
+      <CategoryDropdownMenu selectedCategory={category} onSelectCategory={updateCategory} />
     </View>
   );
 });

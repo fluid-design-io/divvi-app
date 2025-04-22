@@ -182,8 +182,6 @@ export const expenseSplit = pgTable(
 //****************************/
 //**** SETTLEMENT TABLES *******/
 //****************************/
-export const settlementStatusEnum = pgEnum('settlement_status', ['pending', 'completed']);
-
 export const settlement = pgTable(
   'settlement',
   {
@@ -198,7 +196,6 @@ export const settlement = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     amount: doublePrecision().notNull(),
-    status: settlementStatusEnum().notNull().default('pending'),
     settledAt: timestamp(),
     ...timestamps,
   },

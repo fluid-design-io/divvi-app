@@ -1,5 +1,4 @@
 import { ChartConfig } from '~/components/web-ui/chart';
-import GroupExpenseChart from './group-expense-chart';
 import { trpc } from '~/utils/api';
 import { useGlobalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +6,8 @@ import { z } from 'zod';
 import { timeframeInputSchema } from '~/server/api/schema';
 import { useState, useMemo } from 'react';
 import { View } from 'react-native';
+import { EmptyView } from '~/components/core/empty-view';
+import GroupExpenseChart from './group-expense-chart';
 
 type Timeframe = z.infer<typeof timeframeInputSchema>['timeframe'];
 
@@ -103,6 +104,17 @@ export const GroupExpenseView = () => {
     return config satisfies ChartConfig;
   }, [memberData]);
 
+  if (categoryData?.length === 0 || memberData?.length === 0) {
+    return (
+      <EmptyView
+        title="No expenses yet"
+        description="Add an expense to the group to see the chart"
+        icon={{
+          name: 'info.circle',
+        }}
+      />
+    );
+  }
   // Transform the category query data into the format expected by the chart
   const categorySpendingChartData =
     categoryData?.map((item) => ({

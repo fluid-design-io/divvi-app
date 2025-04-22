@@ -19,7 +19,6 @@ import {
   ListDataItem,
   TabType,
   ListHeader,
-  ListFooter,
   renderItem,
   ListEmpty,
 } from '~/components/screen/group-details';
@@ -131,7 +130,7 @@ export default function GroupDetails() {
         }}
       />
       <List
-        ref={listRef}
+        ref={listRef as any}
         data={listData}
         renderItem={renderItem}
         extraData={debouncedSearchTerm}
@@ -139,13 +138,6 @@ export default function GroupDetails() {
         ListHeaderComponent={<ListHeader selectedTab={selectedTab} onSelectTab={setSelectedTab} />}
         ListEmptyComponent={
           isPending ? <Loading /> : <ListEmpty searchTerm={debouncedSearchTerm} />
-        }
-        ListFooterComponent={
-          <ListFooter
-            isFetchingNextPage={isFetchingNextPage}
-            hasNextPage={hasNextPage}
-            hasItems={listData.length > 0}
-          />
         }
         refreshing={isRefetching && !isPlaceholderData}
         onRefresh={refetchExpense}
@@ -159,6 +151,9 @@ export default function GroupDetails() {
         variant="insets"
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{
+          paddingBottom: 80,
+        }}
       />
       <Toolbar
         className="absolute bottom-0 left-0 right-0"

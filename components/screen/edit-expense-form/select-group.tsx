@@ -8,7 +8,7 @@ import { Skeleton } from '~/components/core/skeleton';
 import { router } from 'expo-router';
 import { RouterOutputs } from '~/server/api';
 
-type Group = RouterOutputs['group']['getById'];
+type Group = Pick<NonNullable<RouterOutputs['group']['getById']>, 'id' | 'name' | 'description'>;
 
 export const SelectGroup = ({ group }: { group?: Group }) => {
   const { colors } = useColorScheme();

@@ -17,6 +17,28 @@ export default function HomeLayout() {
           sheetAllowedDetents: 'fitToContents',
         }}
       />
+      <Stack.Screen
+        name="expense/[expenseId]/index"
+        options={{
+          title: '',
+          headerShadowVisible: false,
+          headerBlurEffect: 'none',
+          headerTransparent: true,
+        }}
+      />
+      <Stack.Screen
+        name="expense/[expenseId]/edit"
+        options={{
+          title: '',
+          presentation: 'formSheet',
+          gestureDirection: 'vertical',
+          animation: 'slide_from_bottom',
+          sheetGrabberVisible: true,
+          sheetInitialDetentIndex: 0,
+          sheetAllowedDetents: 'fitToContents',
+          headerTransparent: true,
+        }}
+      />
     </Stack>
   );
 }

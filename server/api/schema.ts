@@ -93,6 +93,17 @@ export const createExpenseWithSplitsSchema = z.object({
   splits: z.array(createExpenseSplitSchema),
 });
 
+// Update expense schema
+export const updateExpenseSchema = createUpdateSchema(expense, {
+  amount: positiveDecimalSchema,
+  id: z.string().uuid(),
+}).pick({
+  id: true,
+  title: true,
+  description: true,
+  category: true,
+});
+
 // ==========================================
 // Settlement Schemas
 // ==========================================
@@ -103,7 +114,6 @@ export const createSettlementSchema = createInsertSchema(settlement, {
   createdAt: undefined,
   updatedAt: undefined,
   settledAt: undefined,
-  status: undefined,
 });
 
 // ==========================================

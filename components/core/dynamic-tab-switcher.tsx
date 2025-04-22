@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, Text, LayoutChangeEvent } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  withTiming,
   useSharedValue,
   interpolate,
   interpolateColor,
   SharedValue,
+  withSpring,
 } from 'react-native-reanimated';
 import { useColorScheme } from '~/lib/useColorScheme';
 // Define the type for a tab configuration
@@ -72,7 +72,11 @@ export function DynamicTabSwitcher<TabType extends string>({
   // Update animation values when selectedTab changes
   useEffect(() => {
     tabs.forEach((tab) => {
-      tabAnimations[tab.id].value = withTiming(selectedTab === tab.id ? 1 : 0, { duration: 300 });
+      tabAnimations[tab.id].value = withSpring(selectedTab === tab.id ? 1 : 0, {
+        stiffness: 100,
+        damping: 20,
+        mass: 0.8,
+      });
     });
   }, [selectedTab]);
 
