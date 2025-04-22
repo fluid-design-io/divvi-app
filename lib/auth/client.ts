@@ -8,11 +8,11 @@ import { getBaseUrl } from '~/utils/base-url';
 export const authClient = createAuthClient({
   baseURL: getBaseUrl() + '/api/auth',
   plugins: [
-    anonymousClient(),
     expoClient({
       scheme: 'divvi-app',
       storagePrefix: 'divvi',
       storage: SecureStore,
     }),
+    anonymousClient(),
   ],
 });

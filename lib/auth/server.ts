@@ -12,35 +12,22 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      redirectURI:
-        process.env.PROD === 'true'
-          ? 'https://divvi-app.uing.dev/api/auth/callback/google'
-          : undefined,
     },
     discord: {
       clientId: process.env.DISCORD_CLIENT_ID as string,
       clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
-      redirectURI:
-        process.env.PROD === 'true'
-          ? 'https://divvi-app.uing.dev/api/auth/callback/discord'
-          : undefined,
     },
     apple: {
       clientId: process.env.APPLE_CLIENT_ID as string,
       clientSecret: process.env.APPLE_CLIENT_SECRET as string,
       appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER as string,
-      redirectURI:
-        process.env.PROD === 'true'
-          ? 'https://divvi-app.uing.dev/api/auth/callback/apple'
-          : undefined,
     },
   },
   plugins: [
-    expo({
-      overrideOrigin: true,
-    }),
+    expo(),
     anonymous({
       onLinkAccount: linkAccount,
+      emailDomainName: 'divvi-app.uing.dev',
     }),
   ],
   advanced: {
