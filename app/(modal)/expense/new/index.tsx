@@ -14,7 +14,7 @@ import {
 } from '~/components/screen/edit-expense-form';
 import { useKeypad } from '~/hooks/use-keypad';
 
-import { trpc } from '~/utils/api';
+import { queryClient, trpc } from '~/utils/api';
 import { formatCurrency } from '~/utils/format';
 import Loading from '~/components/core/loading';
 import { useEffect } from 'react';
@@ -36,12 +36,12 @@ function NewExpenseModal() {
   const { amount, handleNumberPress, clear } = useKeypad({
     onAmountChange: updateAmount,
   });
-  const { data: mostRecentGroupData } = useQuery(
+  const { data: mostRecentGroupData, isPending: isMostRecentGroupPending } = useQuery(
     trpc.group.getMostRecentGroup.queryOptions(undefined, {
       enabled: !isUUID(existingGroupId ?? ''),
     })
   );
-  const { data: selectedGroupData } = useQuery(
+  const { data: selectedGroupData, isPending: isSelectedGroupPending } = useQuery(
     trpc.group.getById.queryOptions(
       { groupId: existingGroupId! },
       {
@@ -49,13 +49,31 @@ function NewExpenseModal() {
       }
     )
   );
+  const isLoadingExistingGroup = isMostRecentGroupPending || isSelectedGroupPending;
 
-  const selectedGroup = selectedGroupData ?? mostRecentGroupData;
+  const {
+    data: newGroupData,
+    mutate: initializeGroup,
+    isPending: isInitializingGroup,
+  } = useMutation(
+    trpc.group.initialize.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries();
+      },
+    })
+  );
+
+  const selectedGroup = selectedGroupData ?? mostRecentGroupData ?? newGroupData;
 
   useEffect(() => {
-    if (!selectedGroup) return;
     if (isInitialized) return;
     if (!session?.user.id) return;
+    if (isLoadingExistingGroup) return;
+    if (!selectedGroup && !isInitializingGroup) {
+      initializeGroup();
+      return;
+    }
+    if (!selectedGroup) return;
     let expenseData: CreateExpenseSchemaType | undefined = undefined;
     if (!expenseData) {
       expenseData = {
@@ -65,9 +83,8 @@ function NewExpenseModal() {
         splits: [],
       };
     }
-    console.log('expenseData', expenseData);
     initialize(expenseData, selectedGroup);
-  }, [selectedGroup, isInitialized, session?.user.id]);
+  }, [selectedGroup, isInitialized, session?.user.id, isInitializingGroup, isLoadingExistingGroup]);
 
   if (!selectedGroup) return <Loading expand />;
   return (

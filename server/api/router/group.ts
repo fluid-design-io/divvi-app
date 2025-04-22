@@ -80,7 +80,7 @@ export const groupRouter = {
 
       //* for each item, get getGroupBalances
       const groupBalances = await Promise.all(
-        groups.map(async (item) => ({
+        groups?.map(async (item) => ({
           groupId: item.id,
           balance: await getGroupBalancesTotal(ctx, { groupId: item.id, limit: 100 }),
         }))
@@ -147,10 +147,45 @@ export const groupRouter = {
       },
     });
 
-    return mostRecentGroup;
+    return mostRecentGroup ?? null;
   }),
 
-  // Create a new group
+  // Initialize a new group
+  initialize: protectedProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // Create a new group
+    const [newGroup] = await ctx.db
+      .insert(group)
+      .values({
+        name: 'New Group',
+        description: null,
+        createdById: userId,
+      })
+      .returning({
+        id: group.id,
+      });
+    // Add the creator as a member with owner role
+    await ctx.db.insert(groupMember).values({
+      groupId: newGroup.id,
+      userId,
+      role: 'owner',
+    });
+
+    // return the new group
+    const newGroupWithMembers = await ctx.db.query.group.findFirst({
+      where: eq(group.id, newGroup.id),
+      with: {
+        members: {
+          with: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    return newGroupWithMembers;
+  }),
   create: protectedProcedure.input(createGroupSchema).mutation(async ({ ctx, input }) => {
     const userId = ctx.session.user.id;
 

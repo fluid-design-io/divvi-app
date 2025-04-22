@@ -38,17 +38,13 @@ export function EmptyView({ bottomTab = false, minHeaderHeight = 0, ...props }: 
 }
 
 const WithBottomTab = ({ minHeaderHeight = 0, ...props }: EmptyViewProps) => {
-  const headerHeight = useHeaderHeight();
   const bottomTabHeight = useBottomTabBarHeight();
   const insets = useSafeAreaInsets();
 
   return (
     <EmptyViewContent
       minHeight={
-        Dimensions.get('window').height -
-        Math.max(headerHeight, minHeaderHeight) -
-        bottomTabHeight -
-        insets.bottom
+        Dimensions.get('window').height - minHeaderHeight - bottomTabHeight - insets.bottom
       }
       {...props}
     />

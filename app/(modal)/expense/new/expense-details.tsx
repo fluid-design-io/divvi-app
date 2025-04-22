@@ -1,5 +1,5 @@
 import { Text } from '~/components/nativewindui/Text';
-import { Picker } from '@expo/ui/Picker';
+import { Picker } from '@expo/ui/swift-ui';
 import React from 'react';
 import { router, Stack } from 'expo-router';
 import { BodyScrollView } from '~/components/core/body-scroll-view';
@@ -99,7 +99,7 @@ const SplitDisplayInfo = React.memo(() => {
   const isValid = useExpenseStore((s) => s.validateSplits);
   const category = useExpenseStore((s) => s.expense?.category ?? 'other');
   const updateCategory = useExpenseStore((s) => s.updateCategory);
-  const { colors } = useColorScheme();
+  useColorScheme();
 
   const preventRemove = !isValid().isValid;
   usePreventRemove(preventRemove, () => {
