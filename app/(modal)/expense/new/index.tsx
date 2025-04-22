@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +13,7 @@ import {
   useExpenseStore,
 } from '~/components/screen/edit-expense-form';
 import { useKeypad } from '~/hooks/use-keypad';
+import { useExistingGroup } from '~/hooks/use-existing-group';
 
 import { queryClient, trpc } from '~/utils/api';
 import { formatCurrency } from '~/utils/format';
@@ -21,9 +22,6 @@ import { useEffect } from 'react';
 import { authClient } from '~/lib/auth/client';
 
 // help to check uuid format
-function isUUID(str: string) {
-  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(str);
-}
 
 function NewExpenseModal() {
   const { groupId: existingGroupId } = useLocalSearchParams<{
@@ -36,20 +34,8 @@ function NewExpenseModal() {
   const { amount, handleNumberPress, clear } = useKeypad({
     onAmountChange: updateAmount,
   });
-  const { data: mostRecentGroupData, isPending: isMostRecentGroupPending } = useQuery(
-    trpc.group.getMostRecentGroup.queryOptions(undefined, {
-      enabled: !isUUID(existingGroupId ?? ''),
-    })
-  );
-  const { data: selectedGroupData, isPending: isSelectedGroupPending } = useQuery(
-    trpc.group.getById.queryOptions(
-      { groupId: existingGroupId! },
-      {
-        enabled: isUUID(existingGroupId!),
-      }
-    )
-  );
-  const isLoadingExistingGroup = isMostRecentGroupPending || isSelectedGroupPending;
+
+  const { selectedGroup, isLoading: isLoadingExistingGroup } = useExistingGroup(existingGroupId);
 
   const {
     data: newGroupData,
@@ -60,33 +46,42 @@ function NewExpenseModal() {
       onSuccess: () => {
         queryClient.invalidateQueries();
       },
+      onError: (error) => {
+        console.log('🔥 error', error);
+      },
     })
   );
 
-  const selectedGroup = selectedGroupData ?? mostRecentGroupData ?? newGroupData;
+  const finalSelectedGroup = selectedGroup ?? newGroupData;
 
   useEffect(() => {
     if (isInitialized) return;
     if (!session?.user.id) return;
     if (isLoadingExistingGroup) return;
-    if (!selectedGroup && !isInitializingGroup) {
+    if (!finalSelectedGroup && !isInitializingGroup) {
       initializeGroup();
       return;
     }
-    if (!selectedGroup) return;
+    if (!finalSelectedGroup) return;
     let expenseData: CreateExpenseSchemaType | undefined = undefined;
     if (!expenseData) {
       expenseData = {
         amount: 0,
-        groupId: selectedGroup.id,
+        groupId: finalSelectedGroup.id,
         paidById: session.user.id,
         splits: [],
       };
     }
-    initialize(expenseData, selectedGroup);
-  }, [selectedGroup, isInitialized, session?.user.id, isInitializingGroup, isLoadingExistingGroup]);
+    initialize(expenseData, finalSelectedGroup);
+  }, [
+    finalSelectedGroup,
+    isInitialized,
+    session?.user.id,
+    isInitializingGroup,
+    isLoadingExistingGroup,
+  ]);
 
-  if (!selectedGroup) return <Loading expand />;
+  if (!finalSelectedGroup) return <Loading expand />;
   return (
     <SafeAreaView
       style={{
@@ -95,7 +90,7 @@ function NewExpenseModal() {
       edges={['bottom']}>
       <View className="flex flex-1 justify-between">
         <View className="p-4">
-          <SelectGroup group={selectedGroup} />
+          <SelectGroup group={finalSelectedGroup} />
         </View>
         <View className="flex-1 items-center justify-center py-12">
           <View className="flex-row items-center justify-center">
@@ -104,7 +99,7 @@ function NewExpenseModal() {
           </View>
         </View>
         <View className="gap-4 p-4">
-          <ExpenseDetails groupId={selectedGroup.id} />
+          <ExpenseDetails groupId={finalSelectedGroup.id} />
           <NumericKeypad onNumberPress={handleNumberPress} onLongPress={clear} />
           <View className="flex-row justify-between gap-4">
             <View className="ios:flex-1">

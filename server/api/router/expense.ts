@@ -200,9 +200,9 @@ export const expenseRouter = {
         // Verify total amount
         const totalSplitAmount = splits.reduce((sum, split) => sum + (split?.amount ?? 0), 0);
 
-        console.log('🔥 Total split amount', totalSplitAmount);
-        console.log('🔥 Expense amount', input.amount);
-        console.log('🔥 Expense record amount', expenseRecord.amount);
+        // console.log('🔥 Total split amount', totalSplitAmount);
+        // console.log('🔥 Expense amount', input.amount);
+        // console.log('🔥 Expense record amount', expenseRecord.amount);
         if (Math.abs(totalSplitAmount - (input.amount || expenseRecord.amount)) > 0.01) {
           throw new TRPCError({
             code: 'BAD_REQUEST',

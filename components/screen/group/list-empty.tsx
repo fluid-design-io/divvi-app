@@ -7,7 +7,6 @@ export default function ListEmpty() {
       title="No Groups"
       description="Click on the '+' button to create a new group"
       icon={{ name: 'info.circle', ios: { name: 'rectangle.stack' } }}
-      bottomTab
     />
   );
 }

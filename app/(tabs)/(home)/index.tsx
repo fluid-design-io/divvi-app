@@ -59,7 +59,7 @@ export default function GroupList() {
       },
       onSuccess: () => {
         // Refetch the query to ensure the cache is in sync with the server
-        queryClient.invalidateQueries({ queryKey: trpc.group.all.infiniteQueryKey() });
+        queryClient.invalidateQueries();
       },
     })
   );

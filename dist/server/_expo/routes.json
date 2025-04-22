@@ -31,6 +31,18 @@
       "routeKeys": {}
     },
     {
+      "file": "./(aux)/terms-of-use.tsx",
+      "page": "/(aux)/terms-of-use",
+      "namedRegex": "^(?:/\\(aux\\))?/terms\\-of\\-use(?:/)?$",
+      "routeKeys": {}
+    },
+    {
+      "file": "./(aux)/privacy-policy.tsx",
+      "page": "/(aux)/privacy-policy",
+      "namedRegex": "^(?:/\\(aux\\))?/privacy\\-policy(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(tabs)/profile/name.tsx",
       "page": "/(tabs)/profile/name",
       "namedRegex": "^(?:/\\(tabs\\))?/profile/name(?:/)?$",

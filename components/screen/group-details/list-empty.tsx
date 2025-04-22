@@ -10,7 +10,6 @@ export function ListEmpty({ searchTerm }: { searchTerm: string }) {
           : 'Click on the "+" button to add an expense'
       }
       icon={{ name: searchTerm ? 'magnify' : 'information' }}
-      minHeaderHeight={150}
     />
   );
 }

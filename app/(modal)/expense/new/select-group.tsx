@@ -76,7 +76,6 @@ export default function SelectGroup() {
               title="No Groups"
               description="Click on the '+' button to create a new group"
               icon={{ name: 'info.circle', ios: { name: 'rectangle.stack' } }}
-              minHeaderHeight={150}
             />
           )
         }
