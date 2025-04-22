@@ -41,13 +41,14 @@ export default function Profile() {
       id: '6',
       title: 'Support',
       ...(Platform.OS === 'ios' ? { value: 'Discord' } : { subTitle: 'Discord' }),
-      onPress: () => Linking.openURL('https://nativewindui.com/discord'),
+      onPress: () =>
+        Linking.openURL('https://discord.com/channels/1361576485110153328/1364090705840181318'),
     },
     {
       id: '7',
-      title: 'About',
-      ...(Platform.OS === 'ios' ? { value: 'Divvi' } : { subTitle: 'Divvi' }),
-      onPress: () => Linking.openURL('https://divvi-app.uing.dev'),
+      title: 'Version',
+      ...(Platform.OS === 'ios' ? { value: '1.0.0' } : { subTitle: '1.0.0' }),
+      onPress: () => {},
     },
     ...(session.user.isAnonymous
       ? [

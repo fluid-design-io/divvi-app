@@ -33,11 +33,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     output: 'server',
   },
-  // extra: {
-  //   eas: {
-  //     projectId: "your-eas-project-id",
-  //   },
-  // },
+  extra: {
+    eas: {
+      projectId: 'e0518cf8-9978-4899-8052-bb43988df049',
+    },
+  },
+
   experiments: {
     tsconfigPaths: true,
     typedRoutes: true,

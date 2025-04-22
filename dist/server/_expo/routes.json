@@ -114,6 +114,14 @@
       }
     },
     {
+      "file": "./(tabs)/(home)/expense/[expenseId]/edit.tsx",
+      "page": "/(tabs)/(home)/expense/[expenseId]/edit",
+      "namedRegex": "^(?:/\\(tabs\\))?(?:/\\(home\\))?/expense/(?<expenseId>[^/]+?)/edit(?:/)?$",
+      "routeKeys": {
+        "expenseId": "expenseId"
+      }
+    },
+    {
       "file": "./(modal)/group/[groupId]/edit.tsx",
       "page": "/(modal)/group/[groupId]/edit",
       "namedRegex": "^(?:/\\(modal\\))?/group/(?<groupId>[^/]+?)/edit(?:/)?$",

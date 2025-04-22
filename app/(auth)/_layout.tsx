@@ -1,7 +1,12 @@
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 
 function AuthLayout() {
-  return <Slot />;
+  return (
+    <Stack>
+      <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+      <Stack.Screen name="link-account" options={{ headerShown: true, title: 'Link Account' }} />
+    </Stack>
+  );
 }
 
 export default AuthLayout;

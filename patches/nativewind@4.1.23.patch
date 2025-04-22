@@ -1,0 +1,21 @@
+diff --git a/node_modules/nativewind/.bun-tag-44fd6ccc1b56c446 b/.bun-tag-44fd6ccc1b56c446
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/dist/theme.js b/dist/theme.js
+index bb0ba53993503e8d2e29953d18db9018ede940ba..61a688d0cf755603d17185ee1c429699e07c1eb1 100644
+--- a/dist/theme.js
++++ b/dist/theme.js
+@@ -2,8 +2,8 @@
+ var _a;
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getPixelSizeForLayoutSize = exports.platformColor = exports.roundToNearestPixel = exports.fontScale = exports.pixelScale = exports.fontScaleSelect = exports.pixelScaleSelect = exports.platformSelect = exports.hairlineWidth = void 0;
+-const isNative = Boolean(process.env.NATIVEWIND_OS);
+-_a = isNative
+-    ? require("react-native-css-interop/css-to-rn/functions")
+-    : require("react-native-css-interop/css-to-rn/functions-web"), exports.hairlineWidth = _a.hairlineWidth, exports.platformSelect = _a.platformSelect, exports.pixelScaleSelect = _a.pixelScaleSelect, exports.fontScaleSelect = _a.fontScaleSelect, exports.pixelScale = _a.pixelScale, exports.fontScale = _a.fontScale, exports.roundToNearestPixel = _a.roundToNearestPixel, exports.platformColor = _a.platformColor, exports.getPixelSizeForLayoutSize = _a.getPixelSizeForLayoutSize;
++const common_1 = require("./tailwind/common");
++_a = common_1.isWeb
++    ? require("react-native-css-interop/css-to-rn/functions-web")
++    : require("react-native-css-interop/css-to-rn/functions"), exports.hairlineWidth = _a.hairlineWidth, exports.platformSelect = _a.platformSelect, exports.pixelScaleSelect = _a.pixelScaleSelect, exports.fontScaleSelect = _a.fontScaleSelect, exports.pixelScale = _a.pixelScale, exports.fontScale = _a.fontScale, exports.roundToNearestPixel = _a.roundToNearestPixel, exports.platformColor = _a.platformColor, exports.getPixelSizeForLayoutSize = _a.getPixelSizeForLayoutSize;
+ //# sourceMappingURL=theme.js.map
+\ No newline at end of file

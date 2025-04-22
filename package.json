@@ -117,5 +117,8 @@
     "extends": "universe/native",
     "root": true
   },
+  "patchedDependencies": {
+    "nativewind@4.1.23": "patches/nativewind@4.1.23.patch"
+  },
   "private": true
 }

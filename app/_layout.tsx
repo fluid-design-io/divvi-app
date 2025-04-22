@@ -81,9 +81,7 @@ const TABS_OPTIONS = {
 } as const;
 
 const AUTH_OPTIONS = {
-  // presentation: 'modal',
-  // animation: 'fade_from_bottom', // for android
-  title: 'Auth',
+  headerShown: false,
 } as const;
 
 const MODAL_OPTIONS = {
