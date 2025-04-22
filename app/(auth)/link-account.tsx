@@ -8,12 +8,14 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
 import { useColorScheme } from '~/lib/useColorScheme';
-
+import { useQueryClient } from '@tanstack/react-query';
 export default function LinkAccount() {
   const { data: isAuthenticated } = authClient.useSession();
   const navContainerRef = useNavigationContainerRef();
   const { colors } = useColorScheme();
-  const handleLinkAccount = async (provider: 'google' | 'discord' | 'apple') => {
+  const queryClient = useQueryClient();
+  const handleLogin = async (provider: 'google' | 'discord' | 'apple') => {
+    queryClient.invalidateQueries();
     const res = await authClient.signIn.social(
       {
         provider,
@@ -40,7 +42,7 @@ export default function LinkAccount() {
   useEffect(() => {
     if (isAuthenticated && !isAuthenticated.user.isAnonymous) {
       if (navContainerRef.isReady()) {
-        router.push('/(tabs)/(home)');
+        router.replace('/(tabs)/(home)');
       }
     }
   }, [isAuthenticated, navContainerRef.isReady()]);
@@ -102,7 +104,7 @@ export default function LinkAccount() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => handleLinkAccount('google')}>
+              onPress={() => handleLogin('google')}>
               <Image
                 source={require('~/assets/images/sign-in/google.png')}
                 className="absolute left-4 h-4 w-4"
@@ -114,7 +116,7 @@ export default function LinkAccount() {
               variant="secondary"
               className="ios:border-foreground/60"
               size={Platform.select({ ios: 'lg', default: 'md' })}
-              onPress={() => handleLinkAccount('discord')}>
+              onPress={() => handleLogin('discord')}>
               <Image
                 source={require('~/assets/images/sign-in/discord.png')}
                 className="absolute left-4 h-4 w-4"
@@ -127,7 +129,7 @@ export default function LinkAccount() {
                 variant="secondary"
                 className="ios:border-foreground/60"
                 size={Platform.select({ ios: 'lg', default: 'md' })}
-                onPress={() => handleLinkAccount('apple')}>
+                onPress={() => handleLogin('apple')}>
                 <Text className="ios:text-foreground absolute left-4 text-[22px]"></Text>
                 <Text className="ios:text-foreground">Continue with Apple</Text>
               </Button>

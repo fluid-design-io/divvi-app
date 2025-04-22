@@ -18,6 +18,8 @@ import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
 import Constants from 'expo-constants';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 const SCREEN_OPTIONS = {
   title: 'Profile',
   headerTransparent: Platform.OS === 'ios',
@@ -53,16 +55,17 @@ export default function Profile() {
         : { subTitle: Constants.expoConfig?.version }),
       onPress: () => {},
     },
-    ...(session.user.isAnonymous
-      ? [
-          'Link Account',
-          {
-            id: '8',
-            title: 'Link Account',
-            onPress: () => router.push('/(auth)/link-account'),
-          },
-        ]
-      : []),
+    // TODO: Add link account back in
+    // ...(session.user.isAnonymous
+    //   ? [
+    //       'Link Account',
+    //       {
+    //         id: '8',
+    //         title: 'Link Account',
+    //         onPress: () => router.push('/(auth)/link-account'),
+    //       },
+    //     ]
+    //   : []),
   ];
   return (
     <>
@@ -140,6 +143,7 @@ function ListHeaderComponent() {
 
 function ListFooterComponent() {
   const { showActionSheetWithOptions } = useActionSheet();
+  const queryClient = useQueryClient();
 
   const onPress = () => {
     const options = ['Log Out', 'Cancel'];
@@ -155,7 +159,9 @@ function ListFooterComponent() {
       (selectedIndex: number | undefined) => {
         switch (selectedIndex) {
           case destructiveButtonIndex:
-            authClient.signOut();
+            authClient.signOut().then(() => {
+              queryClient.invalidateQueries();
+            });
             break;
           case cancelButtonIndex:
             break;

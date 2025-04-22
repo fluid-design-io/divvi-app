@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { trpc } from '~/utils/api';
 import { Button } from '~/components/nativewindui/Button';
 import { Stack } from 'expo-router';
@@ -48,6 +48,7 @@ export default function Invite() {
 
 const JoinGroupView = ({ token }: { token: string }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: joinGroupData, isPending: isJoinGroupDataPending } = useQuery(
     trpc.group.getByInviteToken.queryOptions({ token })
   );
@@ -58,7 +59,8 @@ const JoinGroupView = ({ token }: { token: string }) => {
     error,
   } = useMutation(
     trpc.group.joinByInvite.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
+        await queryClient.invalidateQueries();
         router.dismissTo(`/group/${data.groupId}`);
       },
     })

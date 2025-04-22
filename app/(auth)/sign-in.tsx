@@ -7,14 +7,16 @@ import { Button } from '~/components/nativewindui/Button';
 import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
 import { useColorScheme } from '~/lib/useColorScheme';
-
+import { useQueryClient } from '@tanstack/react-query';
 export default function AuthIndexScreen() {
+  const queryClient = useQueryClient();
   const { data: isAuthenticated } = authClient.useSession();
   const navContainerRef = useNavigationContainerRef();
   const { isDarkColorScheme } = useColorScheme();
   const insets = useSafeAreaInsets();
 
   const handleLogin = async (provider: 'google' | 'discord' | 'apple') => {
+    queryClient.invalidateQueries();
     const res = await authClient.signIn.social(
       {
         provider,
@@ -45,7 +47,7 @@ export default function AuthIndexScreen() {
   React.useEffect(() => {
     if (isAuthenticated) {
       if (navContainerRef.isReady()) {
-        router.push('/(tabs)/(home)');
+        router.replace('/(tabs)/(home)');
       }
     }
   }, [isAuthenticated, navContainerRef.isReady()]);

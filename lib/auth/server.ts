@@ -8,12 +8,6 @@ import { linkAccount } from '~/server/functions/link-account';
 
 export const auth = betterAuth({
   trustedOrigins: ['divvi-app://'],
-  account: {
-    accountLinking: {
-      enabled: true,
-      trustedProviders: ['google', 'discord', 'apple'],
-    },
-  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
