@@ -1,4 +1,4 @@
-import { router, useNavigationContainerRef } from 'expo-router';
+import { Link, router, useNavigationContainerRef } from 'expo-router';
 import * as React from 'react';
 import { Alert, Image, Platform, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -127,6 +127,22 @@ export default function AuthIndexScreen() {
             onPress={handleAnonymousLogin}>
             <Text>Sign in as Guest</Text>
           </Button>
+          <View className="mb-4 items-center">
+            <Text variant="caption2" className="pt-1 text-center">
+              By pressing continue, you agree to our{' '}
+              <Link href="/(aux)/terms-of-use">
+                <Text variant="caption2" className="text-primary">
+                  Terms of Service
+                </Text>
+              </Link>{' '}
+              and that you have read our{' '}
+              <Link href="/(aux)/privacy-policy">
+                <Text variant="caption2" className="text-primary">
+                  Privacy Policy
+                </Text>
+              </Link>
+            </Text>
+          </View>
         </View>
       </SafeAreaView>
     </>

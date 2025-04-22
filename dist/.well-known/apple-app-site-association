@@ -2,10 +2,17 @@
     "applinks": {
         "details": [
             {
-                "appID": "F8V4932HJN.dev.uing.divvi",
-                "paths": [
-                    "NOT /api/*",
-                    "*"
+                "appIDs": [
+                    "F8V4932HJN.dev.uing.divvi"
+                ],
+                "components": [
+                    {
+                        "/": "/invite/",
+                        "?": {
+                            "token": "*"
+                        },
+                        "comment": "Matches invite URLs with a token parameter"
+                    }
                 ]
             }
         ]

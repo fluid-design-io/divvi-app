@@ -20,6 +20,8 @@ import {
   ChartTooltipContent,
 } from '~/components/web-ui/chart';
 
+import '../../../global.css';
+
 export default function GroupExpenseChart({
   title,
   unit,
