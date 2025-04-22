@@ -16,6 +16,7 @@ import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import Constants from 'expo-constants';
 
 const SCREEN_OPTIONS = {
   title: 'Profile',
@@ -47,7 +48,9 @@ export default function Profile() {
     {
       id: '7',
       title: 'Version',
-      ...(Platform.OS === 'ios' ? { value: '1.0.0' } : { subTitle: '1.0.0' }),
+      ...(Platform.OS === 'ios'
+        ? { value: Constants.expoConfig?.version }
+        : { subTitle: Constants.expoConfig?.version }),
       onPress: () => {},
     },
     ...(session.user.isAnonymous

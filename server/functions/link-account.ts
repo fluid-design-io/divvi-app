@@ -21,6 +21,7 @@ export const linkAccount = async (data: {
 }) => {
   const { anonymousUser, newUser } = data;
   // update group membership to new user
+  console.log('🔥 [linkAccount] updating group membership');
   await db
     .update(groupMember)
     .set({

@@ -295,8 +295,12 @@ function IosTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const showBottomBar = isHome || isProfile;
 
   // Animation values
-  const translateY = useDerivedValue(() => {
-    return withSpring(showBottomBar ? 0 : 100, { damping: 20, mass: 0.8, stiffness: 100 });
+  const bottom = useDerivedValue(() => {
+    return withSpring(showBottomBar ? 0 : -100, {
+      damping: 20,
+      mass: 0.8,
+      stiffness: 100,
+    });
   });
 
   const opacity = useDerivedValue(() => {
@@ -305,17 +309,17 @@ function IosTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: translateY.value }],
+      bottom: bottom.value,
       opacity: opacity.value,
     };
   });
 
   return (
     <Animated.View
-      className="absolute bottom-0 left-0 right-0 items-center justify-center"
+      className="absolute left-0 right-0 items-center justify-center"
       style={[
         {
-          marginBottom: insets.bottom + 12,
+          marginBlock: insets.bottom + 12,
         },
         animatedStyle,
       ]}>
