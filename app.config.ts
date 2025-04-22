@@ -14,7 +14,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ['**/*'],
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
     bundleIdentifier: 'dev.uing.divvi',
     icon: {
       dark: './assets/expo/ios-dark.png',

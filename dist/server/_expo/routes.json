@@ -31,6 +31,12 @@
       "routeKeys": {}
     },
     {
+      "file": "./(web)/index.tsx",
+      "page": "/(web)/index",
+      "namedRegex": "^(?:/\\(web\\))?(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(aux)/terms-of-use.tsx",
       "page": "/(aux)/terms-of-use",
       "namedRegex": "^(?:/\\(aux\\))?/terms\\-of\\-use(?:/)?$",

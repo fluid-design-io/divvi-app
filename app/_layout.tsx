@@ -60,6 +60,7 @@ export default function RootLayout() {
                     <Stack.Screen name="(tabs)" options={TABS_OPTIONS} />
                     <Stack.Screen name="(auth)" options={AUTH_OPTIONS} />
                     <Stack.Screen name="(modal)" options={MODAL_OPTIONS} />
+                    <Stack.Screen name="(aux)" options={AUX_OPTIONS} />
                   </Stack>
                   <PortalHost />
                 </NavThemeProvider>
@@ -74,6 +75,10 @@ export default function RootLayout() {
 
 const SCREEN_OPTIONS = {
   animation: 'ios_from_right', // for android
+} as const;
+
+const AUX_OPTIONS = {
+  headerShown: true,
 } as const;
 
 const TABS_OPTIONS = {
