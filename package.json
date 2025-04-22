@@ -66,6 +66,7 @@
     "expo-status-bar": "~2.2.0",
     "expo-system-ui": "~5.0.2",
     "expo-web-browser": "~14.1.2",
+    "immer": "^10.1.1",
     "jotai": "^2.12.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react-native": "^0.488.0",
