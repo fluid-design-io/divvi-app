@@ -130,15 +130,14 @@ export default function TermsOfUse() {
         <Text variant="body">
           All matters relating to the App and these Terms, and any dispute or claim arising
           therefrom or related thereto (in each case, including non-contractual disputes or claims),
-          shall be governed by and construed in accordance with the internal laws of [Insert
-          Jurisdiction, e.g., the State of California] without giving effect to any choice or
-          conflict of law provision or rule.
+          shall be governed by and construed in accordance with the internal laws of the State of
+          Texas without giving effect to any choice or conflict of law provision or rule.
         </Text>
         <Text variant="body">
           Any legal suit, action, or proceeding arising out of, or related to, these Terms or the
-          App shall be instituted exclusively in the federal courts or state courts located in
-          [Insert City, County, State]. You waive any and all objections to the exercise of
-          jurisdiction over you by such courts and to venue in such courts.
+          App shall be instituted exclusively in the federal courts or state courts located in Waco,
+          Texas. You waive any and all objections to the exercise of jurisdiction over you by such
+          courts and to venue in such courts.
         </Text>
 
         <Text variant="heading">10. Changes to Terms</Text>
