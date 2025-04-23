@@ -22,7 +22,7 @@ export default function Web() {
           </Text>
 
           {/* App Store Button */}
-          <Link href="https://apps.apple.com/app/divvi" asChild>
+          <Link href="https://apps.apple.com/app/id6744942995" asChild>
             <Pressable className="rounded-full bg-[#9FCA2C] px-8 py-4 dark:bg-[#7f9640]">
               <Text className="text-lg font-semibold text-black dark:text-white">
                 Download on the App Store
