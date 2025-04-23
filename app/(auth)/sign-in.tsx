@@ -30,12 +30,13 @@ export default function AuthIndexScreen() {
           console.log('response', JSON.stringify(response, null, 2));
         },
         onError: (error) => {
-          console.log('error', JSON.stringify(error, null, 2));
+          console.error(`🔥 Sign in error with ${provider}`, JSON.stringify(error, null, 2));
         },
       }
     );
     if (res.error) {
-      Alert.alert('Error', res.error.message);
+      console.error(`🔥 Sign in error with ${provider}`, JSON.stringify(res.error, null, 2));
+      Alert.alert(`Error signing in with ${provider}`, res.error.message);
     }
   };
   const handleAnonymousLogin = async () => {

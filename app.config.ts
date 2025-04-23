@@ -5,12 +5,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'Divvi',
   slug: 'divvi-app',
   scheme: 'divvi-app',
-  version: '1.0.2',
+  version: '1.0.3',
   orientation: 'portrait',
   icon: './assets/expo/icon.png',
   userInterfaceStyle: 'automatic',
   updates: {
-    fallbackToCacheTimeout: 0,
+    enabled: true,
+    checkAutomatically: 'ON_LOAD',
+    fallbackToCacheTimeout: 30000,
+    url: 'https://u.expo.dev/e0518cf8-9978-4899-8052-bb43988df049',
+  },
+  runtimeVersion: {
+    policy: 'appVersion',
   },
   assetBundlePatterns: ['**/*'],
   ios: {
@@ -78,5 +84,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           'Allow $(PRODUCT_NAME) to access your contacts so you can invite your friends.',
       },
     ],
+    'expo-updates',
   ],
 });

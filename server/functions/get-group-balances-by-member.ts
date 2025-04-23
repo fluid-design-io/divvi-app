@@ -65,29 +65,25 @@ export const getGroupBalancesByMember = async (
   // Calculate balances
   for (const exp of expenses) {
     // The person who paid gets credit
-    balances[exp.paidById] += exp.amount;
+    balances[exp.paidById] += Number(exp.amount || 0);
 
     // Everyone who owes pays
     if (exp.splits) {
       for (const split of exp.splits) {
-        balances[split.userId] -= split.amount;
+        balances[split.userId] -= Number(split.amount || 0);
       }
     }
   }
-
-  console.log('🔥 balances', balances);
 
   // Get all settlements for this group
   const settlements = await ctx.db.query.settlement.findMany({
     where: eq(settlement.groupId, input.groupId),
   });
 
-  console.log('🔥 settlements', settlements);
-
   // Apply settlements to balances
   for (const settlement of settlements) {
-    balances[settlement.fromUserId] -= settlement.amount;
-    balances[settlement.toUserId] += settlement.amount;
+    balances[settlement.fromUserId] -= Number(settlement.amount || 0);
+    balances[settlement.toUserId] += Number(settlement.amount || 0);
   }
 
   // Format the response with user details

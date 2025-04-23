@@ -75,7 +75,7 @@ export default function ExpenseDetails() {
     ...data.splits.map((split) => ({
       id: split.id,
       title: split.user.name,
-      subTitle: formatCurrency(split.amount),
+      subTitle: formatCurrency(split.amount / 100),
       value: `${split.percentage}%`,
     })),
     'Group',

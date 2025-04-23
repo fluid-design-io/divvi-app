@@ -53,7 +53,7 @@ export default function Profile() {
       ...(Platform.OS === 'ios'
         ? { value: Constants.expoConfig?.version }
         : { subTitle: Constants.expoConfig?.version }),
-      onPress: () => {},
+      onPress: () => router.push('/profile/about-app'),
     },
     // TODO: Add link account back in
     // ...(session.user.isAnonymous

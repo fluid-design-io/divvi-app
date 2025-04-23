@@ -38,7 +38,7 @@ export default function GroupExpenseChart({
 }) {
   const totalExpenses = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.value, 0);
-  }, []);
+  }, [chartData]);
 
   return (
     <Card className="flex w-full flex-col shadow-none">

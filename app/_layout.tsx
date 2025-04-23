@@ -83,6 +83,8 @@ const AUX_OPTIONS = {
 
 const TABS_OPTIONS = {
   headerShown: false,
+  headerTitle: '',
+  title: '',
 } as const;
 
 const AUTH_OPTIONS = {
