@@ -39,6 +39,8 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: colors.primary,
+          title: '',
+          headerTitle: '',
         }}>
         <Tabs.Screen
           name="(home)"

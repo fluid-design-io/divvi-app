@@ -1,6 +1,7 @@
 'use dom';
 
-import '../../../global.css';
+// import '../../../global.css';
+import '~/global.css';
 
 import * as React from 'react';
 import { Label, Pie, PieChart } from 'recharts';

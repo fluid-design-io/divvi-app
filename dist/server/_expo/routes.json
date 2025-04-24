@@ -37,6 +37,12 @@
       "routeKeys": {}
     },
     {
+      "file": "./(web)/support.tsx",
+      "page": "/(web)/support",
+      "namedRegex": "^(?:/\\(web\\))?/support(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(aux)/terms-of-use.tsx",
       "page": "/(aux)/terms-of-use",
       "namedRegex": "^(?:/\\(aux\\))?/terms\\-of\\-use(?:/)?$",
@@ -72,6 +78,12 @@
       "namedRegex": "^/_sitemap(?:/)?$",
       "routeKeys": {},
       "generated": true
+    },
+    {
+      "file": "./(tabs)/profile/about-app.tsx",
+      "page": "/(tabs)/profile/about-app",
+      "namedRegex": "^(?:/\\(tabs\\))?/profile/about\\-app(?:/)?$",
+      "routeKeys": {}
     },
     {
       "file": "./(modal)/group/new.tsx",

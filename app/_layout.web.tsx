@@ -12,6 +12,7 @@ export default function WebLayout() {
     <NavThemeProvider value={NAV_THEME[colorScheme]}>
       <Stack initialRouteName="(web)/index">
         <Stack.Screen name="(web)/index" options={WEB_OPTIONS} />
+        <Stack.Screen name="(web)/support" options={WEB_OPTIONS} />
         <Stack.Screen name="(aux)/privacy-policy" options={AUX_OPTIONS} />
         <Stack.Screen name="(aux)/terms-of-use" options={AUX_OPTIONS} />
       </Stack>
