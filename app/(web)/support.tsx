@@ -1,6 +1,5 @@
-import { View, Text, Linking } from 'react-native';
+import { View, Text, Linking, ScrollView } from 'react-native';
 import { Link, Stack } from 'expo-router';
-import { BodyScrollView } from '~/components/core/body-scroll-view';
 
 export default function Support() {
   const handleEmailPress = () => {
@@ -17,7 +16,7 @@ export default function Support() {
           headerTransparent: false,
         }}
       />
-      <BodyScrollView>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View className="mx-auto max-w-2xl p-6">
           <View className="space-y-6">
             <View className="rounded-lg bg-gray-50 p-6">
@@ -55,7 +54,7 @@ export default function Support() {
             </View>
           </View>
         </View>
-      </BodyScrollView>
+      </ScrollView>
     </>
   );
 }

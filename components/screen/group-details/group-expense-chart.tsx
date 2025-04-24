@@ -1,8 +1,5 @@
 'use dom';
 
-// import '../../../global.css';
-import '~/global.css';
-
 import * as React from 'react';
 import { Label, Pie, PieChart } from 'recharts';
 
@@ -22,6 +19,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '~/components/web-ui/chart';
+
+// import '../../../global.css';
+import '~/global.css';
 
 export default function GroupExpenseChart({
   title,
