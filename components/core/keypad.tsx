@@ -11,6 +11,7 @@ import { Text } from '../nativewindui/Text';
 import { useHaptic } from '~/hooks/use-haptic';
 import { cn } from '~/lib/cn';
 import { useColorScheme } from '~/lib/useColorScheme';
+import { useIsCompactDevice } from '~/hooks/use-is-compact-device';
 
 export const KEYPAD_NUMBERS = [
   ['1', '2', '3'],
@@ -44,9 +45,10 @@ export function NumericKeypad({
 }: NumericKeypadProps) {
   const hapticSoft = useHaptic('light');
   const { colors } = useColorScheme();
+  const isCompact = useIsCompactDevice();
 
   return (
-    <Card className={cn('p-4', keypadClassName)}>
+    <Card className={cn(isCompact ? 'p-2' : 'p-4', keypadClassName)}>
       {!editable && (
         <BlurView
           intensity={10}
@@ -65,7 +67,7 @@ export function NumericKeypad({
               <BounceButton
                 variant="muted"
                 size={buttonSize}
-                className={buttonClassName}
+                className={cn(buttonClassName, isCompact && 'h-11')}
                 onPress={() => onNumberPress(num)}
                 onLongPress={() => {
                   onLongPress?.(num);

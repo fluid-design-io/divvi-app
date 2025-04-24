@@ -5,7 +5,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: 'Divvi',
   slug: 'divvi-app',
   scheme: 'divvi-app',
-  version: '1.0.3',
+  version: '1.0.4',
   orientation: 'portrait',
   icon: './assets/expo/icon.png',
   userInterfaceStyle: 'automatic',

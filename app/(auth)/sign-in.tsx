@@ -8,12 +8,14 @@ import { Text } from '~/components/nativewindui/Text';
 import { authClient } from '~/lib/auth/client';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { useQueryClient } from '@tanstack/react-query';
+import { useIsCompactDevice } from '~/hooks/use-is-compact-device';
 export default function AuthIndexScreen() {
   const queryClient = useQueryClient();
   const { data: isAuthenticated } = authClient.useSession();
   const navContainerRef = useNavigationContainerRef();
   const { isDarkColorScheme } = useColorScheme();
   const insets = useSafeAreaInsets();
+  const isCompact = useIsCompactDevice();
 
   const handleLogin = async (provider: 'google' | 'discord' | 'apple') => {
     queryClient.invalidateQueries();
@@ -52,6 +54,7 @@ export default function AuthIndexScreen() {
       }
     }
   }, [isAuthenticated, navContainerRef.isReady()]);
+
   return (
     <>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
@@ -64,31 +67,50 @@ export default function AuthIndexScreen() {
           {isDarkColorScheme ? (
             <Image
               source={require('~/assets/images/welcome-dark.png')}
-              className="h-[230px] w-full"
               resizeMode="contain"
+              style={{
+                height: isCompact ? 160 : 240,
+                width: '100%',
+              }}
             />
           ) : (
             <Image
               source={require('~/assets/images/welcome-light.png')}
-              className="h-[230px] w-full"
               resizeMode="contain"
+              style={{
+                height: isCompact ? 160 : 240,
+                width: '100%',
+              }}
             />
           )}
         </View>
-        <View className="ios:justify-end flex-1 justify-center gap-4 px-8 pt-4">
+        <View className="ios:justify-end flex-1 justify-center gap-4 px-8 py-4">
           <View className="items-center">
             <Image
               source={require('~/assets/images/logo.png')}
-              className="ios:h-12 ios:w-12 h-8 w-8"
               resizeMode="contain"
+              style={{
+                height: isCompact ? 32 : 48,
+                width: isCompact ? 32 : 48,
+              }}
             />
           </View>
-          <View className="ios:pb-5 ios:pt-2 pb-2">
-            <Text className="ios:font-extrabold text-center text-3xl font-medium">
-              Split Your Bills
-            </Text>
-            <Text className="ios:font-extrabold text-center text-3xl font-medium">with Divvi</Text>
-          </View>
+          {isCompact ? (
+            <View className="mb-4">
+              <Text className="text-center text-2xl font-extrabold">
+                Split Your Bills with Divvi
+              </Text>
+            </View>
+          ) : (
+            <View className="mb-4">
+              <Text className="ios:font-extrabold text-center text-3xl font-medium">
+                Split Your Bills
+              </Text>
+              <Text className="ios:font-extrabold text-center text-3xl font-medium">
+                with Divvi
+              </Text>
+            </View>
+          )}
 
           <Button
             variant="secondary"

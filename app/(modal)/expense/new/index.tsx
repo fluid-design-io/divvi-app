@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, Platform, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlinkingCursor } from '~/components/core/blinking-cursor';
 import { NumericKeypad } from '~/components/core/keypad';
 import { Button } from '~/components/nativewindui/Button';
@@ -97,7 +97,7 @@ function NewExpenseModal() {
       <View className="p-4">
         <SelectGroup group={finalSelectedGroup} />
       </View>
-      <View className="flex-1 items-center justify-center py-12">
+      <View className="flex-1 items-center justify-center">
         <View className="flex-row items-center justify-center">
           <Text className="font-rounded text-6xl">{formatCurrency(Number(amount) / 100)}</Text>
           <BlinkingCursor />

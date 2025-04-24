@@ -1,5 +1,6 @@
 import { View, Text, Linking } from 'react-native';
 import { Link, Stack } from 'expo-router';
+import { BodyScrollView } from '~/components/core/body-scroll-view';
 
 export default function Support() {
   const handleEmailPress = () => {
@@ -8,11 +9,16 @@ export default function Support() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Support' }} />
-      <View className="flex-1 bg-white p-6">
-        <View className="mx-auto max-w-2xl">
-          <Text className="mb-6 text-3xl font-bold">Support</Text>
-
+      <Stack.Screen
+        options={{
+          title: 'Support',
+          headerLargeTitle: true,
+          headerLargeTitleShadowVisible: false,
+          headerTransparent: false,
+        }}
+      />
+      <BodyScrollView>
+        <View className="mx-auto max-w-2xl p-6">
           <View className="space-y-6">
             <View className="rounded-lg bg-gray-50 p-6">
               <Text className="mb-2 text-lg font-semibold">Contact Us</Text>
@@ -49,7 +55,7 @@ export default function Support() {
             </View>
           </View>
         </View>
-      </View>
+      </BodyScrollView>
     </>
   );
 }
