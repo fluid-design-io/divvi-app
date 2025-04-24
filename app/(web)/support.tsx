@@ -6,6 +6,10 @@ export default function Support() {
     Linking.openURL('mailto:panjiuzhen@gmail.com');
   };
 
+  const handleDiscordPress = () => {
+    Linking.openURL('https://discord.com/channels/1361576485110153328/1364090705840181318');
+  };
+
   return (
     <>
       <Stack.Screen
@@ -25,12 +29,20 @@ export default function Support() {
                 If you have any questions, concerns, or feedback, please don't hesitate to reach out
                 to us.
               </Text>
-              <Link
-                href="mailto:panjiuzhen@gmail.com"
-                className="font-medium text-green-500"
-                onPress={handleEmailPress}>
-                panjiuzhen@gmail.com
-              </Link>
+              <View className="space-y-2">
+                <Link
+                  href="mailto:panjiuzhen@gmail.com"
+                  className="font-medium text-green-500"
+                  onPress={handleEmailPress}>
+                  panjiuzhen@gmail.com
+                </Link>
+                <Link
+                  href="https://discord.com/channels/1361576485110153328/1364090705840181318"
+                  className="font-medium text-indigo-500"
+                  onPress={handleDiscordPress}>
+                  Join our Discord for faster responses
+                </Link>
+              </View>
             </View>
 
             <View className="rounded-lg bg-gray-50 p-6">
