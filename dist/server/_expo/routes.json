@@ -116,6 +116,12 @@
       "routeKeys": {}
     },
     {
+      "file": "./(auth)/delete-account.tsx",
+      "page": "/(auth)/delete-account",
+      "namedRegex": "^(?:/\\(auth\\))?/delete\\-account(?:/)?$",
+      "routeKeys": {}
+    },
+    {
       "file": "./(modal)/expense/new/select-group.tsx",
       "page": "/(modal)/expense/new/select-group",
       "namedRegex": "^(?:/\\(modal\\))?/expense/new/select\\-group(?:/)?$",
