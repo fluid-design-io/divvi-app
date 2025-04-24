@@ -7,6 +7,11 @@ import { db } from '~/db/client';
 import { linkAccount } from '~/server/functions/link-account';
 
 export const auth = betterAuth({
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   trustedOrigins: ['divvi-app://'],
   socialProviders: {
     google: {

@@ -41,19 +41,42 @@ export default function Profile() {
     },
     'Help',
     {
-      id: '6',
+      id: 'support',
       title: 'Support',
+      ...(Platform.OS === 'ios' ? { value: 'Support' } : { subTitle: 'Support' }),
+      onPress: () => router.push('/(web)/support'),
+    },
+    {
+      id: 'discord',
+      title: 'Discord',
       ...(Platform.OS === 'ios' ? { value: 'Discord' } : { subTitle: 'Discord' }),
       onPress: () =>
         Linking.openURL('https://discord.com/channels/1361576485110153328/1364090705840181318'),
     },
     {
-      id: '7',
+      id: 'version',
       title: 'Version',
       ...(Platform.OS === 'ios'
         ? { value: Constants.expoConfig?.version }
         : { subTitle: Constants.expoConfig?.version }),
       onPress: () => router.push('/profile/about-app'),
+    },
+    'Legal',
+    {
+      id: 'privacy-policy',
+      title: 'Privacy Policy',
+      onPress: () => router.push('/(aux)/privacy-policy'),
+    },
+    {
+      id: 'terms-of-service',
+      title: 'Terms of Service',
+      onPress: () => router.push('/(aux)/terms-of-use'),
+    },
+    'Account',
+    {
+      id: 'delete-account',
+      title: 'Delete Account...',
+      onPress: () => router.push('/(auth)/delete-account'),
     },
     // TODO: Add link account back in
     // ...(session.user.isAnonymous
@@ -77,6 +100,7 @@ export default function Profile() {
         renderItem={renderItem}
         ListHeaderComponent={<ListHeaderComponent />}
         ListFooterComponent={<ListFooterComponent />}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     </>
   );
