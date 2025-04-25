@@ -1,3 +1,7 @@
+# Divi Architecture
+
+[Architecture](https://github.com/fluid-design-io/divvi-app/blob/main/Architecture.png)
+
 # TODOs
 
 - [x] Add anonymous user id
@@ -6,6 +10,10 @@
 - [x] Link account
 - [x] Add upsert expense details logic
 - [x] Add Apple Sign In
+- [x] Add Google Sign In
+- [x] Add Discord Sign In
+- [x] Add Delete Account
+- [x] Add Support Page
 - [x] Add dom view for expense details
 - ~~[ ] Add activity feed~~
 - ~~[ ] Add notification logic (also settings)~~
@@ -13,4 +21,4 @@
 - ~~[ ] Add analytics (PostHog)~~
 - ~~[ ] Add about screen~~
 - [x] Add support screen
-- [ ] DONE!!!
+- [x] DONE!!!
