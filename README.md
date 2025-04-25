@@ -1,6 +1,6 @@
 # Divi Architecture
 
-[Architecture](https://github.com/fluid-design-io/divvi-app/blob/main/Architecture.png)
+![Architecture](https://github.com/fluid-design-io/divvi-app/blob/main/Architecture.excalidraw.png)
 
 # TODOs
 
